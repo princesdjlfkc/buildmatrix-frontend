@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix - Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --gold: #00D4FF;
+      --gold-dark: #0099CC;
+      --gold-dim: rgba(0,212,255,0.12);
+      --gold-border: rgba(0,212,255,0.28);
+      --bg-dark: #080C14;
+      --bg-card: #0e1520;
+      --bg-surface: #111a28;
+      --text-primary: #D8EEFF;
+      --text-secondary: #5a8aaa;
+      --text-muted: #2a4560;
+      --border: #1a2840;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; }
+    .profile-header { background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(123,63,228,0.08)); border-bottom: 1px solid var(--border); padding: 40px 0 0; }
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    .profile-top { display: flex; align-items: flex-end; gap: 24px; padding-bottom: 24px; }
+    .avatar-wrap { position: relative; }
+    .avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), #7b3fe4); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: #000; border: 3px solid var(--gold); flex-shrink: 0; }
+    .profile-info { flex: 1; }
+    .profile-name { font-size: 28px; font-weight: 900; color: var(--text-primary); }
+    .profile-email { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+    .profile-bio { font-size: 13px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+    .profile-joined { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .edit-btn { background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold); padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .edit-btn:hover { background: var(--gold); color: #000; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px 0; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 900; color: var(--gold); }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+    .section-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: var(--gold); }
+    .builds-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+    .build-row { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.2s; }
+    .build-row:hover { border-color: var(--gold-border); }
+    .build-row-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .build-row-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .build-row-price { font-size: 16px; font-weight: 800; color: var(--gold); }
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 100%; max-width: 420px; }
+    .modal h3 { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text-primary); font-size: 14px; font-family: inherit; resize: vertical; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--gold); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save { flex: 1; background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 12px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
+    .btn-cancel { flex: 1; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; text-decoration: none; margin-bottom: 24px; cursor: pointer; background: none; border: none; font-family: inherit; }
+    .back-btn:hover { color: var(--gold); }
+    .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="profile-header">
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Back to Builder</button>
+    <div class="profile-top" id="profileTop">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading profile...</div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:24px;">
+  <div class="stats-row" id="statsRow"></div>
+  <div class="section-title"><i class="fas fa-layer-group"></i> Recent Builds</div>
+  <div class="builds-list" id="buildsList"></div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3><i class="fas fa-user-edit" style="color:var(--gold);margin-right:8px;"></i>Edit Profile</h3>
+    <div class="form-group">
+      <label>Display Name</label>
+      <input type="text" id="editName" placeholder="Your name">
+    </div>
+    <div class="form-group">
+      <label>Bio</label>
+      <textarea id="editBio" rows="3" placeholder="Tell others about yourself..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+      <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="common.js"></script>
+<script>
+  let profileData = null;
+
+  function formatDate(iso) {
+    try { return new Date(iso).toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'2-digit' }); }
+    catch { return '—'; }
+  }
+
+  function formatMoney(n) {
+    return '₱' + (Number(n)||0).toLocaleString();
+  }
+
+  function getInitials(name) {
+    return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  }
+
+  async function loadProfile() {
+    const user = getCurrentUser();
+    if (!user) { window.location.href = 'auth.html'; return; }
+
+    try {
+      const data = await apiFetch('/profile/' + user.id);
+      profileData = data;
+      renderProfile(data);
+    } catch(e) {
+      document.getElementById('profileTop').innerHTML = '<div class="loading">Failed to load profile.</div>';
+    }
+  }
+
+  function renderProfile(data) {
+    const { user, stats, recentBuilds } = data;
+    const isOwn = getCurrentUser()?.id == user.id;
+
+    document.getElementById('profileTop').innerHTML = `
+      <div class="avatar-wrap">
+        <div class="avatar">${getInitials(user.name)}</div>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">${user.name}</div>
+        <div class="profile-email"><i class="fas fa-envelope" style="margin-right:5px;color:var(--gold);"></i>${user.email}</div>
+        ${user.bio ? `<div class="profile-bio">"${user.bio}"</div>` : ''}
+        <div class="profile-joined"><i class="fas fa-calendar" style="margin-right:5px;"></i>Joined ${formatDate(user.created_at)}</div>
+      </div>
+      ${isOwn ? `<button class="edit-btn" onclick="openEdit()"><i class="fas fa-pen"></i> Edit Profile</button>` : ''}
+    `;
+
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-num">${stats.totalBuilds}</div>
+        <div class="stat-label">Total Builds</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${formatMoney(stats.totalSpent)}</div>
+        <div class="stat-label">Total Spent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${formatMoney(stats.avgBuild)}</div>
+        <div class="stat-label">Avg Build Cost</div>
+      </div>
+    `;
+
+    if (!recentBuilds || !recentBuilds.length) {
+      document.getElementById('buildsList').innerHTML = '<div class="empty-state"><i class="fas fa-box-open" style="font-size:32px;margin-bottom:12px;display:block;"></i>No builds yet</div>';
+      return;
+    }
+
+    document.getElementById('buildsList').innerHTML = recentBuilds.map(b => `
+      <div class="build-row" onclick="window.location.href='index.html?buildId=${b.id}'" style="cursor:pointer;">
+        <div>
+          <div class="build-row-name">${b.name}</div>
+          <div class="build-row-date"><i class="fas fa-clock" style="margin-right:4px;"></i>${formatDate(b.created_at)}</div>
+        </div>
+        <div class="build-row-price">${formatMoney(b.total)}</div>
+      </div>
+    `).join('');
+  }
+
+  function openEdit() {
+    if (!profileData) return;
+    document.getElementById('editName').value = profileData.user.name || '';
+    document.getElementById('editBio').value = profileData.user.bio || '';
+    document.getElementById('editModal').classList.add('show');
+  }
+
+  function closeEdit() {
+    document.getElementById('editModal').classList.remove('show');
+  }
+
+  async function saveProfile() {
+    const name = document.getElementById('editName').value.trim();
+    const bio = document.getElementById('editBio').value.trim();
+    if (!name) { showToast('Name cannot be empty', true); return; }
+    try {
+      const res = await apiFetch('/profile/update', { method: 'PUT', body: JSON.stringify({ name, bio }) });
+      setCurrentUser(res.user);
+      closeEdit();
+      showToast('Profile updated!');
+      loadProfile();
+    } catch(e) {
+      showToast('Failed to update profile', true);
+    }
+  }
+
+  loadProfile();
+</script>
+</body>
+</html>

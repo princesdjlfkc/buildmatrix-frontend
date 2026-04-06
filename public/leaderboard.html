@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix - Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --gold:#00D4FF;--gold-dark:#0099CC;--gold-dim:rgba(0,212,255,0.12);--gold-border:rgba(0,212,255,0.28);--bg-dark:#080C14;--bg-card:#0e1520;--bg-surface:#111a28;--text-primary:#D8EEFF;--text-secondary:#5a8aaa;--text-muted:#2a4560;--border:#1a2840; }
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:var(--bg-dark);color:var(--text-primary);font-family:'Inter',sans-serif;min-height:100vh; }
+    .page-header { background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(123,63,228,0.08));border-bottom:1px solid var(--border);padding:32px 0; }
+    .container { max-width:900px;margin:0 auto;padding:0 24px; }
+    .back-btn { display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:13px;cursor:pointer;background:none;border:none;font-family:inherit;margin-bottom:16px; }
+    .back-btn:hover { color:var(--gold); }
+    .page-title { font-size:28px;font-weight:900;display:flex;align-items:center;gap:12px; }
+    .page-title i { color:var(--gold); }
+    .page-sub { font-size:13px;color:var(--text-muted);margin-top:6px; }
+    .leaderboard { margin-top:28px;display:flex;flex-direction:column;gap:10px;padding-bottom:40px; }
+    .lb-row { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;transition:border-color 0.2s; }
+    .lb-row:hover { border-color:var(--gold-border); }
+    .lb-row.top1 { border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.05); }
+    .lb-row.top2 { border-color:rgba(192,192,192,0.4);background:rgba(192,192,192,0.04); }
+    .lb-row.top3 { border-color:rgba(205,127,50,0.4);background:rgba(205,127,50,0.04); }
+    .rank { font-size:18px;font-weight:900;width:36px;text-align:center;flex-shrink:0; }
+    .rank.top1 { color:#FFD700; }
+    .rank.top2 { color:#C0C0C0; }
+    .rank.top3 { color:#CD7F32; }
+    .rank.other { color:var(--text-muted); }
+    .lb-avatar { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7b3fe4);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000;flex-shrink:0; }
+    .lb-info { flex:1;min-width:0; }
+    .lb-build { font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .lb-user { font-size:12px;color:var(--text-muted);margin-top:2px; }
+    .lb-price { font-size:18px;font-weight:900;color:var(--gold);flex-shrink:0; }
+    .lb-date { font-size:11px;color:var(--text-muted);flex-shrink:0; }
+    .empty { text-align:center;padding:60px;color:var(--text-muted); }
+    .loading { text-align:center;padding:60px;color:var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="page-header">
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Back to Builder</button>
+    <div class="page-title"><i class="fas fa-trophy"></i> Build Leaderboard</div>
+    <div class="page-sub">Top PC builds from all BuildMatrix users</div>
+  </div>
+</div>
+<div class="container">
+  <div class="leaderboard" id="leaderboard">
+    <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><div style="margin-top:12px;">Loading leaderboard...</div></div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+  function formatMoney(n) { return '₱' + (Number(n)||0).toLocaleString(); }
+  function formatDate(iso) {
+    try { return new Date(iso).toLocaleDateString('en-PH',{month:'short',day:'2-digit',year:'numeric'}); }
+    catch { return '—'; }
+  }
+  function getInitials(name) { return (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+  function rankIcon(i) {
+    if(i===0) return { cls:'top1', label:'🥇' };
+    if(i===1) return { cls:'top2', label:'🥈' };
+    if(i===2) return { cls:'top3', label:'🥉' };
+    return { cls:'other', label:'#'+(i+1) };
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const data = await apiFetch('/leaderboard');
+      const el = document.getElementById('leaderboard');
+      if (!data.leaderboard || !data.leaderboard.length) {
+        el.innerHTML = '<div class="empty"><i class="fas fa-trophy" style="font-size:40px;margin-bottom:12px;display:block;"></i>No builds yet. Be the first!</div>';
+        return;
+      }
+      el.innerHTML = data.leaderboard.map((b, i) => {
+        const r = rankIcon(i);
+        return `
+          <div class="lb-row ${r.cls}" onclick="window.location.href='index.html?buildId=${b.id}'" style="cursor:pointer;">
+            <div class="rank ${r.cls}">${r.label}</div>
+            <div class="lb-avatar">${getInitials(b.username)}</div>
+            <div class="lb-info">
+              <div class="lb-build">${b.name}</div>
+              <div class="lb-user"><i class="fas fa-user" style="margin-right:4px;"></i>${b.username}</div>
+            </div>
+            <div class="lb-date">${formatDate(b.created_at)}</div>
+            <div class="lb-price">${formatMoney(b.total)}</div>
+          </div>
+        `;
+      }).join('');
+    } catch(e) {
+      document.getElementById('leaderboard').innerHTML = '<div class="empty">Failed to load leaderboard.</div>';
+    }
+  }
+
+  loadLeaderboard();
+</script>
+</body>
+</html>

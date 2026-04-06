@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: #080C14;
+      font-family: 'Inter', sans-serif;
+      color: #D8EEFF;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(0,212,255,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 20%, rgba(123,63,228,0.08) 0%, transparent 50%),
+        repeating-linear-gradient(90deg, rgba(0,212,255,0.016) 0px, rgba(0,212,255,0.016) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(0deg, rgba(0,212,255,0.016) 0px, rgba(0,212,255,0.016) 1px, transparent 1px, transparent 60px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .scan-line {
+      position: fixed; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, #ff0040, #ff7700, #ffff00, #00ff88, #00d4ff, #7b3fe4, #ff00cc, #ff0040);
+      background-size: 200% 100%;
+      animation: scanLine 2.5s linear infinite;
+      z-index: 999;
+    }
+    @keyframes scanLine { 100% { background-position: 200% 0%; } }
+
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .logo-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 32px;
+      cursor: pointer;
+    }
+    .logo-icon { font-size: 24px; }
+    .logo-text {
+      font-size: 22px; font-weight: 900; letter-spacing: 0.05em;
+      background: linear-gradient(135deg, #00D4FF, #7b3fe4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .card {
+      background: rgba(14,21,32,0.95);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 20px;
+      width: 100%; max-width: 420px;
+      padding: 32px 28px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.06);
+      animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .tabs {
+      display: flex; gap: 2px;
+      background: rgba(0,212,255,0.05);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      flex: 1; padding: 9px;
+      background: transparent;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 700;
+      color: #5a8aaa;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: rgba(0,212,255,0.12);
+      color: #00D4FF;
+      box-shadow: 0 0 0 1px rgba(0,212,255,0.25);
+    }
+
+    .form { display: flex; flex-direction: column; gap: 14px; }
+
+    .field-label {
+      font-size: 11px; font-weight: 700;
+      color: #5a8aaa; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: block; margin-bottom: 6px;
+    }
+
+    .field-wrap { position: relative; }
+
+    .field-wrap i {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: #2a4560; font-size: 13px;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(8,12,20,0.8);
+      border: 1px solid #1a2840;
+      border-radius: 10px;
+      padding: 11px 14px 11px 38px;
+      color: #D8EEFF;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: rgba(0,212,255,0.4);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+    }
+
+    input:focus + i, .field-wrap:focus-within i { color: #00D4FF; }
+
+    input.otp-input {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.3em;
+      padding: 14px;
+      border-color: rgba(0,212,255,0.2);
+    }
+
+    .otp-hint {
+      font-size: 11px; color: #5a8aaa;
+      text-align: center; margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .otp-hint b { color: #00D4FF; font-weight: 700; }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.05em;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00D4FF, #0090c0);
+      color: #080C14;
+    }
+
+    .btn-ghost {
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.15);
+      color: #5a8aaa;
+    }
+
+    .btn-ghost:hover { color: #D8EEFF; border-color: rgba(0,212,255,0.3); }
+
+    .btn-send {
+      width: auto; padding: 10px 16px;
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 8px;
+      color: #00D4FF;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover { background: rgba(0,212,255,0.18); }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .input-with-btn {
+      display: flex; gap: 8px; align-items: center;
+    }
+
+    .input-with-btn input { flex: 1; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; color: #2a4560;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 4px 0;
+    }
+
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #1a2840;
+    }
+
+    .bottom-link {
+      font-size: 12px; color: #5a8aaa;
+      text-align: center; margin-top: 16px;
+    }
+
+    .bottom-link a, .bottom-link span {
+      color: #00D4FF; cursor: pointer; font-weight: 600;
+      text-decoration: none;
+    }
+
+    .bottom-link a:hover, .bottom-link span:hover { text-decoration: underline; }
+
+    .error-box {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px; color: #EF4444;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+
+    .success-box {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px; color: #22C55E;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #0e1520;
+      border: 1px solid rgba(0,212,255,0.2);
+      border-left: 3px solid #00D4FF;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px; color: #00D4FF;
+      display: flex; gap: 8px; align-items: center;
+      z-index: 9999;
+      white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+    }
+
+    .toast.err { border-left-color: #EF4444; color: #EF4444; border-color: rgba(239,68,68,0.2); }
+    @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(12px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+
+    .guest-section {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back-link {
+      font-size: 12px; color: #5a8aaa; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      margin-bottom: 16px;
+    }
+    .back-link:hover { color: #00D4FF; }
+
+    .step-indicator {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .step-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #1a2840;
+      transition: all 0.3s;
+    }
+
+    .step-dot.active { background: #00D4FF; box-shadow: 0 0 6px rgba(0,212,255,0.4); }
+    .step-dot.done { background: #22C55E; }
+
+    .countdown {
+      font-size: 11px; color: #5a8aaa;
+      text-align: right; margin-top: 4px;
+    }
+
+    .countdown b { color: #00D4FF; }
+
+    @media (max-width: 460px) {
+      .card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scan-line"></div>
+
+  <div class="page">
+    <div class="logo-row" onclick="window.location.href='loading.html'">
+      <span class="logo-icon">⚙️</span>
+      <span class="logo-text">BUILDMATRIX</span>
+    </div>
+
+    <div class="card">
+      <div class="tabs" id="tabs">
+        <button class="tab active" onclick="showTab('login')" id="tab-login">SIGN IN</button>
+        <button class="tab" onclick="showTab('signup')" id="tab-signup">CREATE ACCOUNT</button>
+      </div>
+
+      <div id="panel-login">
+        <div id="login-main">
+          <div class="form">
+            <div>
+              <div class="field-label">Email Address</div>
+              <div class="field-wrap">
+                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+                <i class="fas fa-envelope"></i>
+              </div>
+            </div>
+            <div>
+              <div class="field-label">Password</div>
+              <div class="field-wrap">
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+                <i class="fas fa-lock"></i>
+              </div>
+            </div>
+            <div id="login-error"></div>
+            <button class="btn btn-primary" onclick="doLogin()" id="loginBtn">
+              <i class="fas fa-sign-in-alt"></i> SIGN IN
+            </button>
+          </div>
+          <div class="bottom-link" style="margin-top:12px;">
+            <span onclick="showForgotPassword()">Forgot password?</span>
+          </div>
+          <div class="divider" style="margin-top:20px;">or</div>
+          <div class="guest-section">
+            <button class="btn btn-ghost" onclick="continueAsGuest()">
+              <i class="fas fa-user-secret"></i> Continue as Guest
+            </button>
+            <div style="font-size:11px;color:#2a4560;margin-top:8px;">Builds saved locally — no account needed</div>
+          </div>
+        </div>
+
+        <div id="login-forgot" style="display:none;">
+          <div id="forgot-step1">
+            <div class="back-link" onclick="showForgotMain()"><i class="fas fa-arrow-left"></i> Back to Sign In</div>
+            <div style="font-size:15px;font-weight:800;color:#D8EEFF;margin-bottom:4px;">Reset Password</div>
+            <div style="font-size:12px;color:#5a8aaa;margin-bottom:20px;">We'll send a 6-digit code to your email.</div>
+            <div class="form">
+              <div>
+                <div class="field-label">Your Email</div>
+                <div class="input-with-btn">
+                  <div class="field-wrap" style="flex:1;position:relative;">
+                    <input type="email" id="forgotEmail" placeholder="your@email.com">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <button class="btn-send" id="forgotSendBtn" onclick="sendForgotOtp()">
+                    <i class="fas fa-paper-plane"></i> Send OTP
+                  </button>
+                </div>
+                <div class="countdown" id="forgotCountdown"></div>
+              </div>
+              <div id="forgot-otp-row" style="display:none;">
+                <div class="field-label">6-Digit OTP</div>
+                <input type="text" id="forgotOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input" autocomplete="one-time-code">
+                <div class="otp-hint">Enter the OTP sent to <b id="forgotEmailDisplay"></b></div>
+              </div>
+              <div id="forgot-pass-row" style="display:none;">
+                <div class="field-label">New Password</div>
+                <div class="field-wrap">
+                  <input type="password" id="forgotNewPass" placeholder="Min. 6 characters">
+                  <i class="fas fa-lock"></i>
+                </div>
+              </div>
+              <div id="forgot-error"></div>
+              <button class="btn btn-primary" onclick="doResetPassword()" id="forgotResetBtn" style="display:none;">
+                <i class="fas fa-key"></i> Reset Password
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-signup" style="display:none;">
+        <div id="signup-main">
+          <div class="step-indicator">
+            <div class="step-dot active" id="sdot1"></div>
+            <div style="flex:1;height:1px;background:#1a2840;"></div>
+            <div class="step-dot" id="sdot2"></div>
+          </div>
+
+          <div id="signup-step1">
+            <div class="form">
+              <div>
+                <div class="field-label">Full Name</div>
+                <div class="field-wrap">
+                  <input type="text" id="regName" placeholder="Your name" autocomplete="name">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div>
+                <div class="field-label">Email Address</div>
+                <div class="input-with-btn">
+                  <div class="field-wrap" style="flex:1;position:relative;">
+                    <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <button class="btn-send" id="regSendBtn" onclick="sendSignupOtp()">Send Code</button>
+                </div>
+                <div class="countdown" id="regCountdown"></div>
+              </div>
+              <div id="reg-otp-row" style="display:none;">
+                <div class="field-label">Email Verification Code</div>
+                <input type="text" id="regOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input" autocomplete="one-time-code">
+                <div class="otp-hint">Check your inbox at <b id="regEmailDisplay"></b></div>
+              </div>
+              <div>
+                <div class="field-label">Password</div>
+                <div class="field-wrap">
+                  <input type="password" id="regPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+                  <i class="fas fa-lock"></i>
+                </div>
+              </div>
+              <div>
+                <div class="field-label">Confirm Password</div>
+                <div class="field-wrap">
+                  <input type="password" id="regConfirm" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()">
+                  <i class="fas fa-lock"></i>
+                </div>
+              </div>
+              <div id="reg-error"></div>
+              <button class="btn btn-primary" onclick="doRegister()" id="regBtn">
+                <i class="fas fa-user-plus"></i> CREATE ACCOUNT
+              </button>
+            </div>
+            <div class="divider" style="margin-top:20px;">or</div>
+            <div class="guest-section">
+              <button class="btn btn-ghost" onclick="continueAsGuest()">
+                <i class="fas fa-user-secret"></i> Continue as Guest
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5000/api'
+      : window.location.origin + '/api';
+
+    var backendOnline = false;
+    var forgotOtpSent = false;
+    var signupOtpSent = false;
+    var signupOtpVerified = false;
+
+    function checkBackend() {
+      fetch(API_URL + '/auth/test', { signal: AbortSignal.timeout(2000) })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { if (d.success) backendOnline = true; })
+        .catch(function() { backendOnline = false; });
+    }
+    checkBackend();
+
+    function showToast(msg, isErr) {
+      var old = document.querySelector('.toast');
+      if (old) old.remove();
+      var t = document.createElement('div');
+      t.className = 'toast' + (isErr ? ' err' : '');
+      t.innerHTML = '<i class="fas fa-' + (isErr ? 'exclamation-circle' : 'check-circle') + '"></i> ' + msg;
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 3500);
+    }
+
+    function setError(id, msg) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = msg ? '<div class="error-box"><i class="fas fa-exclamation-circle"></i><span>' + msg + '</span></div>' : '';
+    }
+
+    function setSuccess(id, msg) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = msg ? '<div class="success-box"><i class="fas fa-check-circle"></i><span>' + msg + '</span></div>' : '';
+    }
+
+    function setLoading(btnId, loading) {
+      var btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      if (loading) {
+        btn._origHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Please wait...';
+      } else if (btn._origHTML) {
+        btn.innerHTML = btn._origHTML;
+      }
+    }
+
+    function showTab(tab) {
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('panel-login').style.display = tab === 'login' ? '' : 'none';
+      document.getElementById('panel-signup').style.display = tab === 'signup' ? '' : 'none';
+    }
+
+    function showForgotPassword() {
+      document.getElementById('login-main').style.display = 'none';
+      document.getElementById('login-forgot').style.display = '';
+    }
+
+    function showForgotMain() {
+      document.getElementById('login-main').style.display = '';
+      document.getElementById('login-forgot').style.display = 'none';
+      forgotOtpSent = false;
+    }
+
+    function startCountdown(countdownId, sendBtnId, seconds) {
+      var el = document.getElementById(countdownId);
+      var btn = document.getElementById(sendBtnId);
+      if (btn) btn.disabled = true;
+      var remaining = seconds;
+      function tick() {
+        if (!el) return;
+        el.innerHTML = 'Resend in <b>' + remaining + 's</b>';
+        if (remaining <= 0) {
+          el.innerHTML = '';
+          if (btn) btn.disabled = false;
+          return;
+        }
+        remaining--;
+        setTimeout(tick, 1000);
+      }
+      tick();
+    }
+
+    function sendForgotOtp() {
+      var email = (document.getElementById('forgotEmail').value || '').trim();
+      if (!email) { showToast('Enter your email first', true); return; }
+      if (!backendOnline) {
+        showToast('Backend is offline. Use the dev token approach.', true);
+        return;
+      }
+      document.getElementById('forgotSendBtn').disabled = true;
+      fetch(API_URL + '/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.success) {
+          forgotOtpSent = true;
+          document.getElementById('forgotEmailDisplay').textContent = email;
+          document.getElementById('forgot-otp-row').style.display = '';
+          document.getElementById('forgot-pass-row').style.display = '';
+          document.getElementById('forgotResetBtn').style.display = '';
+          startCountdown('forgotCountdown', 'forgotSendBtn', 60);
+          if (d.devToken) {
+            setSuccess('forgot-error', 'OTP: ' + d.devToken + ' (backend email not configured)');
+          } else {
+            setSuccess('forgot-error', 'OTP sent to ' + email);
+          }
+        } else {
+          setError('forgot-error', d.error || 'Failed to send OTP');
+          document.getElementById('forgotSendBtn').disabled = false;
+        }
+      })
+      .catch(function() {
+        setError('forgot-error', 'Connection error — backend may be offline');
+        document.getElementById('forgotSendBtn').disabled = false;
+      });
+    }
+
+    function doResetPassword() {
+      if (!forgotOtpSent) { showToast('Send the OTP first', true); return; }
+      var token = (document.getElementById('forgotOtp').value || '').trim();
+      var newPass = document.getElementById('forgotNewPass').value || '';
+      if (!token || token.length < 6) { setError('forgot-error', 'Enter the 6-digit OTP'); return; }
+      if (!newPass || newPass.length < 6) { setError('forgot-error', 'Password must be at least 6 characters'); return; }
+      setLoading('forgotResetBtn', true);
+      fetch(API_URL + '/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token, newPassword: newPass })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        setLoading('forgotResetBtn', false);
+        if (d.success) {
+          showToast('Password reset! Please sign in.');
+          setTimeout(function() {
+            showForgotMain();
+            setError('forgot-error', '');
+            document.getElementById('forgotOtp').value = '';
+            document.getElementById('forgotNewPass').value = '';
+          }, 1500);
+        } else {
+          setError('forgot-error', d.error || 'Reset failed');
+        }
+      })
+      .catch(function() {
+        setLoading('forgotResetBtn', false);
+        setError('forgot-error', 'Connection error');
+      });
+    }
+
+    function sendSignupOtp() {
+      var email = (document.getElementById('regEmail').value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Enter a valid email address', true); return;
+      }
+      if (!backendOnline) {
+        signupOtpVerified = true;
+        showToast('Backend offline — email verification skipped', false);
+        return;
+      }
+      document.getElementById('regSendBtn').disabled = true;
+      fetch(API_URL + '/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.success) {
+          signupOtpSent = true;
+          document.getElementById('regEmailDisplay').textContent = email;
+          document.getElementById('reg-otp-row').style.display = '';
+          startCountdown('regCountdown', 'regSendBtn', 60);
+          if (d.devToken) {
+            setSuccess('reg-error', 'OTP: ' + d.devToken + ' (email not configured)');
+          } else {
+            setSuccess('reg-error', 'OTP sent to ' + email);
+          }
+        } else {
+          setError('reg-error', d.error || 'Failed to send OTP');
+          document.getElementById('regSendBtn').disabled = false;
+        }
+      })
+      .catch(function() {
+        signupOtpVerified = true;
+        document.getElementById('reg-otp-row').style.display = 'none';
+        showToast('Backend offline — email verification skipped');
+        document.getElementById('regSendBtn').disabled = false;
+      });
+    }
+
+    function doRegister() {
+      var name = (document.getElementById('regName').value || '').trim();
+      var email = (document.getElementById('regEmail').value || '').trim();
+      var otp = (document.getElementById('regOtp').value || '').trim();
+      var pass = document.getElementById('regPassword').value || '';
+      var confirm = document.getElementById('regConfirm').value || '';
+
+      setError('reg-error', '');
+      if (!name) { setError('reg-error', 'Name is required'); return; }
+      if (!email) { setError('reg-error', 'Email is required'); return; }
+      if (pass.length < 6) { setError('reg-error', 'Password must be at least 6 characters'); return; }
+      if (pass !== confirm) { setError('reg-error', 'Passwords do not match'); return; }
+
+      if (backendOnline && signupOtpSent && !signupOtpVerified && !otp) {
+        setError('reg-error', 'Enter the OTP sent to your email'); return;
+      }
+
+      setLoading('regBtn', true);
+
+      if (!backendOnline) {
+        setTimeout(function() {
+          var users = JSON.parse(localStorage.getItem('bm-local-users') || '[]');
+          if (users.find(function(u) { return u.email === email; })) {
+            setLoading('regBtn', false);
+            setError('reg-error', 'Email already registered');
+            return;
+          }
+          var user = { id: 'local-' + Date.now(), name: name, email: email, password: pass, is_admin: false };
+          users.push(user);
+          localStorage.setItem('bm-local-users', JSON.stringify(users));
+          localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name, email: user.email, is_admin: false }));
+          setLoading('regBtn', false);
+          showToast('Account created locally!');
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
+        }, 400);
+        return;
+      }
+
+      fetch(API_URL + '/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, password: pass, verificationCode: otp })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        setLoading('regBtn', false);
+        if (d.success) {
+          showToast('Account created! Signing you in...');
+          return fetch(API_URL + '/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: email, password: pass })
+          });
+        } else {
+          setError('reg-error', d.error || 'Registration failed');
+          return null;
+        }
+      })
+      .then(function(r) {
+        if (!r) return null;
+        return r.json();
+      })
+      .then(function(d) {
+        if (!d) return;
+        if (d.success) {
+          localStorage.setItem('user', JSON.stringify(d.user));
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 500);
+        }
+      })
+      .catch(function() {
+        setLoading('regBtn', false);
+        setError('reg-error', 'Connection error');
+      });
+    }
+
+    function doLogin() {
+      var email = (document.getElementById('loginEmail').value || '').trim();
+      var pass = document.getElementById('loginPassword').value || '';
+      var otp = document.getElementById('loginOtp').value || '';
+
+      setError('login-error', '');
+      if (!email || !pass) { setError('login-error', 'Email and password are required'); return; }
+
+      setLoading('loginBtn', true);
+
+      if (!backendOnline) {
+        setTimeout(function() {
+          var users = JSON.parse(localStorage.getItem('bm-local-users') || '[]');
+          var user = users.find(function(u) { return u.email === email && u.password === pass; });
+          if (!user) {
+            setLoading('loginBtn', false);
+            setError('login-error', 'Invalid email or password');
+            return;
+          }
+          localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name, email: user.email, is_admin: false }));
+          setLoading('loginBtn', false);
+          showToast('Welcome back, ' + user.name + '!');
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
+        }, 400);
+        return;
+      }
+
+      fetch(API_URL + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: email, password: pass, twoFactorCode: otp })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        setLoading('loginBtn', false);
+        if (d.requires2FA) {
+          document.getElementById('twofa-section').style.display = '';
+          document.getElementById('login2fa').focus();
+          showToast('Enter your 2FA code');
+          return;
+        }
+        if (d.success) {
+          localStorage.setItem('user', JSON.stringify(d.user));
+          showToast('Welcome back, ' + d.user.name + '!');
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 700);
+        } else {
+          setError('login-error', d.error || 'Login failed');
+        }
+      })
+      .catch(function() {
+        setLoading('loginBtn', false);
+        setError('login-error', 'Connection error — try guest mode');
+      });
+    }
+
+    function continueAsGuest() {
+      localStorage.removeItem('user');
+      sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html';
+    }
+
+    if (localStorage.getItem('user')) {
+      try {
+        var u = JSON.parse(localStorage.getItem('user'));
+        if (u && u.id) {
+          sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html';
+        }
+      } catch(e) {}
+    }
+  </script>
+</body>
+</html>

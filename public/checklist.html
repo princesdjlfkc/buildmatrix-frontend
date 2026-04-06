@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix - Assembly Checklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--gold:#00D4FF;--bg:#080C14;--bg2:#0e1520;--bg3:#111a28;--text:#D8EEFF;--text2:#5a8aaa;--text3:#2a4560;--border:#1a2840;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+    .header{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(123,63,228,0.08));border-bottom:1px solid var(--border);padding:20px 24px;}
+    .header-inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+    .header-left{display:flex;align-items:center;gap:14px;}
+    .back-btn{background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+    .back-btn:hover{color:var(--gold);}
+    .page-title{font-size:22px;font-weight:900;display:flex;align-items:center;gap:10px;}
+    .page-title i{color:var(--gold);}
+
+    .progress-bar-wrap{max-width:800px;margin:0 auto;padding:20px 24px 0;}
+    .progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .progress-label{font-size:13px;font-weight:700;color:var(--text2);}
+    .progress-pct{font-size:20px;font-weight:900;color:var(--gold);}
+    .progress-track{height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#00D4FF,#7b3fe4);border-radius:99px;transition:width 0.4s ease;width:0%;}
+
+    .container{max-width:800px;margin:0 auto;padding:24px;}
+
+    .phase{margin-bottom:28px;}
+    .phase-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:border-color 0.2s;}
+    .phase-header:hover{border-color:rgba(0,212,255,0.3);}
+    .phase-header.done{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.04);}
+    .phase-num{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text2);flex-shrink:0;transition:all 0.2s;}
+    .phase-header.done .phase-num{background:rgba(34,197,94,0.15);border-color:#22C55E;color:#22C55E;}
+    .phase-title{font-size:15px;font-weight:800;color:var(--text);flex:1;}
+    .phase-count{font-size:12px;color:var(--text3);}
+    .phase-chevron{color:var(--text3);transition:transform 0.2s;font-size:13px;}
+    .phase-header.open .phase-chevron{transform:rotate(180deg);}
+
+    .steps{display:flex;flex-direction:column;gap:8px;margin-left:16px;border-left:2px solid var(--border);padding-left:20px;overflow:hidden;max-height:0;transition:max-height 0.35s ease;}
+    .steps.open{max-height:2000px;}
+
+    .step{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s;user-select:none;}
+    .step:hover{border-color:rgba(0,212,255,0.2);}
+    .step.checked{background:rgba(34,197,94,0.04);border-color:rgba(34,197,94,0.25);}
+    .step-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.2s;background:var(--bg3);}
+    .step.checked .step-check{background:#22C55E;border-color:#22C55E;}
+    .step-check i{color:#fff;font-size:11px;opacity:0;transition:opacity 0.2s;}
+    .step.checked .step-check i{opacity:1;}
+    .step-content{flex:1;}
+    .step-title{font-size:14px;font-weight:700;color:var(--text);transition:color 0.2s;}
+    .step.checked .step-title{color:var(--text3);text-decoration:line-through;}
+    .step-desc{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6;}
+    .step-tip{display:flex;align-items:flex-start;gap:6px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.12);border-radius:7px;padding:8px 10px;margin-top:8px;font-size:11px;color:var(--text2);}
+    .step-tip i{color:var(--gold);flex-shrink:0;margin-top:1px;}
+    .step-warn{display:flex;align-items:flex-start;gap:6px;background:rgba(249,115,22,0.06);border:1px solid rgba(249,115,22,0.15);border-radius:7px;padding:8px 10px;margin-top:8px;font-size:11px;color:#F97316;}
+    .step-warn i{flex-shrink:0;margin-top:1px;}
+
+    .reset-btn{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;}
+    .reset-btn:hover{background:rgba(239,68,68,0.15);}
+
+    .complete-banner{display:none;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:24px;text-align:center;margin-bottom:28px;}
+    .complete-banner.show{display:block;}
+    .complete-banner h2{font-size:22px;font-weight:900;color:#22C55E;margin-bottom:8px;}
+    .complete-banner p{font-size:14px;color:var(--text2);}
+
+    .part-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.15);color:var(--gold);border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;margin-left:8px;vertical-align:middle;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Builder</button>
+      <div class="page-title"><i class="fas fa-clipboard-check"></i> Assembly Checklist</div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()"><i class="fas fa-redo"></i> Reset</button>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-info">
+    <span class="progress-label" id="progressLabel">0 of 0 steps completed</span>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="container">
+  <div class="complete-banner" id="completeBanner">
+    <h2><i class="fas fa-trophy" style="margin-right:10px;"></i>Build Complete!</h2>
+    <p>You've finished assembling your PC. Boot it up and enjoy! 🎉</p>
+  </div>
+  <div id="checklist"></div>
+</div>
+
+<script>
+const PHASES = [
+  {
+    title: 'Prepare Your Workspace',
+    icon: 'fa-tools',
+    steps: [
+      { title: 'Clear and clean your workspace', desc: 'Use a large flat table. Clear it of liquids, clutter, and anything that could damage components.', tip: 'Work on a hard surface, not carpet. Carpet generates static electricity that can fry components.' },
+      { title: 'Ground yourself (anti-static)', desc: 'Touch a metal object or wear an anti-static wrist strap before handling any components.', warn: 'Static discharge is invisible but can permanently damage your CPU, RAM, and motherboard.' },
+      { title: 'Gather all tools', desc: 'You need: Phillips head screwdriver (#2), zip ties or velcro for cable management, and a flashlight.', tip: 'A magnetic screwdriver helps prevent dropping screws inside the case.' },
+      { title: 'Unbox all components', desc: 'Carefully unbox CPU, motherboard, RAM, GPU, storage, PSU, and case. Check all items against receipts.', tip: 'Keep all boxes — you may need them for warranty returns.' },
+    ]
+  },
+  {
+    title: 'Prepare the Motherboard',
+    icon: 'fa-microchip',
+    steps: [
+      { title: 'Place motherboard on its box (outside case)', desc: 'Keep the motherboard on the anti-static bag or its box while installing CPU, RAM, and cooler.', tip: 'This makes it easier to work on before mounting inside the case.' },
+      { title: 'Install the CPU', desc: 'Open the CPU socket latch. Align the CPU with the notches or triangle marker. Lower it gently — never force it. Close the latch.', warn: 'NEVER press the CPU down. It falls into place by gravity. Bent pins = broken motherboard.' },
+      { title: 'Apply thermal paste (if not pre-applied)', desc: 'Put a pea-sized dot of thermal paste in the center of the CPU. The cooler will spread it when mounted.', tip: 'Less is more. A pea-sized dot is enough. Too much paste can cause overheating.' },
+      { title: 'Install the CPU cooler', desc: 'Mount the cooler according to its manual. Tighten screws in an X pattern (diagonal) for even pressure.', tip: 'Plug the cooler fan cable into the CPU_FAN header on the motherboard now — easier to reach.' },
+      { title: 'Install RAM', desc: 'Check your manual for the correct slots (usually A2 and B2 for dual-channel). Open the clips, align the notch, and press firmly until it clicks on both sides.', warn: 'RAM only fits one way. Do not force it. The notch position tells you the correct orientation.' },
+      { title: 'Install M.2 SSD (if applicable)', desc: 'Locate the M.2 slot on the motherboard. Insert the SSD at an angle, press it flat, and screw it down with the tiny M.2 screw.', tip: 'Remove any M.2 heatsink first, install the drive, then replace the heatsink on top.' },
+    ]
+  },
+  {
+    title: 'Prepare the Case',
+    icon: 'fa-server',
+    steps: [
+      { title: 'Install the I/O shield', desc: 'Press the metal I/O shield into the rectangular opening at the back of the case. It snaps in from inside.', warn: 'Do this BEFORE mounting the motherboard — you cannot install it after.' },
+      { title: 'Install case standoffs', desc: 'Screw the brass standoffs into the case in the positions that match your motherboard size (ATX, mATX, etc).', tip: 'Only install standoffs where your motherboard has holes. Extra standoffs can short the board.' },
+      { title: 'Install PSU (Power Supply)', desc: 'Slide the PSU into its bay (usually bottom rear). Secure with 4 screws. Orient the fan facing down if your case has a bottom vent, otherwise up.', tip: 'Thread the cables through cable management holes before tightening the PSU fully.' },
+    ]
+  },
+  {
+    title: 'Mount Motherboard in Case',
+    icon: 'fa-th-large',
+    steps: [
+      { title: 'Lower motherboard into case', desc: 'Align the back ports with the I/O shield holes. Lower it onto the standoffs. Make sure every standoff lines up with a motherboard hole.', warn: 'If a standoff has no hole above it, remove it — it will short your board.' },
+      { title: 'Screw down the motherboard', desc: 'Hand-tighten all screws first, then tighten them in a star/X pattern. Do not overtighten.', tip: 'Snug is enough. Overtightening cracks the PCB.' },
+      { title: 'Connect front panel headers', desc: 'Plug in the tiny case cables: Power SW, Reset SW, Power LED+, Power LED-, HDD LED. Check your motherboard manual for exact pin layout.', tip: 'Use a flashlight and tweezers. These are the most fiddly connectors in the build.' },
+      { title: 'Connect USB headers', desc: 'Plug in USB 3.0 (large connector) and USB 2.0 (smaller 9-pin) headers from the case to the motherboard.', tip: 'USB 3.0 is keyed so it only fits one way. Do not force it.' },
+      { title: 'Connect audio header', desc: 'Plug the HD Audio or AC97 cable from the case into the AAFP header on the motherboard (usually front-bottom area).', tip: 'Use HD Audio if available — it gives better front panel audio quality.' },
+    ]
+  },
+  {
+    title: 'Install GPU and Drives',
+    icon: 'fa-tv',
+    steps: [
+      { title: 'Remove PCIe slot covers', desc: 'Remove the metal slot covers on the back of the case for the slots your GPU will occupy (usually 2 slots).', tip: 'Keep the screws — you need them to secure the GPU.' },
+      { title: 'Install the GPU', desc: 'Align the GPU with the top PCIe x16 slot. Press firmly until the latch clicks. Secure it to the case with 2 screws.', warn: 'Make sure the PCIe latch on the motherboard clicks. A loose GPU will not display video.' },
+      { title: 'Install storage drives (HDD/SATA SSD)', desc: 'Slide drives into their bays and secure with screws. Connect SATA data cables to the motherboard and SATA power cables from the PSU.', tip: 'Use SATA ports 1 and 2 first (closest to the edge) for best performance.' },
+    ]
+  },
+  {
+    title: 'Cable Management',
+    icon: 'fa-plug',
+    steps: [
+      { title: 'Connect 24-pin ATX power to motherboard', desc: 'The large 24-pin connector goes to the right side of the motherboard. It only fits one way and clicks when seated.', tip: 'Route the cable behind the motherboard tray for cleaner cable management.' },
+      { title: 'Connect CPU power (4 or 8 pin)', desc: 'Plug the EPS/CPU power cable into the top-left area of the motherboard. This powers the CPU voltage regulators.', warn: 'Missing this cable = PC will not POST. It is the most commonly forgotten cable.' },
+      { title: 'Connect PCIe power to GPU', desc: 'Plug 6+2 pin or 16-pin cables from the PSU into the GPU. Never use splitters or adapters if your PSU has dedicated cables.', warn: 'Do not use a single PSU cable split to two GPU connectors — use separate cables from the PSU.' },
+      { title: 'Route and tie cables', desc: 'Use zip ties or velcro straps to bundle cables neatly. Route them behind the motherboard tray where possible.', tip: 'Good cable management improves airflow and makes future upgrades much easier.' },
+    ]
+  },
+  {
+    title: 'Final Checks Before Power On',
+    icon: 'fa-search',
+    steps: [
+      { title: 'Double-check all power connections', desc: 'Verify: 24-pin, CPU 8-pin, GPU PCIe, all SATA power, and all fan connectors are fully seated.', warn: 'This is the most important step. A loose connector can prevent boot or damage components.' },
+      { title: 'Check RAM is fully seated', desc: 'Press down on both ends of each RAM stick. You should hear/feel the clips lock. No part should stick up unevenly.', tip: 'Improperly seated RAM is the #1 cause of "no display" issues on new builds.' },
+      { title: 'Check GPU is seated and locked', desc: 'The PCIe latch must be clicked. Both GPU screws must be tight. The GPU should not wiggle.', tip: null },
+      { title: 'Remove any tools left inside the case', desc: 'Check for screwdrivers, loose screws, or forgotten parts inside the case before closing.', warn: 'A loose screw touching the motherboard will short it instantly on power on.' },
+      { title: 'Do not close the case yet', desc: 'Leave the side panel off for the first boot so you can access things quickly if needed.', tip: 'You can always close it after confirming everything works.' },
+    ]
+  },
+  {
+    title: 'First Boot',
+    icon: 'fa-power-off',
+    steps: [
+      { title: 'Connect monitor to GPU (not motherboard)', desc: 'Plug your display cable (HDMI or DisplayPort) into the GPU ports at the back, NOT the motherboard ports.', warn: 'Plugging into motherboard ports when a GPU is installed gives no signal.' },
+      { title: 'Connect keyboard, mouse, and power cable', desc: 'Plug in peripherals and connect the PSU power cable. Flip the PSU switch to ON (|).', tip: null },
+      { title: 'Press the power button', desc: 'Press the case power button. All fans should spin, RGB should light up, and you should see the BIOS/UEFI screen.', tip: 'If nothing happens, check the front panel Power SW header connection on the motherboard.' },
+      { title: 'Enter BIOS and verify components', desc: 'Press DEL or F2 on boot to enter BIOS. Check that your CPU, RAM speed, and storage drives are all detected.', tip: 'Enable XMP/EXPO in BIOS to run RAM at its rated speed instead of default 2133MHz.' },
+      { title: 'Install your operating system', desc: 'Insert your USB installer and follow the OS installation. Select your M.2 or SSD as the install destination.', tip: 'Format only the drive you want Windows/Linux on. Do not touch other drives.' },
+      { title: 'Install drivers', desc: 'After OS install, download GPU drivers from NVIDIA/AMD website, chipset drivers from your motherboard manufacturer, and Windows Update.', warn: 'Do not use the driver CD — it is outdated. Always download fresh drivers from the official site.' },
+      { title: 'Run a stress test', desc: 'Run CPU-Z to verify specs, and run a 10-minute stress test with Cinebench or OCCT to check for stability and overheating.', tip: 'CPU temps under load should ideally stay below 85°C. GPU below 85°C is fine.' },
+    ]
+  },
+];
+
+const KEY = 'bm-checklist-v1';
+let state = JSON.parse(localStorage.getItem(KEY) || '{}');
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+function totalSteps() { return PHASES.reduce((s,p)=>s+p.steps.length,0); }
+function doneSteps() { return Object.values(state).filter(Boolean).length; }
+
+function updateProgress() {
+  const total = totalSteps();
+  const done = doneSteps();
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('progressLabel').textContent = `${done} of ${total} steps completed`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  const banner = document.getElementById('completeBanner');
+  banner.classList.toggle('show', done === total && total > 0);
+  PHASES.forEach((p, pi) => {
+    const allDone = p.steps.every((_,si) => state[pi+'-'+si]);
+    const header = document.getElementById('phase-header-'+pi);
+    if (header) { header.classList.toggle('done', allDone); }
+    const num = document.getElementById('phase-num-'+pi);
+    if (num) { num.innerHTML = allDone ? '<i class="fas fa-check"></i>' : (pi+1); }
+    const doneCount = p.steps.filter((_,si)=>state[pi+'-'+si]).length;
+    const count = document.getElementById('phase-count-'+pi);
+    if (count) count.textContent = doneCount+'/'+p.steps.length;
+  });
+}
+
+function toggleStep(pi, si) {
+  const key = pi+'-'+si;
+  state[key] = !state[key];
+  save();
+  const step = document.getElementById('step-'+pi+'-'+si);
+  step.classList.toggle('checked', state[key]);
+  updateProgress();
+}
+
+function togglePhase(pi) {
+  const steps = document.getElementById('steps-'+pi);
+  const header = document.getElementById('phase-header-'+pi);
+  const chevron = header.querySelector('.phase-chevron');
+  const isOpen = steps.classList.contains('open');
+  steps.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+
+function resetAll() {
+  if (!confirm('Reset all checklist progress?')) return;
+  state = {};
+  save();
+  render();
+}
+
+function render() {
+  document.getElementById('checklist').innerHTML = PHASES.map((phase, pi) => `
+    <div class="phase">
+      <div class="phase-header ${pi===0?'open':''}" id="phase-header-${pi}" onclick="togglePhase(${pi})">
+        <div class="phase-num" id="phase-num-${pi}">${pi+1}</div>
+        <div style="flex:1;">
+          <div class="phase-title"><i class="fas ${phase.icon}" style="color:var(--gold);margin-right:8px;font-size:13px;"></i>${phase.title}</div>
+        </div>
+        <span class="phase-count" id="phase-count-${pi}">0/${phase.steps.length}</span>
+        <i class="fas fa-chevron-down phase-chevron"></i>
+      </div>
+      <div class="steps ${pi===0?'open':''}" id="steps-${pi}">
+        ${phase.steps.map((step, si) => `
+          <div class="step ${state[pi+'-'+si]?'checked':''}" id="step-${pi}-${si}" onclick="toggleStep(${pi},${si})">
+            <div class="step-check"><i class="fas fa-check"></i></div>
+            <div class="step-content">
+              <div class="step-title">${step.title}</div>
+              <div class="step-desc">${step.desc}</div>
+              ${step.tip ? `<div class="step-tip"><i class="fas fa-lightbulb"></i><span>${step.tip}</span></div>` : ''}
+              ${step.warn ? `<div class="step-warn"><i class="fas fa-exclamation-triangle"></i><span>${step.warn}</span></div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,2254 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUILDMATRIX - Ultimate PC Builder</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="BuildMatrix">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
+  <script src="products-data.js"></script>
+  <script src="products-ui.js"></script>
+  <script src="common.js"></script>
+  <script src="builder.js"></script>
+  
+  <style>
+    /* COMPLETE DROPDOWN FIX - NO COLLISION */
+    * {
+      box-sizing: border-box;
+    }
+    
+    /* Force all containers to allow overflow */
+    html, body {
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      position: relative;
+    }
+    
+    .builder-container,
+    .builder-main,
+    .builder-sidebar,
+    .build-panel,
+    .main-nav,
+    header,
+    .header-container,
+    nav,
+    .categories-list,
+    .selected-parts {
+      position: relative;
+    }
+    
+    /* Sidebar and panel - sticky with scroll */
+    .builder-sidebar {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      position: sticky;
+      top: 100px;
+      z-index: 10;
+    }
+    
+    .build-panel {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      position: sticky;
+      top: 100px;
+      z-index: 10;
+    }
+    
+    .builder-main {
+      position: sticky;
+      top: 100px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      z-index: 5;
+    }
+    
+    /* DROPDOWN STYLES - POSITIONED CORRECTLY */
+    .nav-item {
+      position: relative !important;
+    }
+    
+    .nav-item .dropdown {
+      position: absolute !important;
+      top: calc(100% + 5px) !important;
+      left: 0 !important;
+      z-index: 999999 !important;
+      background: #111111 !important;
+      backdrop-filter: blur(20px);
+      border: 1px solid #FFD700 !important;
+      border-radius: 12px !important;
+      min-width: 240px !important;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 215, 0, 0.2) !important;
+      margin: 0 !important;
+      transform: translateY(-8px);
+    }
+    
+    .nav-item:hover .dropdown {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      transform: translateY(0) !important;
+    }
+    
+    /* Dropdown content */
+    .dropdown-content {
+      padding: 8px 0 !important;
+    }
+    
+    .dropdown-content a {
+      display: block !important;
+      padding: 12px 24px !important;
+      color: #cccccc !important;
+      text-decoration: none !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      transition: all 0.2s ease !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+      border-left: 3px solid transparent !important;
+    }
+    
+    .dropdown-content a:hover {
+      background: rgba(255, 215, 0, 0.15) !important;
+      color: #FFD700 !important;
+      border-left-color: #FFD700 !important;
+      padding-left: 28px !important;
+    }
+    
+    /* Header stays on top */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.98);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .main-nav {
+      z-index: 1001;
+      position: relative;
+    }
+    
+    /* Fix product grid spacing */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      position: relative;
+    }
+    
+    .product-card {
+      background: rgba(17, 17, 17, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #222;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: #FFD700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Ensure sidebar categories don't overlap dropdown */
+    .categories-list {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Pagination Styles */
+    .pagination-container {
+      margin-top: 30px;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .page-btn {
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid #FFD700;
+      color: #FFD700;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    
+    .page-btn:hover {
+      background: #FFD700;
+      color: #0A0A0A;
+    }
+    
+    .page-btn.active {
+      background: #FFD700;
+      color: #0A0A0A;
+    }
+    
+    .page-numbers {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    /* Responsive fix */
+    @media (max-width: 1200px) {
+      .nav-item .dropdown {
+        left: 0 !important;
+        min-width: 200px !important;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .builder-sidebar,
+      .build-panel {
+        position: static !important;
+      }
+      
+      .nav-item .dropdown {
+        position: fixed !important;
+        top: auto !important;
+        left: 20px !important;
+        right: 20px !important;
+        width: auto !important;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+    }
+    
+    /* Fix for any hidden overflow */
+    .video-hero,
+    .guides-section,
+    .newsletter-section,
+    .footer {
+      overflow: visible !important;
+    }
+
+    /* ══ USER MENU DROPDOWN ══════════════════════════════════ */
+    .user-menu-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .user-menu-trigger {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 12px 6px 6px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .user-menu-trigger:hover {
+      background: rgba(255,215,0,0.15);
+      border-color: rgba(255,215,0,0.5);
+    }
+
+    .um-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .um-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+    #userNameHeader {
+      font-size: 13px;
+      font-weight: 600;
+      color: #FFD700;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #umChevron {
+      font-size: 10px;
+      color: rgba(255,215,0,0.6);
+      transition: transform 0.2s;
+    }
+
+    .user-menu-trigger.open #umChevron { transform: rotate(180deg); }
+
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      background: #111;
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 14px;
+      min-width: 220px;
+      padding: 6px 0;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,215,0,0.08);
+      z-index: 999999;
+      animation: udIn 0.18s ease;
+    }
+
+    @keyframes udIn {
+      from { opacity:0; transform:translateY(-8px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .user-dropdown.show { display: block; }
+
+    .ud-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      margin-bottom: 4px;
+    }
+
+    .ud-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,215,0,0.3);
+    }
+
+    .ud-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+    .ud-info { overflow: hidden; }
+
+    .ud-info strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f0f0f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ud-info span {
+      font-size: 11px;
+      color: #555;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+
+    .user-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #aaa;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .user-dropdown a:hover {
+      background: rgba(255,255,255,0.05);
+      color: #f0f0f0;
+    }
+
+    .user-dropdown a i {
+      width: 16px;
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .user-dropdown a:hover i { color: #FFD700; }
+
+    .user-dropdown a#adminMenuBtn { color: #FFD700; }
+    .user-dropdown a#adminMenuBtn i { color: #FFD700; }
+
+    .user-dropdown hr {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 4px 0;
+    }
+
+    .user-dropdown .ud-signout { color: #ef4444 !important; }
+    .user-dropdown .ud-signout i { color: #ef4444 !important; }
+    .user-dropdown .ud-signout:hover { background: rgba(239,68,68,0.08) !important; }
+    .forgot-link { color: #FFD700 !important; font-size: 12px; font-weight: 600; text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <div class="top-bar-left">
+        <a href="#" class="top-link" onclick="showToast('Support Coming Soon!')">SUPPORT</a>
+        <span class="top-divider">|</span>
+        <a href="#" class="top-link" id="signInTopBtn" onclick="openAuthModal()">SIGN IN</a>
+      </div>
+      <div class="top-bar-right">
+        <a href="#" class="top-link" onclick="openSettingsModal()"><i class="fas fa-globe"></i> Global / English</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <a href="#" onclick="if(window.showAllProducts){showAllProducts(); window.scrollTo({top:0,behavior:'smooth'});} return false;">
+          <i class="fas fa-tools"></i>
+          <span>BUILDMATRIX</span>
+        </a>
+      </div>
+
+      <nav class="main-nav">
+        <div class="nav-item has-dropdown">
+          <a href="#" class="nav-link">GUIDES <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown">
+            <div class="dropdown-content">
+              <a href="#" onclick="openArticle('diy'); return false;">🔧 DIY Builder Guides</a>
+              <a href="#" onclick="openArticle('cooling'); return false;">❄️ Cooling Guides</a>
+              <a href="#" onclick="openArticle('overclocking'); return false;">⚡ Overclocking Guides</a>
+              <a href="#" onclick="openArticle('troubleshooting'); return false;">🔍 Troubleshooting</a>
+              <a href="#" onclick="openArticle('fans'); return false;">🌀 Fans - Everything You Need</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-item has-dropdown">
+          <a href="#" class="nav-link">SOFTWARE <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown">
+            <div class="dropdown-content">
+              <a href="#" onclick="openArticle('studio'); return false;">🎨 BuildMatrix Studio</a>
+              <a href="#" onclick="openArticle('compatibility'); return false;">✓ Compatibility Checker</a>
+              <a href="#" onclick="openArticle('performance'); return false;">📊 Performance Analyzer</a>
+              <a href="#" onclick="openArticle('budget'); return false;">💰 Budget Calculator</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link" onclick="toggleSearch()"><i class="fas fa-search"></i></a>
+        </div>
+      </nav>
+
+      <div class="user-menu-container" id="userMenuContainer" style="display:none; position:relative;">
+        <div class="user-menu-trigger" onclick="toggleUserMenu()" id="userMenuTrigger">
+          <div class="um-avatar" id="umAvatar">P</div>
+          <span id="userNameHeader">User</span>
+          <i class="fas fa-chevron-down" id="umChevron"></i>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-header">
+            <div class="ud-avatar" id="udAvatar">P</div>
+            <div class="ud-info">
+              <strong id="udName">User</strong>
+              <span id="udEmail">user@email.com</span>
+            </div>
+          </div>
+          <a href="my-builds.html"><i class="fas fa-folder"></i> My Builds</a>
+          <a href="#" onclick="openSecuritySettings(); return false;"><i class="fas fa-shield-alt"></i> Security Settings</a>
+          <a href="admin.html" id="adminMenuBtn" style="display:none;"><i class="fas fa-crown"></i> Admin Panel</a>
+          <hr>
+          <a href="#" onclick="doSignOut(); return false;" class="ud-signout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+        </div>
+      </div>
+
+      <button class="sign-in-btn" id="signInBtn" onclick="openAuthModal()">SIGN IN</button>
+      <button class="header-dark-toggle" id="headerDarkToggle" onclick="toggleDarkLight()" title="Toggle dark/light mode"><i class="fas fa-moon" id="darkToggleIcon"></i></button>
+    </div>
+  </header>
+
+  <!-- VIDEO HERO SECTION -->
+  <div class="video-hero">
+    <div class="video-overlay"></div>
+    <video autoplay muted loop playsinline class="hero-video" id="heroBackgroundVideo">
+      <source src="Images/rtx-5090.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <button class="hero-mute-btn" id="heroMuteBtn" onclick="toggleHeroMute()" title="Toggle sound">
+      <i class="fas fa-volume-mute" id="heroMuteIcon"></i>
+    </button>
+    <div class="hero-content">
+      <div class="hero-badge">RTX 50 SERIES</div>
+      <h1 class="hero-title">NVIDIA GeForce RTX 5090</h1>
+      <p class="hero-subtitle">The Next Generation of Gaming • DLSS 4 • Neural Rendering</p>
+      <div class="hero-buttons">
+        <button class="hero-btn primary" onclick="filterCategory('gpu')">BROWSE GPUs</button>
+        <button class="hero-btn secondary" onclick="document.getElementById('builder-container').scrollIntoView({behavior:'smooth',block:'start'})">START BUILDING</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">2x</span>
+          <span class="stat-label">Performance vs RTX 4090</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">32GB</span>
+          <span class="stat-label">GDDR7 Memory</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">DLSS 4</span>
+          <span class="stat-label">AI-Powered</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDES SECTION -->
+  <div class="guides-section">
+    <div class="section-header reveal">
+      <h2>BUILD GUIDES & TUTORIALS</h2>
+      <a href="#" class="section-link" onclick="showToast('More Guides Coming Soon!')">VIEW ALL GUIDES <i class="fas fa-arrow-right"></i></a>
+    </div>
+    
+    <div class="guides-grid">
+      <div class="guide-card" onclick="openArticle('cpu')" style="cursor:pointer;">
+        <div class="guide-image"><i class="fas fa-microchip"></i></div>
+        <div class="guide-content">
+          <span class="guide-badge">GUIDE</span>
+          <h3>How to Choose the Right CPU for Your Build</h3>
+          <button class="read-more">READ GUIDE</button>
+        </div>
+      </div>
+      
+      <div class="guide-card" onclick="openArticle('build')" style="cursor:pointer;">
+        <div class="guide-image"><i class="fas fa-keyboard"></i></div>
+        <div class="guide-content">
+          <span class="guide-badge">GUIDE</span>
+          <h3>PC Building: Step by Step for Beginners</h3>
+          <button class="read-more">READ GUIDE</button>
+        </div>
+      </div>
+      
+      <div class="guide-card" onclick="openArticle('airflow')" style="cursor:pointer;">
+        <div class="guide-image"><i class="fas fa-fan"></i></div>
+        <div class="guide-content">
+          <span class="guide-badge">GUIDE</span>
+          <h3>Case Airflow Optimization Guide</h3>
+          <button class="read-more">READ GUIDE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main PC Builder Layout -->
+  <div class="builder-container" id="builder-container">
+    <aside class="builder-sidebar">
+      <div class="sidebar-header">
+        <h3>COMPONENTS</h3>
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      
+      <div class="categories-list">
+        <button class="category-item" data-category="cpu">
+          <span><i class="fas fa-microchip"></i> Processors (CPU)</span><span class="cat-count" id="cnt-cpu">0</span>
+        </button>
+        <button class="category-item" data-category="gpu">
+          <span><i class="fas fa-tv"></i> Graphics Cards (GPU)</span><span class="cat-count" id="cnt-gpu">0</span>
+        </button>
+        <button class="category-item" data-category="motherboard">
+          <span><i class="fas fa-server"></i> Motherboards</span><span class="cat-count" id="cnt-motherboard">0</span>
+        </button>
+        <button class="category-item" data-category="ram">
+          <span><i class="fas fa-memory"></i> Memory (RAM)</span><span class="cat-count" id="cnt-ram">0</span>
+        </button>
+        <button class="category-item" data-category="ssd">
+          <span><i class="fas fa-database"></i> Storage (SSD/HDD)</span><span class="cat-count" id="cnt-ssd">0</span>
+        </button>
+        <button class="category-item" data-category="psu">
+          <span><i class="fas fa-bolt"></i> Power Supplies</span><span class="cat-count" id="cnt-psu">0</span>
+        </button>
+        <button class="category-item" data-category="case">
+          <span><i class="fas fa-desktop"></i> PC Cases</span><span class="cat-count" id="cnt-case">0</span>
+        </button>
+        <button class="category-item" data-category="monitor">
+          <span><i class="fas fa-display"></i> Monitors</span><span class="cat-count" id="cnt-monitor">0</span>
+        </button>
+        <button class="category-item" data-category="fan">
+          <span><i class="fas fa-fan"></i> Cooling Fans</span><span class="cat-count" id="cnt-fan">0</span>
+        </button>
+        <button class="category-item" data-category="keyboard">
+          <span><i class="fas fa-keyboard"></i> Keyboards</span><span class="cat-count" id="cnt-keyboard">0</span>
+        </button>
+        <button class="category-item" data-category="mouse">
+          <span><i class="fas fa-mouse"></i> Mice</span><span class="cat-count" id="cnt-mouse">0</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="builder-main">
+      <div class="product-controls">
+        <div class="product-search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" class="product-search" id="productSearch" placeholder="Search components..." oninput="applyAllFilters()">
+        </div>
+        <select class="sort-select" id="sortSelect" onchange="applyAllFilters()">
+          <option value="default">Sort: Default</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="name-asc">Name: A → Z</option>
+        </select>
+        <div class="price-range-wrap">
+          <i class="fas fa-tag" style="font-size:11px;"></i>
+          <input type="range" id="priceRange" min="0" max="200000" step="1000" value="200000" oninput="applyAllFilters()">
+          <span class="price-range-label" id="priceRangeLabel">All</span>
+        </div>
+      </div>
+
+      <div class="sub-filter-bar" id="subFilterBar">
+        <button class="sub-filter-btn active" data-filter="all" onclick="applySubFilter('all', this)">All</button>
+        <button class="sub-filter-btn" data-filter="amd-cpu" onclick="applySubFilter('amd-cpu', this)"><i class="fab fa-amd"></i> AMD CPUs</button>
+        <button class="sub-filter-btn" data-filter="intel-cpu" onclick="applySubFilter('intel-cpu', this)"><i class="fas fa-microchip"></i> Intel CPUs</button>
+        <button class="sub-filter-btn" data-filter="amd-gpu" onclick="applySubFilter('amd-gpu', this)"><i class="fab fa-amd"></i> AMD GPUs</button>
+        <button class="sub-filter-btn" data-filter="nvidia-gpu" onclick="applySubFilter('nvidia-gpu', this)"><i class="fas fa-tv"></i> NVIDIA GPUs</button>
+      </div>
+
+      <div id="productsContainer" class="products-grid">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <p style="margin-top: 20px;">Loading components...</p>
+        </div>
+      </div>
+    </main>
+
+    <aside class="build-panel">
+      <div class="build-header">
+        <h2>YOUR BUILD</h2>
+        <button class="clear-all" id="clearAllBtn" onclick="clearAllBuild()" style="display: none;">Clear All</button>
+      </div>
+      
+      <div id="selectedParts" class="selected-parts">
+        <div class="empty-build">
+          <i class="fas fa-tools"></i>
+          <h3>No components selected</h3>
+          <p>Click "Add to Build" on any component</p>
+        </div>
+      </div>
+
+      <div class="total-cost">
+        <span>Total:</span>
+        <span id="totalPrice">₱0</span>
+      </div>
+
+      <div class="build-actions">
+        <button class="action-btn save" onclick="saveCurrentBuild()">
+          <i class="fas fa-save"></i> Save Build
+        </button>
+        <button class="action-btn screenshot" onclick="downloadScreenshot()">
+          <i class="fas fa-camera"></i> Screenshot
+        </button>
+        <button class="action-btn pdf" onclick="downloadPDF()">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+      </div>
+
+      <div class="java-actions" style="display: flex; gap: 10px; margin: 15px 0;">
+        <button class="action-btn" style="flex:1; background: var(--gold); color: var(--bg-dark);" onclick="runJavaScore()">
+          <i class="fas fa-chart-line"></i> Analyze Build
+        </button>
+        <button class="action-btn" style="flex:1;" onclick="runJavaBudget()">
+          <i class="fas fa-coins"></i> Budget Guide
+        </button>
+      </div>
+
+      <div id="compatibilityPanel" class="compatibility-panel" style="display: none;">
+        <h3><i class="fas fa-chart-line"></i> Compatibility Analysis</h3>
+        <div id="compatibilityList"></div>
+      </div>
+
+      <div id="perfScorePanel" class="perf-score-panel" style="display:none;">
+        <h3><i class="fas fa-tachometer-alt" style="color:var(--gold);"></i> Performance Score</h3>
+        <div class="perf-row">
+          <div class="perf-row-header"><span class="perf-row-label">🎮 Gaming</span><span class="perf-row-val" id="perfGaming">0</span></div>
+          <div class="perf-bar-track"><div class="perf-bar-fill" id="perfGamingBar" style="width:0%"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-row-header"><span class="perf-row-label">💼 Productivity</span><span class="perf-row-val" id="perfProd">0</span></div>
+          <div class="perf-bar-track"><div class="perf-bar-fill" id="perfProdBar" style="width:0%;background:linear-gradient(90deg,#00aaff,#0066cc)"></div></div>
+        </div>
+        <div class="perf-row">
+          <div class="perf-row-header"><span class="perf-row-label">📡 Streaming</span><span class="perf-row-val" id="perfStream">0</span></div>
+          <div class="perf-bar-track"><div class="perf-bar-fill" id="perfStreamBar" style="width:0%;background:linear-gradient(90deg,#aa44ff,#7722cc)"></div></div>
+        </div>
+      </div>
+
+      <div class="promo-card" onclick="openVideoModal()">
+        <div class="promo-icon">
+          <i class="fas fa-play-circle"></i>
+        </div>
+        <div class="promo-content">
+          <h4>Watch: RTX 5090 Overview</h4>
+          <p>See the next generation of gaming performance</p>
+        </div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-item">
+          <i class="fas fa-chart-line"></i>
+          <h4>Real-time Compatibility</h4>
+          <p>Automatic part matching</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-calculator"></i>
+          <h4>Budget Calculator</h4>
+          <p>Smart allocation guide</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-chart-simple"></i>
+          <h4>Performance Score</h4>
+          <p>Estimate your build's power</p>
+        </div>
+      </div>
+
+      <button class="share-btn" onclick="shareBuild()">
+        <i class="fas fa-share-alt"></i> Share Build
+      </button>
+    </aside>
+  </div>
+
+  <!-- Newsletter Section -->
+  <div class="newsletter-section">
+    <div class="newsletter-content">
+      <h2>Get build tips, new component alerts, and PC building guides straight to your inbox.</h2>
+      <div class="newsletter-form">
+        <input type="email" placeholder="Email Address" id="newsletterEmail">
+        <button onclick="subscribeNewsletter()">SUBSCRIBE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h4>BUILDMATRIX</h4>
+        <ul>
+          <li><a href="#" onclick="showToast('About Us')">About Us</a></li>
+          <li><a href="#" onclick="showToast('Contact')">Contact</a></li>
+          <li><a href="#" onclick="showToast('Blog')">Blog</a></li>
+          <li><a href="#" onclick="showToast('Careers')">Careers</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h4>BUILDER TOOLS</h4>
+        <ul>
+          <li><a href="#" onclick="window.location.href='index.html'">PC Builder</a></li>
+          <li><a href="#" onclick="openCompareModal()">Compare Parts</a></li>
+          <li><a href="#" onclick="openAutoBuildModal()">Auto Build Generator</a></li>
+          <li><a href="#" onclick="showToast('Compatibility Checker')">Compatibility Checker</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h4>RESOURCES</h4>
+        <ul>
+          <li><a href="#" onclick="showToast('Build Guides')">Build Guides</a></li>
+          <li><a href="#" onclick="showToast('Tutorials')">Tutorials</a></li>
+          <li><a href="#" onclick="showToast('FAQ')">FAQ</a></li>
+          <li><a href="#" onclick="showToast('Glossary')">PC Building Glossary</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h4>SUPPORT</h4>
+        <ul>
+          <li><a href="#" onclick="showToast('Help Center')">Help Center</a></li>
+          <li><a href="#" onclick="showToast('Community Forum')">Community Forum</a></li>
+          <li><a href="#" onclick="showToast('Contact Support')">Contact Support</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+        <a href="#"><i class="fab fa-discord"></i></a>
+      </div>
+      <p>&copy; 2024 BuildMatrix. All rights reserved. A PC Building Tool.</p>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <div class="modal" id="authModal"><div class="modal-content"><div class="modal-header"><h2>SIGN IN</h2><button class="modal-close" onclick="closeAuthModal()">&times;</button></div><form id="loginForm" onsubmit="handleLogin(event)"><div class="form-group"><label>Email Address *</label><input type="email" id="loginEmail" required></div><div class="form-group"><label>Password *</label><input type="password" id="loginPassword" required></div><div class="form-group twofa-input" id="twofaInput"><label>Two-Factor Authentication Code</label><input type="text" id="login2faCode" placeholder="Enter 6-digit code" maxlength="6"><small>Enter the code from Google Authenticator</small></div><div class="form-options"><label class="checkbox"><input type="checkbox" id="keepLoggedIn"> Keep me logged in</label><a href="#" onclick="openForgotPassword()" class="forgot-link">Forgot Password?</a></div><button type="submit" class="submit-btn">SUBMIT</button><div class="register-link">Don't have an account yet? <a href="#" onclick="switchToRegister()">Create an account</a></div></form><form id="registerForm" onsubmit="handleRegister(event)" style="display: none;"><div class="form-group"><label>Full Name *</label><input type="text" id="registerName" required></div><div class="form-group"><label>Email Address *</label><input type="email" id="registerEmail" required></div><div class="form-group"><label>Password *</label><input type="password" id="registerPassword" required minlength="6"></div><div class="form-group"><label>Confirm Password *</label><input type="password" id="registerConfirm" required></div><button type="submit" class="submit-btn">REGISTER</button><div class="register-link">Already have an account? <a href="#" onclick="switchToLogin()">Sign in</a></div></form></div></div>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div class="modal" id="forgotModal">
+    <div class="modal-content" style="max-width:440px;">
+      <div class="modal-header">
+        <h2><i class="fas fa-envelope" style="color:var(--gold);margin-right:8px;font-size:18px;"></i> Reset Password</h2>
+        <button class="modal-close" onclick="closeForgotModal()">&times;</button>
+      </div>
+
+      <!-- Step 1: Enter email -->
+      <div id="forgotStep1">
+        <p style="font-size:13px;color:#888;margin-bottom:20px;line-height:1.6;">
+          Enter your email address and we'll send you a reset code.
+        </p>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="resetEmail" placeholder="your@email.com" autocomplete="email"
+            onkeydown="if(event.key==='Enter') sendResetLink()">
+        </div>
+        <button class="submit-btn" id="sendCodeBtn" onclick="sendResetLink()" style="width:100%;">
+          <i class="fas fa-paper-plane"></i> Send Reset Code
+        </button>
+      </div>
+
+      <!-- Step 2: Enter code + new password -->
+      <div id="forgotStep2" style="display:none;">
+        <div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+          <i class="fas fa-envelope-open-text" style="color:var(--gold);margin-top:2px;flex-shrink:0;"></i>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#f0f0f0;margin-bottom:2px;">Check your email</div>
+            <div style="font-size:12px;color:#888;">We sent a reset code to <strong id="sentToEmail" style="color:var(--gold);"></strong></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Reset Code</label>
+          <input type="text" id="resetToken" placeholder="Paste the code from your email"
+            style="letter-spacing:2px;font-family:monospace;font-size:14px;"
+            onkeydown="if(event.key==='Enter') doResetPassword()">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="newPassword" placeholder="Min. 6 characters"
+            onkeydown="if(event.key==='Enter') doResetPassword()">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="confirmPassword" placeholder="Repeat new password"
+            onkeydown="if(event.key==='Enter') doResetPassword()">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="submit-btn" onclick="backToStep1()"
+            style="flex:1;background:transparent;border:1px solid #333;color:#888;">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="submit-btn" id="resetPassBtn" onclick="doResetPassword()" style="flex:2;">
+            <i class="fas fa-key"></i> Reset Password
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <a href="#" onclick="sendResetLink(); return false;"
+            style="font-size:12px;color:#888;text-decoration:underline;">
+            Didn't receive it? Resend code
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal"><div class="modal-content"><div class="modal-header"><h2>UPDATE YOUR SETTINGS</h2><button class="modal-close" onclick="closeSettingsModal()">&times;</button></div><p style="margin-bottom: 20px; color: #888;">Select where you live and what language you speak.</p><div class="form-group"><label>LOCATION</label><select id="locationSelect"><option value="global">Global</option><option value="ph">Philippines</option></select></div><div class="form-group"><label>LANGUAGE</label><select id="languageSelect"><option value="en">English</option></select></div><div class="modal-actions"><button class="modal-btn cancel" onclick="closeSettingsModal()">CANCEL</button><button class="modal-btn save" onclick="saveSettings()">SAVE</button></div></div></div>
+
+  <div class="modal" id="compareModal"><div class="modal-content"><div class="modal-header"><h2>Compare Parts</h2><button class="modal-close" onclick="closeCompareModal()">&times;</button></div><div class="compare-content"><div class="compare-select"><label>Type</label><select id="compareType"><option value="cpu">CPU</option><option value="gpu">GPU</option></select></div><div class="compare-items"><select id="compareA"></select><select id="compareB"></select></div><button class="submit-btn" onclick="runCompare()">COMPARE</button><div id="compareResult"></div></div></div></div>
+
+  <div class="modal" id="autoBuildModal"><div class="modal-content"><div class="modal-header"><h2>Auto Build Generator</h2><button class="modal-close" onclick="closeAutoBuildModal()">&times;</button></div><div class="auto-build-content"><div class="form-group"><label>Budget (₱)</label><input type="number" id="autoBudget" value="50000"></div><div class="form-group"><label>Purpose</label><select id="autoPurpose"><option value="gaming">Gaming</option><option value="productivity">Productivity</option><option value="streaming">Streaming</option></select></div><button class="submit-btn" onclick="generateAutoBuild()">GENERATE</button><div id="autoBuildResult"></div></div></div></div>
+
+  <div class="modal" id="videoModal"><div class="modal-content video-modal"><div class="modal-header"><h2>NVIDIA GeForce RTX 5090</h2><button class="modal-close" onclick="closeVideoModal()">&times;</button></div><div class="video-container"><video controls id="fullVideoPlayer"><source src="Images/rtx-5090.mp4" type="video/mp4"></video></div></div></div>
+
+  <script>
+    // ============ PRODUCT DISPLAY ============
+    let allProducts = [];
+    let currentCategoryProducts = [];
+    let activeSubFilter = 'all';
+
+    function initProducts() {
+      if (typeof window.PRODUCTS !== 'undefined' && Array.isArray(window.PRODUCTS)) {
+        allProducts = window.PRODUCTS;
+        currentCategoryProducts = allProducts;
+        updateCategoryCountBadges();
+        showAllProducts();
+      } else {
+        setTimeout(initProducts, 100);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    function updateCategoryCountBadges() {
+      const cats = ['cpu','gpu','motherboard','ram','ssd','psu','case','monitor','fan','keyboard','mouse'];
+      cats.forEach(cat => {
+        const el = document.getElementById('cnt-' + cat);
+        if (el) el.textContent = allProducts.filter(p => p.category === cat).length;
+      });
+    }
+
+    function updateSidebarDots() {
+      const cats = ['cpu','gpu','motherboard','ram','ssd','psu','case','monitor','fan','keyboard','mouse'];
+      cats.forEach(cat => {
+        const btn = document.querySelector(`.category-item[data-category="${cat}"]`);
+        if (!btn) return;
+        const hasPart = (typeof selectedItems !== 'undefined') && selectedItems.some(i => i.category === cat);
+        btn.classList.toggle('has-part', hasPart);
+      });
+    }
+
+    function applyAllFilters() {
+      const search = (document.getElementById('productSearch')?.value || '').toLowerCase().trim();
+      const sort = document.getElementById('sortSelect')?.value || 'default';
+      const maxPrice = parseInt(document.getElementById('priceRange')?.value || '200000');
+      const priceLabel = document.getElementById('priceRangeLabel');
+      if (priceLabel) priceLabel.textContent = maxPrice >= 200000 ? 'All' : '₱' + maxPrice.toLocaleString();
+
+      let pool = getSubFilteredPool();
+
+      if (search) pool = pool.filter(p => (p.name || '').toLowerCase().includes(search) || (p.specs || '').toLowerCase().includes(search));
+      pool = pool.filter(p => Number(p.price || 0) <= maxPrice);
+
+      if (sort === 'price-asc') pool = [...pool].sort((a,b) => a.price - b.price);
+      else if (sort === 'price-desc') pool = [...pool].sort((a,b) => b.price - a.price);
+      else if (sort === 'name-asc') pool = [...pool].sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+      displayProducts(pool);
+    }
+
+    function getSubFilteredPool() {
+      const f = activeSubFilter;
+      if (f === 'amd-cpu') return allProducts.filter(p => p.category === 'cpu' && p.name.toUpperCase().startsWith('AMD '));
+      if (f === 'intel-cpu') return allProducts.filter(p => p.category === 'cpu' && p.name.toUpperCase().startsWith('INTEL '));
+      if (f === 'amd-gpu') return allProducts.filter(p => p.category === 'gpu' && (p.name.toUpperCase().startsWith('AMD ') || p.name.toUpperCase().startsWith('RADEON ')));
+      if (f === 'nvidia-gpu') return allProducts.filter(p => p.category === 'gpu' && (p.name.toUpperCase().includes('NVIDIA') || p.name.toUpperCase().includes('GEFORCE') || p.name.toUpperCase().includes('RTX') || p.name.toUpperCase().includes('GTX')));
+      return currentCategoryProducts;
+    }
+
+    function displayProducts(products) {
+      const container = document.getElementById('productsContainer');
+      if (!container) return;
+      if (!products || products.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:60px;grid-column:1/-1;"><i class="fas fa-box-open" style="font-size:64px;margin-bottom:20px;opacity:0.5;"></i><h3>No components found</h3><p>Try a different filter or search term</p></div>`;
+        return;
+      }
+      container.innerHTML = products.map(product => {
+        const price = Number(product.price || 0);
+        const img = product.img || 'assets/placeholder.svg';
+        const specs = product.specs || '';
+        return `
+          <div class="product-card" data-category="${product.category}" data-price="${price}" data-name="${escapeHtml(product.name)}">
+            <img src="${img}" alt="${escapeHtml(product.name)}" onerror="this.src='assets/placeholder.svg'">
+            <div class="product-info">
+              <h3>${escapeHtml(product.name)}</h3>
+              <p class="product-specs">${escapeHtml(specs.substring(0,80))}${specs.length > 80 ? '...' : ''}</p>
+              <div class="product-price">₱${price.toLocaleString()}</div>
+              <button class="add-to-build" data-name="${escapeHtml(product.name)}" data-price="${price}" data-category="${product.category}">+ Add to Build</button>
+            </div>
+          </div>`;
+      }).join('');
+      document.querySelectorAll('.add-to-build').forEach(btn => {
+        btn.removeEventListener('click', handleAddToBuild);
+        btn.addEventListener('click', handleAddToBuild);
+      });
+
+      // Stagger animate cards in
+      container.querySelectorAll('.product-card').forEach((card, i) => {
+        card.style.opacity = '0';
+        card.style.animationDelay = (i * 0.04) + 's';
+        card.classList.remove('animate-in');
+        requestAnimationFrame(() => card.classList.add('animate-in'));
+      });
+    }
+
+    function handleAddToBuild(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      if (typeof addToBuild === 'function') addToBuild(btn);
+      btn.classList.add('just-added');
+      setTimeout(() => btn.classList.remove('just-added'), 400);
+      setTimeout(() => updateSidebarDots(), 50);
+    }
+
+    function resetSubFilterBtns() {
+      document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+      const allBtn = document.querySelector('.sub-filter-btn[data-filter="all"]');
+      if (allBtn) allBtn.classList.add('active');
+      activeSubFilter = 'all';
+    }
+
+    function applySubFilter(filter, btn) {
+      document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      activeSubFilter = filter;
+      if (filter !== 'all') document.querySelectorAll('.category-item').forEach(b => b.classList.remove('active'));
+      applyAllFilters();
+    }
+
+    function filterCategory(category) {
+      const filtered = allProducts.filter(p => p.category === category);
+      currentCategoryProducts = filtered;
+      resetSubFilterBtns();
+      applyAllFilters();
+      document.querySelectorAll('.category-item').forEach(btn => {
+        if (btn.getAttribute('data-category') === category) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+
+    function showAllProducts() {
+      currentCategoryProducts = allProducts;
+      resetSubFilterBtns();
+      applyAllFilters();
+      document.querySelectorAll('.category-item').forEach(btn => btn.classList.remove('active'));
+    }
+
+    // ============ HERO MUTE TOGGLE ============
+    function toggleHeroMute() {
+      const video = document.getElementById('heroBackgroundVideo');
+      const icon = document.getElementById('heroMuteIcon');
+      if (!video) return;
+      video.muted = !video.muted;
+      icon.className = video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+    }
+
+    // ============ DARK / LIGHT MODE ============
+    function toggleDarkLight() {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      document.getElementById('darkToggleIcon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('buildmatrix-theme', isLight ? 'light' : 'dark');
+    }
+    function initTheme() {
+      const saved = localStorage.getItem('buildmatrix-theme');
+      if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        const icon = document.getElementById('darkToggleIcon');
+        if (icon) icon.className = 'fas fa-sun';
+      }
+    }
+
+    // ============ SHARE BUILD ============
+    function shareBuild() {
+      if (typeof selectedItems === 'undefined' || selectedItems.length === 0) { showToast('Add parts to your build first!', true); return; }
+      const data = { items: selectedItems.map(i => ({ name: i.name, price: i.price, category: i.category, qty: i.qty || 1 })), total: typeof currentTotal !== 'undefined' ? currentTotal : 0 };
+      const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+      const url = window.location.origin + window.location.pathname + '?share=' + encoded;
+      navigator.clipboard.writeText(url).then(() => showToast('Share link copied to clipboard!')).catch(() => {
+        prompt('Copy this link:', url);
+      });
+    }
+
+    // ============ VIDEO FUNCTIONS ============
+    (function() {
+      const video = document.getElementById('heroBackgroundVideo');
+      if (video) { video.muted = true; video.play().catch(() => {}); }
+    })();
+
+    function openVideoModal() { document.getElementById('videoModal').style.display = 'flex'; }
+    function closeVideoModal() { document.getElementById('videoModal').style.display = 'none'; }
+
+    // ============ MODAL FUNCTIONS ============
+    function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+    function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+    function openForgotPassword() { closeAuthModal(); document.getElementById('forgotModal').style.display = 'flex'; }
+    function closeForgotModal() {
+      document.getElementById('forgotModal').style.display = 'none';
+      // Reset back to step 1 for next use
+      document.getElementById('forgotStep1').style.display = 'block';
+      document.getElementById('forgotStep2').style.display = 'none';
+      ['resetEmail','resetToken','newPassword','confirmPassword'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+    }
+    function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
+    function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+    function openCompareModal() { document.getElementById('compareModal').style.display = 'flex'; }
+    function closeCompareModal() { document.getElementById('compareModal').style.display = 'none'; }
+    function openAutoBuildModal() { document.getElementById('autoBuildModal').style.display = 'flex'; }
+    function closeAutoBuildModal() { document.getElementById('autoBuildModal').style.display = 'none'; }
+
+    function switchToRegister() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; document.querySelector('#authModal .modal-header h2').textContent = 'CREATE ACCOUNT'; }
+    function switchToLogin() { document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; document.querySelector('#authModal .modal-header h2').textContent = 'SIGN IN'; }
+
+    // ── AUTH HELPERS ──────────────────────────────────────────
+    const _API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5000/api'
+      : window.location.origin + '/api';
+
+    function getIndexAvatar() {
+      return localStorage.getItem('bm-avatar') || null;
+    }
+
+    function applyIndexAvatar(user) {
+      const av = getIndexAvatar();
+      const letter = (user?.name || user?.email || 'U')[0].toUpperCase();
+      const small = document.getElementById('umAvatar');
+      const big   = document.getElementById('udAvatar');
+      if (small) small.innerHTML = av ? `<img src="${av}" alt="av">` : letter;
+      if (big)   big.innerHTML   = av ? `<img src="${av}" alt="av">` : letter;
+    }
+
+    function updateIndexAuthUI(user) {
+      const signInBtn         = document.getElementById('signInBtn');
+      const signInTopBtn      = document.getElementById('signInTopBtn');
+      const userMenuContainer = document.getElementById('userMenuContainer');
+      const userNameHeader    = document.getElementById('userNameHeader');
+      const adminMenuBtn      = document.getElementById('adminMenuBtn');
+      const udName            = document.getElementById('udName');
+      const udEmail           = document.getElementById('udEmail');
+
+      if (user) {
+        if (signInBtn)          signInBtn.style.display         = 'none';
+        if (signInTopBtn)       signInTopBtn.textContent        = user.name || 'Account';
+        if (userMenuContainer)  userMenuContainer.style.display = 'flex';
+        if (userNameHeader)     userNameHeader.textContent      = user.name || 'User';
+        if (adminMenuBtn)       adminMenuBtn.style.display      = user.is_admin ? 'flex' : 'none';
+        if (udName)             udName.textContent              = user.name  || 'User';
+        if (udEmail)            udEmail.textContent             = user.email || '';
+        applyIndexAvatar(user);
+      } else {
+        if (signInBtn)          signInBtn.style.display         = '';
+        if (userMenuContainer)  userMenuContainer.style.display = 'none';
+        if (adminMenuBtn)       adminMenuBtn.style.display      = 'none';
+      }
+    }
+
+    function toggleUserMenu() {
+      const trigger = document.getElementById('userMenuTrigger');
+      const dd      = document.getElementById('userDropdown');
+      if (!dd) return;
+      const isOpen = dd.classList.contains('show');
+      dd.classList.toggle('show');
+      if (trigger) trigger.classList.toggle('open', !isOpen);
+    }
+
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('userMenuContainer');
+      const dd        = document.getElementById('userDropdown');
+      const trigger   = document.getElementById('userMenuTrigger');
+      if (!container || !dd) return;
+      if (!container.contains(e.target)) {
+        dd.classList.remove('show');
+        if (trigger) trigger.classList.remove('open');
+      }
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email         = document.getElementById('loginEmail')?.value?.trim();
+      const password      = document.getElementById('loginPassword')?.value ?? '';
+      const twoFactorCode = document.getElementById('login2faCode')?.value?.trim() ?? '';
+      const submitBtn     = document.querySelector('#loginForm .submit-btn');
+
+      if (submitBtn) { submitBtn.textContent = 'Signing in...'; submitBtn.disabled = true; }
+
+      try {
+        const res  = await fetch(`${_API}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password, twoFactorCode })
+        });
+        const data = await res.json();
+
+        if (data.requires2FA) {
+          document.getElementById('twofaInput')?.classList.add('show');
+          document.getElementById('login2faCode')?.focus();
+          showToast('Enter your 2FA code');
+          if (submitBtn) { submitBtn.textContent = 'SUBMIT'; submitBtn.disabled = false; }
+          return;
+        }
+
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          updateIndexAuthUI(data.user);
+          closeAuthModal();
+          showToast('Welcome back, ' + (data.user?.name || 'User') + '!');
+          ['loginEmail','loginPassword','login2faCode'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = '';
+          });
+          document.getElementById('twofaInput')?.classList.remove('show');
+        } else {
+          showToast(data.error || 'Login failed', true);
+        }
+      } catch (err) {
+        showToast('Cannot connect to server. Is it running?', true);
+      }
+
+      if (submitBtn) { submitBtn.textContent = 'SUBMIT'; submitBtn.disabled = false; }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name     = document.getElementById('registerName')?.value?.trim();
+      const email    = document.getElementById('registerEmail')?.value?.trim();
+      const password = document.getElementById('registerPassword')?.value ?? '';
+      const confirm  = document.getElementById('registerConfirm')?.value ?? '';
+      const submitBtn = document.querySelector('#registerForm .submit-btn');
+
+      if (password !== confirm) { showToast('Passwords do not match', true); return; }
+      if (submitBtn) { submitBtn.textContent = 'Creating...'; submitBtn.disabled = true; }
+
+      try {
+        const res  = await fetch(`${_API}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Account created! Please sign in.');
+          switchToLogin();
+          ['registerName','registerEmail','registerPassword','registerConfirm'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = '';
+          });
+        } else {
+          showToast(data.error || 'Registration failed', true);
+        }
+      } catch (err) {
+        showToast('Cannot connect to server.', true);
+      }
+
+      if (submitBtn) { submitBtn.textContent = 'REGISTER'; submitBtn.disabled = false; }
+    }
+
+    // Verify session with server on page load — don't blindly trust localStorage
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        const res  = await fetch(_API + '/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (data && data.id) {
+          localStorage.setItem('user', JSON.stringify(data));
+          updateIndexAuthUI(data);
+        } else {
+          // Server says not logged in — clear and show Sign In
+          localStorage.removeItem('user');
+          updateIndexAuthUI(null);
+        }
+      } catch {
+        // Server unreachable — clear and show Sign In
+        localStorage.removeItem('user');
+        updateIndexAuthUI(null);
+      }
+    });
+    function saveSettings() { showToast('Settings saved!'); closeSettingsModal(); }
+    function subscribeNewsletter() { const email = document.getElementById('newsletterEmail').value; if(email) { showToast('Subscribed!'); document.getElementById('newsletterEmail').value = ''; } else { showToast('Enter email', true); } }
+    function toggleSearch() { const s = document.getElementById('productSearch'); if(!s) return; document.getElementById('builder-container')?.scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(() => { s.focus(); s.style.boxShadow='0 0 0 2px #FFD700'; setTimeout(()=>{s.style.boxShadow='';},2000); }, 500); }
+    function runCompare() { showToast('Compare feature coming soon!'); }
+    function generateAutoBuild() { showToast('Auto Build coming soon!'); }
+    async function sendResetLink() {
+      const email = document.getElementById('resetEmail')?.value?.trim();
+      if (!email) { showToast('Enter your email address', true); return; }
+
+      const btn = document.getElementById('sendCodeBtn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
+
+      try {
+        const res  = await fetch(_API + '/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          // Move to step 2
+          document.getElementById('forgotStep1').style.display = 'none';
+          document.getElementById('forgotStep2').style.display = 'block';
+          document.getElementById('sentToEmail').textContent = email;
+          document.getElementById('resetToken').focus();
+
+          // Dev mode: if backend returns token directly (email not configured), show it
+          if (data.devToken) {
+            showToast('Dev mode: code is ' + data.devToken);
+            document.getElementById('resetToken').value = data.devToken;
+          } else {
+            showToast('Reset code sent to ' + email + '!');
+          }
+        } else {
+          showToast(data.error || 'Could not send reset code', true);
+        }
+      } catch {
+        showToast('Cannot connect to server', true);
+      }
+
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Code'; }
+    }
+
+    function backToStep1() {
+      document.getElementById('forgotStep1').style.display = 'block';
+      document.getElementById('forgotStep2').style.display = 'none';
+    }
+
+    async function doResetPassword() {
+      const token   = document.getElementById('resetToken')?.value?.trim();
+      const newPass = document.getElementById('newPassword')?.value ?? '';
+      const confirm = document.getElementById('confirmPassword')?.value ?? '';
+
+      if (!token)              { showToast('Enter the reset code', true); return; }
+      if (!newPass)            { showToast('Enter a new password', true); return; }
+      if (newPass.length < 6)  { showToast('Password must be at least 6 characters', true); return; }
+      if (newPass !== confirm)  { showToast('Passwords do not match', true); return; }
+
+      const btn = document.getElementById('resetPassBtn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...'; }
+
+      try {
+        const res  = await fetch(_API + '/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, newPassword: newPass })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closeForgotModal();
+          showToast('Password reset! You can now sign in.');
+          // Re-open login modal
+          setTimeout(() => openAuthModal(), 600);
+        } else {
+          showToast(data.error || 'Invalid or expired code', true);
+        }
+      } catch {
+        showToast('Cannot connect to server', true);
+      }
+
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-key"></i> Reset Password'; }
+    }
+
+    // Keep old name working too
+    window.resetPassword = doResetPassword;
+
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = 'toast-message' + (isError ? ' error' : '');
+      toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Make global
+    window.filterCategory = filterCategory;
+    window.showAllProducts = showAllProducts;
+    // ── SECURITY SETTINGS MODAL ─────────────────────────────
+    function openSecuritySettings() {
+      ['secCurrent','secNew','secConfirm'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('securitySettingsModal').style.display = 'flex';
+      // Close user dropdown
+      document.getElementById('userDropdown')?.classList.remove('show');
+      document.getElementById('userMenuTrigger')?.classList.remove('open');
+    }
+
+    function closeSecuritySettings() {
+      document.getElementById('securitySettingsModal').style.display = 'none';
+    }
+
+    async function doChangePassword() {
+      const cur  = document.getElementById('secCurrent').value;
+      const next = document.getElementById('secNew').value;
+      const conf = document.getElementById('secConfirm').value;
+      if (!cur || !next || !conf) { showToast('All fields required', true); return; }
+      if (next !== conf) { showToast('Passwords do not match', true); return; }
+      if (next.length < 6) { showToast('Min. 6 characters', true); return; }
+      try {
+        const res  = await fetch(_API + '/auth/change-password', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword: cur, newPassword: next })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeSecuritySettings();
+          showToast('Password changed successfully!');
+        } else {
+          showToast(data.error || 'Failed to change password', true);
+        }
+      } catch { showToast('Cannot connect to server', true); }
+    }
+
+    function openActual2FA() {
+      closeSecuritySettings();
+      // Open the existing 2FA modal if it exists
+      const modal = document.getElementById('twofaSetupModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        if (typeof open2FASetup === 'function') open2FASetup();
+      } else {
+        showToast('2FA setup — go to My Builds > Security Settings');
+      }
+    }
+
+    async function disable2FA() {
+      if (!confirm('Disable Two-Factor Authentication? This will make your account less secure.')) return;
+      try {
+        const res  = await fetch(_API + '/2fa/disable', {
+          method: 'POST', credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) showToast('2FA disabled');
+        else showToast(data.error || 'Failed', true);
+      } catch { showToast('Cannot connect to server', true); }
+    }
+
+    // Override open2FASetup to open our modal instead
+    window.open2FASetup = openSecuritySettings;
+    window.openSecuritySettings = openSecuritySettings;
+    window.closeSecuritySettings = closeSecuritySettings;
+    window.doChangePassword = doChangePassword;
+    window.openActual2FA = openActual2FA;
+    window.disable2FA = disable2FA;
+
+    window.applySubFilter = applySubFilter;
+    window.applyAllFilters = applyAllFilters;
+    window.updateSidebarDots = updateSidebarDots;
+    window.shareBuild = shareBuild;
+    window.openVideoModal = openVideoModal;
+    window.closeVideoModal = closeVideoModal;
+    window.openAuthModal = openAuthModal;
+    window.closeAuthModal = closeAuthModal;
+    window.openForgotPassword = openForgotPassword;
+    window.closeForgotModal = closeForgotModal;
+    window.openSettingsModal = openSettingsModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.openCompareModal = openCompareModal;
+    window.closeCompareModal = closeCompareModal;
+    window.openAutoBuildModal = openAutoBuildModal;
+    window.closeAutoBuildModal = closeAutoBuildModal;
+    window.switchToRegister = switchToRegister;
+    window.switchToLogin = switchToLogin;
+    window.saveSettings = saveSettings;
+    window.subscribeNewsletter = subscribeNewsletter;
+    window.toggleSearch = toggleSearch;
+    window.runCompare = runCompare;
+    window.generateAutoBuild = generateAutoBuild;
+    window.showToast = showToast;
+    window.toggleHeroMute = toggleHeroMute;
+    window.toggleDarkLight = toggleDarkLight;
+
+    // ============ SCROLL REVEAL ============
+    function initScrollReveal() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(el => {
+          if (el.isIntersecting) {
+            el.target.classList.add('visible');
+            observer.unobserve(el.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // ============ RIPPLE ON ADD TO BUILD ============
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.add-to-build');
+      if (!btn) return;
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+      btn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    });
+
+    // ============ SUB-FILTER SLIDING INDICATOR ============
+    function updateFilterIndicator(activeBtn) {
+      const bar = document.getElementById('subFilterBar');
+      if (!bar) return;
+      let indicator = bar.querySelector('.sub-filter-indicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'sub-filter-indicator';
+        bar.appendChild(indicator);
+      }
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = activeBtn.getBoundingClientRect();
+      indicator.style.left  = (btnRect.left - barRect.left) + 'px';
+      indicator.style.width = btnRect.width + 'px';
+    }
+    const _origApplySubFilter = applySubFilter;
+    function applySubFilter(filter, btn) {
+      _origApplySubFilter(filter, btn);
+      if (btn) updateFilterIndicator(btn);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      const firstBtn = document.querySelector('.sub-filter-btn.active');
+      if (firstBtn) setTimeout(() => updateFilterIndicator(firstBtn), 100);
+    });
+
+    // ============ ENHANCED TOAST ============
+    const _origShowToast = showToast;
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = 'toast-message' + (isError ? ' error' : '');
+      toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('hiding');
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 2700);
+    }
+    window.showToast = showToast;
+
+    // ============ HERO STAT COUNTER ============
+    function animateCounter(el, target, suffix, duration) {
+      const isText = isNaN(parseFloat(target));
+      if (isText) { el.textContent = target; return; }
+      const end = parseFloat(target);
+      const start = 0;
+      const startTime = performance.now();
+      el.classList.add('counting');
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = start + (end - start) * eased;
+        el.textContent = (Number.isInteger(end) ? Math.round(current) : current.toFixed(1)) + (suffix || '');
+        if (progress < 1) requestAnimationFrame(tick);
+        else { el.textContent = target + (suffix || ''); el.classList.remove('counting'); }
+      }
+      requestAnimationFrame(tick);
+    }
+    function initHeroCounters() {
+      const stats = [
+        { id: null, el: document.querySelectorAll('.stat-value')[0], target: '2', suffix: 'x', dur: 1200 },
+        { id: null, el: document.querySelectorAll('.stat-value')[1], target: '32', suffix: 'GB', dur: 1400 },
+        { id: null, el: document.querySelectorAll('.stat-value')[2], target: 'DLSS 4', suffix: '', dur: 0 },
+      ];
+      stats.forEach((s, i) => {
+        if (!s.el) return;
+        s.el.textContent = '';
+        setTimeout(() => animateCounter(s.el, s.target, s.suffix, s.dur), 1200 + i * 200);
+      });
+    }
+
+    // ============ TOTAL PRICE POP ============
+    const _origUpdateBuildDisplay = typeof updateBuildDisplay !== 'undefined' ? updateBuildDisplay : null;
+    function popTotalPrice() {
+      const el = document.querySelector('.total-cost span:last-child');
+      if (!el) return;
+      el.classList.remove('popping');
+      void el.offsetWidth;
+      el.classList.add('popping');
+      el.addEventListener('animationend', () => el.classList.remove('popping'), { once: true });
+    }
+
+    // ============ INIT ALL ============
+    document.addEventListener('DOMContentLoaded', function() {
+      // Scroll reveal on guide cards and builder container
+      document.querySelectorAll('.guide-card').forEach((el, i) => {
+        el.classList.add('reveal');
+        if (i === 1) el.classList.add('reveal-delay-1');
+        if (i === 2) el.classList.add('reveal-delay-2');
+      });
+      const builderContainer = document.getElementById('builder-container');
+      if (builderContainer) builderContainer.classList.add('reveal');
+      const newsletter = document.querySelector('.newsletter-section');
+      if (newsletter) newsletter.classList.add('reveal');
+      initScrollReveal();
+      initHeroCounters();
+    });
+
+    // Patch updateBuildDisplay globally to pop price
+    document.addEventListener('DOMContentLoaded', function() {
+      const orig = window.updateBuildDisplay;
+      if (orig) {
+        window.updateBuildDisplay = function() {
+          orig();
+          popTotalPrice();
+        };
+      }
+    });
+
+    // ── SECURITY SETTINGS MODAL ─────────────────────────────
+    function openSecuritySettings() {
+      ['secCurrent','secNew','secConfirm'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('securitySettingsModal').style.display = 'flex';
+      // Close user dropdown
+      document.getElementById('userDropdown')?.classList.remove('show');
+      document.getElementById('userMenuTrigger')?.classList.remove('open');
+    }
+
+    function closeSecuritySettings() {
+      document.getElementById('securitySettingsModal').style.display = 'none';
+    }
+
+    async function doChangePassword() {
+      const cur  = document.getElementById('secCurrent').value;
+      const next = document.getElementById('secNew').value;
+      const conf = document.getElementById('secConfirm').value;
+      if (!cur || !next || !conf) { showToast('All fields required', true); return; }
+      if (next !== conf) { showToast('Passwords do not match', true); return; }
+      if (next.length < 6) { showToast('Min. 6 characters', true); return; }
+      try {
+        const res  = await fetch(_API + '/auth/change-password', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword: cur, newPassword: next })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeSecuritySettings();
+          showToast('Password changed successfully!');
+        } else {
+          showToast(data.error || 'Failed to change password', true);
+        }
+      } catch { showToast('Cannot connect to server', true); }
+    }
+
+    function openActual2FA() {
+      closeSecuritySettings();
+      // Open the existing 2FA modal if it exists
+      const modal = document.getElementById('twofaSetupModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        if (typeof open2FASetup === 'function') open2FASetup();
+      } else {
+        showToast('2FA setup — go to My Builds > Security Settings');
+      }
+    }
+
+    async function disable2FA() {
+      if (!confirm('Disable Two-Factor Authentication? This will make your account less secure.')) return;
+      try {
+        const res  = await fetch(_API + '/2fa/disable', {
+          method: 'POST', credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) showToast('2FA disabled');
+        else showToast(data.error || 'Failed', true);
+      } catch { showToast('Cannot connect to server', true); }
+    }
+
+    // Override open2FASetup to open our modal instead
+    window.open2FASetup = openSecuritySettings;
+    window.openSecuritySettings = openSecuritySettings;
+    window.closeSecuritySettings = closeSecuritySettings;
+    window.doChangePassword = doChangePassword;
+    window.openActual2FA = openActual2FA;
+    window.disable2FA = disable2FA;
+
+    window.applySubFilter = applySubFilter;
+    window.showToast = showToast;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      initTheme();
+      document.querySelectorAll('.category-item').forEach(btn => {
+        const category = btn.getAttribute('data-category');
+        if (category) btn.addEventListener('click', function(e) { e.preventDefault(); filterCategory(category); });
+      });
+      initProducts();
+      if (typeof initDarkModeToggle === 'function') initDarkModeToggle();
+      if (typeof updateAuthUI === 'function') updateAuthUI();
+      if (typeof initUserMenuAutoClose === 'function') initUserMenuAutoClose();
+    });
+  </script>
+  <!-- Article Modal -->
+  <div class="modal" id="articleModal" style="align-items:flex-start; padding: 40px 20px; overflow-y:auto;">
+    <div class="modal-content" style="max-width:760px; width:100%; padding:0; overflow:hidden; border-radius:20px;">
+      <div class="article-hero" id="articleHero">
+        <div class="article-hero-overlay"></div>
+        <div class="article-hero-icon" id="articleIcon"></div>
+        <button class="modal-close article-close-btn" onclick="closeArticle()">&times;</button>
+      </div>
+      <div style="padding: 32px 36px 40px;">
+        <span class="guide-badge" id="articleBadge">GUIDE</span>
+        <h2 id="articleTitle" style="font-size:26px; font-weight:900; margin: 12px 0 8px; line-height:1.3;"></h2>
+        <p id="articleMeta" style="font-size:13px; color:var(--text-secondary); margin-bottom:28px;"></p>
+        <div id="articleBody" class="article-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .article-hero {
+      position: relative;
+      height: 200px;
+      background: linear-gradient(135deg, #1a1a1a, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .article-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, transparent 70%);
+    }
+    .article-hero-icon {
+      font-size: 72px;
+      color: var(--gold);
+      opacity: 0.9;
+      z-index: 1;
+    }
+    .article-close-btn {
+      position: absolute;
+      top: 16px; right: 20px;
+      z-index: 10;
+      font-size: 28px;
+      color: var(--text-secondary);
+    }
+    .article-close-btn:hover { color: var(--error); }
+    .article-body { color: var(--text-secondary); font-size: 15px; line-height: 1.85; }
+    .article-body h3 {
+      color: var(--text-primary);
+      font-size: 17px;
+      font-weight: 700;
+      margin: 28px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .article-body h3 i { color: var(--gold); font-size: 15px; }
+    .article-body p { margin-bottom: 14px; }
+    .article-body ul { padding-left: 20px; margin-bottom: 14px; }
+    .article-body ul li { margin-bottom: 8px; }
+    .article-body .tip-box {
+      background: rgba(255,215,0,0.07);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .article-body .tip-box strong { color: var(--gold); }
+    .article-body .step-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 18px;
+      align-items: flex-start;
+    }
+    .article-body .step-num {
+      min-width: 34px;
+      height: 34px;
+      background: var(--gold);
+      color: var(--bg-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .article-body .step-text strong { color: var(--text-primary); display: block; margin-bottom: 4px; font-size: 15px; }
+    .article-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .article-body table th { background: rgba(255,215,0,0.12); color: var(--gold); padding: 10px 14px; text-align: left; font-weight: 700; }
+    .article-body table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .article-body table tr:last-child td { border-bottom: none; }
+  </style>
+
+  <script>
+    const ARTICLES = {
+      // ── GUIDE CARDS ──────────────────────────────────
+      cpu: {
+        icon: '<i class="fas fa-microchip"></i>',
+        badge: 'CPU GUIDE',
+        title: 'How to Choose the Right CPU for Your Build',
+        meta: '8 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>The CPU (Central Processing Unit) is the brain of your PC. Choosing the wrong one can bottleneck your entire build — but with this guide, you'll know exactly what to look for.</p>
+          <h3><i class="fas fa-list-check"></i> What to look for</h3>
+          <table>
+            <tr><th>Spec</th><th>What it means</th><th>Recommendation</th></tr>
+            <tr><td>Core count</td><td>Number of processing units</td><td>6+ cores for gaming, 12+ for content creation</td></tr>
+            <tr><td>Clock speed</td><td>GHz — how fast each core runs</td><td>Higher is better for gaming (5GHz+)</td></tr>
+            <tr><td>TDP (watts)</td><td>How much power/heat it uses</td><td>Match to your cooler capacity</td></tr>
+            <tr><td>Socket type</td><td>Must match your motherboard</td><td>AM5 for AMD Ryzen, LGA1851 for Intel</td></tr>
+            <tr><td>Integrated graphics</td><td>Built-in GPU fallback</td><td>Useful if you don't have a discrete GPU yet</td></tr>
+          </table>
+          <h3><i class="fab fa-amd"></i> AMD Ryzen — Best for most builders</h3>
+          <p>AMD's Ryzen processors offer excellent multi-core performance for the price. The Ryzen 5 and Ryzen 7 series are the sweet spot for gaming and productivity.</p>
+          <ul>
+            <li><strong>Ryzen 5 7600X</strong> — Best budget gaming CPU. 6 cores, 5.3GHz boost.</li>
+            <li><strong>Ryzen 7 7800X3D</strong> — Best gaming CPU overall. AMD's 3D V-Cache destroys games.</li>
+            <li><strong>Ryzen 9 7950X</strong> — Best for creators. 16 cores for heavy rendering & streaming.</li>
+          </ul>
+          <h3><i class="fas fa-microchip"></i> Intel Core — Strong single-core speed</h3>
+          <ul>
+            <li><strong>Core i5-14600K</strong> — Great all-rounder, strong gaming value.</li>
+            <li><strong>Core i7-14700K</strong> — Excellent for streaming + gaming simultaneously.</li>
+            <li><strong>Core i9-14900K</strong> — Flagship power, but runs hot.</li>
+          </ul>
+          <div class="tip-box"><strong>💡 Pro Tip:</strong> For pure gaming, prioritize clock speed and single-core performance over core count. Never buy a CPU without checking socket compatibility with your motherboard!</div>
+          <h3><i class="fas fa-peso-sign"></i> Budget recommendations (Philippine prices)</h3>
+          <table>
+            <tr><th>Budget</th><th>Recommended CPU</th><th>Est. Price</th></tr>
+            <tr><td>₱5,000–₱8,000</td><td>AMD Ryzen 5 5600</td><td>~₱7,299</td></tr>
+            <tr><td>₱10,000–₱15,000</td><td>AMD Ryzen 7 5800X3D</td><td>~₱14,999</td></tr>
+            <tr><td>₱15,000–₱25,000</td><td>AMD Ryzen 7 7800X3D</td><td>~₱22,999</td></tr>
+            <tr><td>₱25,000+</td><td>Intel Core i9-14900K</td><td>~₱29,999</td></tr>
+          </table>
+        `
+      },
+      build: {
+        icon: '<i class="fas fa-screwdriver-wrench"></i>',
+        badge: 'BEGINNER GUIDE',
+        title: 'PC Building: Step by Step for Beginners',
+        meta: '12 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Building your own PC is one of the most rewarding things you can do as a tech enthusiast — and it's easier than you think. This guide walks you through the whole process from zero to boot screen.</p>
+          <div class="tip-box"><strong>🛠️ Tools you'll need:</strong> Phillips-head screwdriver (size 2), anti-static wrist strap (recommended), zip ties for cable management, and good lighting.</div>
+          <h3><i class="fas fa-microchip"></i> Step 1 — Install CPU into motherboard</h3>
+          <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Lift the CPU socket lever</strong>On Intel boards, lift the lever and remove the plastic cover. On AMD AM4/AM5, lift the lever — no cover to remove.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Align and drop in the CPU</strong>Match the gold triangle on the CPU corner to the triangle on the socket. Lower it straight down — never force it.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Apply thermal paste & attach cooler</strong>Apply a pea-sized dot of thermal paste on the CPU center, then mount your cooler on top.</div></div>
+          <h3><i class="fas fa-memory"></i> Step 2 — Install RAM</h3>
+          <p>For 2 sticks, use slots A2 and B2 (2nd and 4th from CPU) to enable dual-channel mode. Press firmly on both ends until you hear two clicks.</p>
+          <h3><i class="fas fa-database"></i> Step 3 — Install SSD</h3>
+          <p>For M.2 NVMe: insert at 30°, press flat, secure with screw. For SATA SSD: connect the SATA data + power cables and mount in a drive bay.</p>
+          <h3><i class="fas fa-server"></i> Step 4 — Mount motherboard in case</h3>
+          <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Install standoffs</strong>Screw brass standoffs into case positions matching your board size (ATX/mATX/ITX).</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Snap in I/O shield</strong>Press the metal I/O shield from the motherboard box into the rear of the case until it clicks.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Lower board in and screw down</strong>Align ports with I/O shield, holes with standoffs, use 6–9 screws — don't overtighten.</div></div>
+          <h3><i class="fas fa-bolt"></i> Step 5 — Install PSU & connect cables</h3>
+          <ul>
+            <li>24-pin ATX → motherboard</li>
+            <li>8-pin EPS → CPU power header (top-left of board)</li>
+            <li>PCIe 6+2 pin → GPU</li>
+            <li>Front panel connectors (power button, USB, audio)</li>
+          </ul>
+          <h3><i class="fas fa-tv"></i> Step 6 — Install GPU</h3>
+          <p>Remove PCIe slot covers from the case rear, press GPU into the top PCIe x16 slot until it clicks, screw in the bracket, then connect PCIe power cables.</p>
+          <div class="tip-box"><strong>💡 First boot tip:</strong> Connect your monitor to the GPU, not the motherboard. If it doesn't POST, reseat your RAM first — it's the most common cause of no-display issues.</div>
+        `
+      },
+      airflow: {
+        icon: '<i class="fas fa-fan"></i>',
+        badge: 'COOLING GUIDE',
+        title: 'Case Airflow Optimization Guide',
+        meta: '6 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Good airflow is the difference between a PC that runs at peak performance and one that throttles itself. Here's how to set yours up correctly.</p>
+          <div class="tip-box"><strong>✅ Ideal setup:</strong> 2–3 intake fans at front + 1 exhaust at rear + 1 exhaust at top. This creates a clean front-to-back airflow path.</div>
+          <h3><i class="fas fa-route"></i> Fan direction guide</h3>
+          <table>
+            <tr><th>Position</th><th>Direction</th><th>Why</th></tr>
+            <tr><td>Front fans</td><td>Intake (IN)</td><td>Pull cool air over GPU & drives</td></tr>
+            <tr><td>Bottom fans</td><td>Intake (IN)</td><td>Feed PSU and GPU directly</td></tr>
+            <tr><td>Rear fan</td><td>Exhaust (OUT)</td><td>Push CPU hot air straight out</td></tr>
+            <tr><td>Top fans</td><td>Exhaust (OUT)</td><td>Hot air rises — let it escape</td></tr>
+          </table>
+          <h3><i class="fas fa-water"></i> AIO Liquid Cooler placement</h3>
+          <ul>
+            <li><strong>240/280mm radiator</strong> — Front intake or top exhaust</li>
+            <li><strong>360mm radiator</strong> — Front intake only for best CPU temps</li>
+            <li>Never mount a radiator as top intake — it recirculates hot case air</li>
+          </ul>
+          <h3><i class="fas fa-cable-car"></i> Cable management = better airflow</h3>
+          <p>Route all cables behind the motherboard tray. Bundled cables behind the board instead of crossing the main chamber can lower temps by 3–5°C.</p>
+          <div class="tip-box"><strong>💡 Quick test:</strong> Run Cinebench or FurMark. CPU should stay under 85°C, GPU under 83°C. If hotter, add a front intake fan first.</div>
+        `
+      },
+
+      // ── NAV: GUIDES DROPDOWN ──────────────────────────
+      diy: {
+        icon: '<i class="fas fa-screwdriver-wrench"></i>',
+        badge: 'DIY GUIDE',
+        title: 'DIY PC Builder — Complete Guide',
+        meta: '10 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Building your own PC gives you full control over performance, aesthetics, and budget. This comprehensive guide covers everything a first-time builder needs to know before buying a single part.</p>
+          <h3><i class="fas fa-clipboard-list"></i> Planning your build</h3>
+          <p>Before buying anything, answer these three questions:</p>
+          <ul>
+            <li><strong>What will you use it for?</strong> Gaming, video editing, school work, streaming, or all of the above?</li>
+            <li><strong>What's your budget?</strong> In the Philippines, a capable gaming PC starts around ₱30,000–₱40,000.</li>
+            <li><strong>Do you need peripherals?</strong> Monitor, keyboard, mouse, and OS cost money too — factor them in.</li>
+          </ul>
+          <h3><i class="fas fa-puzzle-piece"></i> The essential parts list</h3>
+          <table>
+            <tr><th>Component</th><th>Purpose</th><th>Budget %</th></tr>
+            <tr><td>CPU</td><td>Brain of the PC</td><td>15–20%</td></tr>
+            <tr><td>GPU</td><td>Gaming performance</td><td>30–40%</td></tr>
+            <tr><td>Motherboard</td><td>Connects everything</td><td>10–15%</td></tr>
+            <tr><td>RAM</td><td>Short-term memory</td><td>8–12%</td></tr>
+            <tr><td>SSD</td><td>Storage speed</td><td>8–10%</td></tr>
+            <tr><td>PSU</td><td>Powers everything</td><td>8–10%</td></tr>
+            <tr><td>Case</td><td>Houses everything</td><td>5–10%</td></tr>
+            <tr><td>Cooler</td><td>Keeps CPU cool</td><td>5–8%</td></tr>
+          </table>
+          <h3><i class="fas fa-triangle-exclamation"></i> Common beginner mistakes</h3>
+          <ul>
+            <li>Buying a CPU and motherboard with incompatible sockets</li>
+            <li>Skimping on the PSU — always buy from a reputable brand with at least 80+ Bronze certification</li>
+            <li>Forgetting thermal paste (check if your cooler includes it)</li>
+            <li>Not installing the I/O shield before mounting the motherboard</li>
+            <li>Plugging the monitor into the motherboard instead of the GPU</li>
+          </ul>
+          <div class="tip-box"><strong>💡 Use BuildMatrix:</strong> Add components using the builder on this page. It automatically checks CPU-motherboard socket compatibility and power requirements in real time.</div>
+          <h3><i class="fas fa-peso-sign"></i> Sample builds by budget</h3>
+          <table>
+            <tr><th>Budget</th><th>Profile</th><th>Key Parts</th></tr>
+            <tr><td>₱20,000–₱30,000</td><td>School / Office</td><td>Ryzen 5 5600, RX 6600, 16GB DDR4</td></tr>
+            <tr><td>₱40,000–₱55,000</td><td>1080p Gaming</td><td>Ryzen 5 7600X, RTX 4060, 16GB DDR5</td></tr>
+            <tr><td>₱70,000–₱90,000</td><td>1440p Gaming</td><td>Ryzen 7 7800X3D, RTX 4070, 32GB DDR5</td></tr>
+            <tr><td>₱120,000+</td><td>Creator / 4K</td><td>Ryzen 9 7950X, RTX 4090, 64GB DDR5</td></tr>
+          </table>
+        `
+      },
+      cooling: {
+        icon: '<i class="fas fa-snowflake"></i>',
+        badge: 'COOLING GUIDE',
+        title: 'Complete PC Cooling Guide',
+        meta: '7 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Cooling is one of the most overlooked parts of a build. Too little cooling and your components throttle, age faster, or crash under load. This guide covers every cooling option available.</p>
+          <h3><i class="fas fa-wind"></i> Stock coolers</h3>
+          <p>Most CPUs come with a stock cooler in the box. These are adequate for everyday use and light gaming but struggle under sustained heavy loads. If you plan to run demanding applications or push your CPU hard, upgrade to an aftermarket cooler.</p>
+          <h3><i class="fas fa-tower-broadcast"></i> Air coolers</h3>
+          <p>Air coolers use a heatsink and fan to dissipate heat. They are reliable, silent at idle, and have no failure points (no pump to fail).</p>
+          <ul>
+            <li><strong>Low-profile (e.g. ID-Cooling IS-47K)</strong> — For small cases, handles up to 65W TDP</li>
+            <li><strong>Single tower (e.g. DeepCool AK400)</strong> — Handles up to 150W, excellent value</li>
+            <li><strong>Dual tower (e.g. Noctua NH-D15)</strong> — Best air cooling available, rivals 280mm AIOs</li>
+          </ul>
+          <h3><i class="fas fa-water"></i> AIO liquid coolers</h3>
+          <p>All-in-One (AIO) coolers pump liquid between a CPU block and a radiator. They provide better cooling than most air coolers and look great with RGB. However, they have more failure points and cost more.</p>
+          <table>
+            <tr><th>Radiator size</th><th>Best for</th><th>Est. price</th></tr>
+            <tr><td>120mm</td><td>Budget / low TDP CPUs</td><td>₱2,000–₱3,500</td></tr>
+            <tr><td>240mm</td><td>Mid-range builds</td><td>₱3,500–₱6,000</td></tr>
+            <tr><td>280mm</td><td>High-performance builds</td><td>₱5,000–₱9,000</td></tr>
+            <tr><td>360mm</td><td>Flagship CPUs (i9, R9)</td><td>₱7,000–₱15,000</td></tr>
+          </table>
+          <h3><i class="fas fa-temperature-high"></i> Target temperatures</h3>
+          <ul>
+            <li><strong>CPU idle:</strong> 30–45°C is normal</li>
+            <li><strong>CPU under load:</strong> Under 85°C is healthy; 90°C+ is throttling territory</li>
+            <li><strong>GPU idle:</strong> 35–50°C is normal</li>
+            <li><strong>GPU under load:</strong> Under 83°C is ideal; 90°C+ may cause performance drops</li>
+          </ul>
+          <div class="tip-box"><strong>💡 Tip:</strong> Reapply thermal paste every 2–3 years on air coolers. Old, dried-out paste is one of the most common causes of unexpected temperature spikes in older builds.</div>
+        `
+      },
+      overclocking: {
+        icon: '<i class="fas fa-gauge-high"></i>',
+        badge: 'OVERCLOCKING',
+        title: 'Overclocking Guide — Squeeze More Performance',
+        meta: '9 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Overclocking lets you push your CPU or GPU beyond its factory-rated speeds for free extra performance. It's not magic — you're trading electrical headroom for speed — but done correctly it's safe and rewarding.</p>
+          <div class="tip-box"><strong>⚠️ Warning:</strong> Overclocking can void your warranty and, if done improperly, can cause instability or shorten component lifespan. Always proceed gradually and monitor temperatures.</div>
+          <h3><i class="fas fa-microchip"></i> CPU overclocking</h3>
+          <p>You need an unlocked CPU (AMD Ryzen or Intel K/KF suffix) and a motherboard that supports overclocking (AMD X-series or Intel Z-series chipset).</p>
+          <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Enter BIOS</strong>Restart and press Del or F2 during boot to enter your motherboard BIOS. Navigate to the CPU/OC settings section.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Raise the multiplier</strong>Increase the CPU multiplier in small steps (e.g. 4.5GHz → 4.7GHz → 4.9GHz). Save and boot each time.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Stress test</strong>Run Cinebench R23 or Prime95 for 15–30 minutes. Watch CPU temps — stay under 85°C. If it crashes or throttles, reduce the overclock or increase voltage slightly.</div></div>
+          <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Adjust voltage if needed</strong>If the system is unstable, increase core voltage in small increments (0.025V steps). Never exceed 1.35V on most consumer CPUs.</div></div>
+          <h3><i class="fas fa-tv"></i> GPU overclocking</h3>
+          <p>GPU overclocking is easier and safer than CPU overclocking. Use MSI Afterburner (free):</p>
+          <ul>
+            <li>Raise core clock by +50 MHz, test with FurMark or 3DMark</li>
+            <li>Raise memory clock by +100–200 MHz</li>
+            <li>Increase power limit to 110–120% if your PSU allows</li>
+            <li>If artifacts or crashes appear, dial back the last change</li>
+          </ul>
+          <h3><i class="fas fa-memory"></i> RAM overclocking (XMP/EXPO)</h3>
+          <p>This is the easiest overclock available. In BIOS, enable XMP (Intel) or EXPO (AMD). This sets your RAM to its rated speed (e.g. 3200MHz or 6000MHz) instead of the default 2133MHz. It's safe, officially supported, and gives a free performance boost — especially for AMD Ryzen which is very sensitive to RAM speed.</p>
+          <div class="tip-box"><strong>💡 Best bang for buck:</strong> Enable XMP/EXPO first — it's one click in BIOS and gives free performance. Then consider GPU overclocking. CPU overclocking gives diminishing returns on modern chips that already boost aggressively.</div>
+        `
+      },
+      troubleshooting: {
+        icon: '<i class="fas fa-magnifying-glass"></i>',
+        badge: 'TROUBLESHOOTING',
+        title: 'PC Troubleshooting — Fix Common Problems',
+        meta: '8 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Something's wrong with your PC? Don't panic. Most problems have simple causes. This guide walks through the most common issues and how to fix them.</p>
+          <h3><i class="fas fa-power-off"></i> PC won't turn on at all</h3>
+          <ul>
+            <li>Check the PSU switch on the back — make sure it's in the ON (I) position</li>
+            <li>Verify the power cable is fully seated in the wall and the PSU</li>
+            <li>Check that the 24-pin ATX and 8-pin EPS cables are fully clicked in</li>
+            <li>Make sure the front panel power button header is connected correctly (check your motherboard manual)</li>
+            <li>Try a different power outlet or strip</li>
+          </ul>
+          <h3><i class="fas fa-display"></i> No display / black screen</h3>
+          <ul>
+            <li><strong>Most common cause:</strong> Monitor plugged into motherboard instead of GPU — always use the GPU ports</li>
+            <li>Reseat the RAM — remove both sticks, clean contacts with an eraser, and reinsert</li>
+            <li>Try one RAM stick at a time in slot A2</li>
+            <li>Reseat the GPU in the PCIe slot</li>
+            <li>Check if the motherboard has any diagnostic LED lights or beep codes — consult the manual</li>
+          </ul>
+          <h3><i class="fas fa-icicles"></i> PC freezing or crashing</h3>
+          <ul>
+            <li><strong>Overheating:</strong> Check CPU and GPU temps with HWiNFO64. Thermal throttling causes sudden freezes.</li>
+            <li><strong>RAM instability:</strong> Run MemTest86 (free) overnight to test for errors</li>
+            <li><strong>Driver issues:</strong> Use DDU (Display Driver Uninstaller) to clean-remove GPU drivers, then reinstall the latest version</li>
+            <li><strong>PSU failing:</strong> An underpowered or failing PSU causes random crashes under load</li>
+          </ul>
+          <h3><i class="fas fa-volume-xmark"></i> No sound</h3>
+          <ul>
+            <li>Check that the front panel audio header is connected to the correct pins on the motherboard</li>
+            <li>In Windows, right-click the speaker icon → Sound settings → ensure the correct output device is selected</li>
+            <li>For HDMI audio, select your monitor/TV as the audio device</li>
+            <li>Reinstall audio drivers from your motherboard manufacturer's website</li>
+          </ul>
+          <h3><i class="fas fa-gauge-simple-high"></i> PC running slower than expected</h3>
+          <ul>
+            <li>Enable XMP/EXPO in BIOS — RAM running at default 2133MHz instead of rated speed is very common</li>
+            <li>Check Task Manager for background processes eating CPU or RAM</li>
+            <li>Make sure your SSD is in an M.2 NVMe slot, not a SATA slot (10x speed difference)</li>
+            <li>Verify your GPU is running in the PCIe x16 slot, not x4</li>
+          </ul>
+          <div class="tip-box"><strong>💡 Golden rule:</strong> Change only ONE thing at a time when troubleshooting. If you change multiple things at once, you won't know which fix actually worked.</div>
+        `
+      },
+      fans: {
+        icon: '<i class="fas fa-fan"></i>',
+        badge: 'FANS GUIDE',
+        title: 'Case Fans — Everything You Need to Know',
+        meta: '7 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>Fans are the foundation of your cooling system. The right fans in the right configuration make a dramatic difference in both temperature and noise levels.</p>
+          <h3><i class="fas fa-ruler"></i> Fan sizes explained</h3>
+          <table>
+            <tr><th>Size</th><th>Airflow</th><th>Noise</th><th>Best use</th></tr>
+            <tr><td>80mm</td><td>Low</td><td>High</td><td>Small cases only</td></tr>
+            <tr><td>120mm</td><td>Medium</td><td>Medium</td><td>Universal — rear exhaust, radiators</td></tr>
+            <tr><td>140mm</td><td>High</td><td>Low</td><td>Front intake, top exhaust</td></tr>
+            <tr><td>200mm</td><td>Very high</td><td>Very low</td><td>Large cases, side intake</td></tr>
+          </table>
+          <h3><i class="fas fa-plug"></i> PWM vs DC fans</h3>
+          <p><strong>PWM (4-pin):</strong> The motherboard controls fan speed automatically based on temperature. Fans ramp up when needed and slow down when idle — quieter overall and more precise. Always prefer PWM.</p>
+          <p><strong>DC (3-pin):</strong> Run at a fixed voltage. Speed control is less precise. Fine for exhaust fans that you always want at full speed.</p>
+          <h3><i class="fas fa-star"></i> Fan recommendations by budget</h3>
+          <ul>
+            <li><strong>Budget:</strong> Arctic P12 / Arctic F12 — excellent airflow for low price</li>
+            <li><strong>Mid-range:</strong> DeepCool FC120 / Thermalright TL-C12 Pro — great value RGB options</li>
+            <li><strong>Premium:</strong> Noctua NF-A12x25 / be quiet! Silent Wings — class-leading noise levels</li>
+          </ul>
+          <h3><i class="fas fa-sliders"></i> Fan curve tuning</h3>
+          <p>In your motherboard BIOS or using fan control software like Fan Control (free), you can set custom fan curves. A good curve keeps fans quiet at idle (below 40°C) and only ramps up under gaming load. A flat 100% curve is loud and unnecessary at idle.</p>
+          <div class="tip-box"><strong>💡 How many fans do you need?</strong> Minimum: 1 front intake + 1 rear exhaust. Ideal: 2–3 front intake + 1 rear + 1 top exhaust. More fans rarely help beyond that — airflow path matters more than fan count.</div>
+          <h3><i class="fas fa-broom"></i> Fan maintenance</h3>
+          <p>Dust buildup on fans reduces airflow significantly over time. Clean dust filters every 1–3 months by removing them and rinsing under water (let dry fully before reinstalling). Use compressed air to clean fan blades once or twice a year.</p>
+        `
+      },
+
+      // ── NAV: SOFTWARE DROPDOWN ───────────────────────
+      studio: {
+        icon: '<i class="fas fa-palette"></i>',
+        badge: 'SOFTWARE',
+        title: 'BuildMatrix Studio — Visual PC Planner',
+        meta: '4 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>BuildMatrix Studio is the visual planning layer of BuildMatrix. It lets you plan, visualize, and organize your PC build before you spend a single peso.</p>
+          <h3><i class="fas fa-list-check"></i> What you can do with Studio</h3>
+          <ul>
+            <li>Browse all components by category with specs, pricing, and ratings side by side</li>
+            <li>Add parts to your build list and watch the total update in real time</li>
+            <li>Save multiple builds to your account and load them on any device</li>
+            <li>Export your build as a PDF or screenshot to share with friends or stores</li>
+            <li>Use the Share Build button to generate a link anyone can open</li>
+          </ul>
+          <h3><i class="fas fa-filter"></i> Smart filtering</h3>
+          <p>Use the filter bar to narrow by brand (AMD / Intel / NVIDIA), use the search bar to find specific models, and use the price range slider to stay within budget. Sort by price or name to compare options quickly.</p>
+          <h3><i class="fas fa-floppy-disk"></i> Saving builds</h3>
+          <p>If you're logged in, your builds sync to your account and can be accessed from any browser. If you're a guest, builds are stored locally in your browser. You can export any build as a JSON file and import it later or on another device.</p>
+          <div class="tip-box"><strong>💡 Tip:</strong> Use the "Analyze Build" button after adding parts — it runs a real-time compatibility check on your CPU socket, power headroom, and GPU fitment.</div>
+        `
+      },
+      compatibility: {
+        icon: '<i class="fas fa-circle-check"></i>',
+        badge: 'SOFTWARE',
+        title: 'Compatibility Checker — How It Works',
+        meta: '5 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>The BuildMatrix Compatibility Checker automatically validates your part selection in real time as you build. No more buying a CPU only to discover it doesn't fit your motherboard.</p>
+          <h3><i class="fas fa-plug"></i> What gets checked</h3>
+          <table>
+            <tr><th>Check</th><th>What it validates</th></tr>
+            <tr><td>CPU ↔ Motherboard socket</td><td>AM4/AM5 for AMD, LGA1700/1851 for Intel — must match exactly</td></tr>
+            <tr><td>Power draw vs PSU wattage</td><td>CPU TDP + GPU TDP + 100W overhead vs PSU rated watts</td></tr>
+            <tr><td>GPU length vs case clearance</td><td>GPU card length in mm vs case's maximum GPU length spec</td></tr>
+          </table>
+          <h3><i class="fas fa-triangle-exclamation"></i> Understanding the results</h3>
+          <ul>
+            <li><strong style="color:#ff8888;">❌ Critical error</strong> — A hard incompatibility. The parts will not work together (e.g. wrong socket). Fix this before buying.</li>
+            <li><strong style="color:#ffaa00;">⚠️ Warning</strong> — A potential issue (e.g. tight power headroom). Manageable but worth addressing.</li>
+            <li><strong style="color:#88ff88;">✅ Pass</strong> — Components are confirmed compatible on that check.</li>
+          </ul>
+          <h3><i class="fas fa-screwdriver"></i> How to use it</h3>
+          <p>Simply add a CPU, GPU, motherboard, and PSU to your build using the builder on this page. The compatibility panel in the right sidebar updates automatically. Click "Analyze Build" to run a full scored analysis powered by the BuildMatrix backend.</p>
+          <div class="tip-box"><strong>💡 Note:</strong> The checker covers the most critical compatibility points. Always double-check RAM speed support and cooler clearance in your motherboard and case manual before purchasing.</div>
+        `
+      },
+      performance: {
+        icon: '<i class="fas fa-chart-line"></i>',
+        badge: 'SOFTWARE',
+        title: 'Performance Analyzer — Estimate Your Build\'s Power',
+        meta: '4 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>The BuildMatrix Performance Analyzer gives you an estimated performance score for your build across three use cases: Gaming, Productivity, and Streaming — before you buy anything.</p>
+          <h3><i class="fas fa-tachometer-alt"></i> How scores are calculated</h3>
+          <p>Each CPU and GPU in the BuildMatrix database has an internal performance rating based on real-world benchmarks. When you add a CPU and GPU to your build, the analyzer combines their ratings and maps them to the three use case scores.</p>
+          <table>
+            <tr><th>Score</th><th>Based on</th><th>What it reflects</th></tr>
+            <tr><td>🎮 Gaming</td><td>CPU + GPU average</td><td>FPS in modern games at 1080p–1440p</td></tr>
+            <tr><td>💼 Productivity</td><td>CPU rating weighted</td><td>Speed in apps, compiling, multitasking</td></tr>
+            <tr><td>📡 Streaming</td><td>CPU + GPU weighted</td><td>Ability to stream while gaming</td></tr>
+          </table>
+          <h3><i class="fas fa-gamepad"></i> Estimated FPS panel</h3>
+          <p>Once you've added a CPU and GPU, the FPS panel shows rough estimated frame rates in popular titles:</p>
+          <ul>
+            <li><strong>Valorant</strong> — Very CPU-dependent, scales well with clock speed</li>
+            <li><strong>GTA V</strong> — Balanced CPU+GPU workload</li>
+            <li><strong>Cyberpunk 2077</strong> — GPU-heavy, demanding even at 1080p</li>
+          </ul>
+          <div class="tip-box"><strong>💡 Note:</strong> These are estimates based on component performance ratings, not exact benchmark numbers. Real-world FPS varies by resolution, settings, and driver version. Use these as a directional guide, not a guarantee.</div>
+          <h3><i class="fas fa-arrow-up"></i> Improving your score</h3>
+          <p>If your gaming score is low, upgrade the GPU first — it has the biggest single impact on gaming FPS. If your productivity score is low, upgrade the CPU or add more RAM. For streaming, you need both a strong CPU (for encoding) and a capable GPU.</p>
+        `
+      },
+      budget: {
+        icon: '<i class="fas fa-coins"></i>',
+        badge: 'SOFTWARE',
+        title: 'Budget Calculator — Smart Allocation Guide',
+        meta: '5 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        body: `
+          <p>One of the biggest mistakes PC builders make is spending too much on one part and not enough on another — creating a bottleneck. The BuildMatrix Budget Calculator helps you allocate your budget optimally.</p>
+          <h3><i class="fas fa-percent"></i> Recommended budget splits</h3>
+          <table>
+            <tr><th>Component</th><th>Gaming build</th><th>Productivity build</th><th>Balanced</th></tr>
+            <tr><td>GPU</td><td>35–40%</td><td>15–20%</td><td>30–35%</td></tr>
+            <tr><td>CPU</td><td>15–20%</td><td>25–30%</td><td>18–22%</td></tr>
+            <tr><td>Motherboard</td><td>10–12%</td><td>12–15%</td><td>10–12%</td></tr>
+            <tr><td>RAM</td><td>8–10%</td><td>10–15%</td><td>9–11%</td></tr>
+            <tr><td>SSD</td><td>7–10%</td><td>8–12%</td><td>8–10%</td></tr>
+            <tr><td>PSU</td><td>7–9%</td><td>7–9%</td><td>7–9%</td></tr>
+            <tr><td>Case</td><td>5–8%</td><td>5–8%</td><td>5–8%</td></tr>
+            <tr><td>Cooler</td><td>4–6%</td><td>5–8%</td><td>4–6%</td></tr>
+          </table>
+          <h3><i class="fas fa-scale-balanced"></i> Avoiding bottlenecks</h3>
+          <p>A bottleneck occurs when one component limits the potential of another. The most common example: pairing a ₱5,000 CPU with a ₱50,000 GPU. The CPU won't be able to feed the GPU fast enough, wasting your GPU investment.</p>
+          <ul>
+            <li><strong>Gaming:</strong> GPU is king. Don't cheap out here. Match it with a mid-range CPU.</li>
+            <li><strong>Streaming:</strong> You need a strong CPU for encoding. Don't bottleneck it with a weak chip.</li>
+            <li><strong>Video editing:</strong> Fast storage (NVMe SSD) and lots of RAM (32GB+) matter as much as CPU speed.</li>
+          </ul>
+          <h3><i class="fas fa-calculator"></i> Using the Budget Calculator</h3>
+          <p>Click "Budget Guide" in the build panel on the right. Enter your total budget and the calculator will suggest a recommended allocation across each component category, helping you know how much to spend on each part before you start browsing.</p>
+          <div class="tip-box"><strong>💡 Real talk:</strong> In the Philippines, GPU prices can be significantly higher than MSRP due to import taxes and resellers. Check current prices at Shopee, Lazada, and CDR-King before finalizing your budget.</div>
+        `
+      }
+    };
+
+    function openArticle(key) {
+      const a = ARTICLES[key];
+      if (!a) return;
+      document.getElementById('articleIcon').innerHTML = a.icon;
+      document.getElementById('articleBadge').textContent = a.badge;
+      document.getElementById('articleTitle').textContent = a.title;
+      document.getElementById('articleMeta').innerHTML = a.meta;
+      document.getElementById('articleBody').innerHTML = a.body;
+      const modal = document.getElementById('articleModal');
+      modal.style.display = 'flex';
+      modal.scrollTop = 0;
+    }
+
+    function closeArticle() {
+      document.getElementById('articleModal').style.display = 'none';
+    }
+
+    window.openArticle = openArticle;
+    window.closeArticle = closeArticle;
+
+    document.getElementById('articleModal').addEventListener('click', function(e) {
+      if (e.target === this) closeArticle();
+    });
+  </script>
+
+  <!-- SECURITY SETTINGS MODAL -->
+  <div class="modal" id="securitySettingsModal" style="display:none;">
+    <div class="modal-content" style="max-width:460px;">
+      <div class="modal-header">
+        <h2><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:8px;"></i>Security Settings</h2>
+        <button class="modal-close" onclick="closeSecuritySettings()">&times;</button>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;color:var(--text-primary);">Change Password</h3>
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="secCurrent" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="secNew" placeholder="Min. 6 characters">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="secConfirm" placeholder="Repeat new password">
+        </div>
+        <button class="submit-btn" onclick="doChangePassword()" style="width:100%;margin-top:4px;">
+          <i class="fas fa-key"></i> Change Password
+        </button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #222;margin:20px 0;">
+
+      <div>
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text-primary);">Two-Factor Authentication (2FA)</h3>
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">Add an extra layer of security using Google Authenticator.</p>
+        <div style="display:flex;gap:10px;">
+          <button class="submit-btn" onclick="openActual2FA()" style="flex:1;background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3);">
+            <i class="fas fa-qrcode"></i> Setup 2FA
+          </button>
+          <button class="submit-btn" onclick="disable2FA()" style="flex:1;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.25);">
+            <i class="fas fa-times"></i> Disable 2FA
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

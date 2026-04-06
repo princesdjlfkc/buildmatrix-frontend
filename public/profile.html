@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix - Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --neon-blue: #00D4FF;
+      --neon-purple: #B300FF;
+      --neon-green: #00FF88;
+      --bg-dark: #080C14;
+      --bg-card: #0e1520;
+      --bg-surface: #111a28;
+      --text-primary: #D8EEFF;
+      --text-secondary: #5a8aaa;
+      --text-muted: #2a4560;
+      --border: #1a2840;
+      --glow: 0 0 10px var(--neon-blue);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .profile-pic-container {
+      position: relative;
+      margin-right: 20px;
+    }
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--neon-blue);
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--neon-blue);
+    }
+    .profile-created {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .profile-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+    }
+    .profile-section h2 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: var(--neon-blue);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn {
+      padding: 10px 20px;
+      background: var(--neon-blue);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow);
+    }
+    .btn:hover {
+      background: var(--neon-purple);
+      box-shadow: 0 0 15px var(--neon-purple);
+    }
+    .logout-btn {
+      background: #ff4757;
+      box-shadow: 0 0 10px #ff4757;
+    }
+    .logout-btn:hover {
+      background: #ff6b81;
+      box-shadow: 0 0 15px #ff6b81;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-header">
+    <div class="profile-pic-container">
+      <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/100" alt="Profile Picture">
+      <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+      <button class="btn" onclick="document.getElementById('profilePicInput').click()">Change Picture</button>
+    </div>
+    <div class="profile-info">
+      <h1 id="profileName" class="profile-name">User Name</h1>
+      <p class="profile-created">Member since: <span id="accountCreationDate">January 1, 2023</span></p>
+    </div>
+  </div>
+
+  <div class="profile-section">
+    <h2>Personal Information</h2>
+    <div class="form-group">
+      <label for="nameInput">Name</label>
+      <input type="text" id="nameInput" placeholder="Enter your name">
+    </div>
+    <button class="btn" onclick="updateName()">Update Name</button>
+  </div>
+
+  <div class="profile-section">
+    <h2>Account Stats</h2>
+    <p>Items Built: <span id="itemsBuilt">0</span></p>
+  </div>
+
+  <div class="profile-section">
+    <h2>Security Settings</h2>
+    <div class="form-group">
+      <label for="currentPassword">Current Password</label>
+      <input type="password" id="currentPassword" placeholder="Current Password">
+    </div>
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input type="password" id="newPassword" placeholder="New Password">
+    </div>
+    <button class="btn" onclick="updatePassword()">Update Password</button>
+  </div>
+
+  <div class="profile-section">
+    <h2>Favorites</h2>
+    <p id="favoritesList">No favorites yet.</p>
+  </div>
+
+  <div class="profile-section">
+    <button class="btn logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    function updateName() {
+      const newName = document.getElementById('nameInput').value;
+      if (newName) {
+        document.getElementById('profileName').textContent = newName;
+        alert('Name updated successfully!');
+      } else {
+        alert('Please enter a valid name.');
+      }
+    }
+
+    function updatePassword() {
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      if (currentPassword && newPassword) {
+        alert('Password updated successfully!');
+      } else {
+        alert('Please fill in both password fields.');
+      }
+    }
+
+    function logout() {
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('profilePicInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('profilePic').src = event.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>

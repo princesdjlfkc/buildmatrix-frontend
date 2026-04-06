@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BuildMatrix</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #080C14;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      color: #D8EEFF;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(0,212,255,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 20%, rgba(123,63,228,0.08) 0%, transparent 50%),
+        repeating-linear-gradient(90deg, rgba(0,212,255,0.016) 0px, rgba(0,212,255,0.016) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(0deg, rgba(0,212,255,0.016) 0px, rgba(0,212,255,0.016) 1px, transparent 1px, transparent 60px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 0;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      animation: logoIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    @keyframes logoIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-icon {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      background: rgba(0,212,255,0.1);
+      border: 1.5px solid rgba(0,212,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      animation: iconPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(0,212,255,0.15);
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.15); }
+      50% { box-shadow: 0 0 40px rgba(0,212,255,0.3); }
+    }
+
+    .logo-text {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      animation: rgbText 4s linear infinite;
+    }
+
+    @keyframes rgbText {
+      0%   { color: #ff0040; }
+      16%  { color: #ff7700; }
+      33%  { color: #ffff00; }
+      50%  { color: #00ff88; }
+      66%  { color: #00d4ff; }
+      83%  { color: #7b3fe4; }
+      100% { color: #ff0040; }
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: #5a8aaa;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 64px;
+      animation: fadeUp 0.8s 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress-wrap {
+      width: 280px;
+      animation: fadeUp 0.8s 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(0,212,255,0.12);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #ff0040, #ff7700, #ffff00, #00ff88, #00d4ff, #7b3fe4, #ff00cc);
+      background-size: 300% 100%;
+      animation: progressGrow 2.8s cubic-bezier(0.4,0,0.2,1) forwards, rgbShift 2s linear infinite;
+      transition: width 0.1s linear;
+    }
+
+    @keyframes progressGrow {
+      0%   { width: 0%; }
+      30%  { width: 45%; }
+      60%  { width: 72%; }
+      80%  { width: 88%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes rgbShift {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 300% 0%; }
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: #2a4560;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .particles {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      animation: float linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-20px) translateX(var(--dx)); opacity: 0; }
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ff0040, #ff7700, #ffff00, #00ff88, #00d4ff, #7b3fe4, #ff00cc, #ff0040);
+      background-size: 200% 100%;
+      animation: scanLine 2s linear infinite;
+      z-index: 999;
+    }
+
+    @keyframes scanLine {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+
+    .fade-out {
+      animation: fadeOut 0.6s ease forwards !important;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scan-line"></div>
+
+  <canvas class="particles" id="particles"></canvas>
+
+  <div class="screen" id="screen">
+    <div class="logo-wrap">
+      <div class="logo-icon">⚙️</div>
+      <div class="logo-text">BUILDMATRIX</div>
+    </div>
+
+    <div class="tagline">Ultimate PC Builder • Philippines</div>
+
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">Initializing systems...</div>
+    </div>
+  </div>
+
+  <script>
+    var labels = ['Initializing systems...', 'Loading components...', 'Calibrating prices...', 'Ready to build!'];
+    var idx = 0;
+    var labelEl = document.getElementById('progressLabel');
+
+    var labelInterval = setInterval(function() {
+      idx = Math.min(idx + 1, labels.length - 1);
+      labelEl.textContent = labels[idx];
+    }, 700);
+
+    var canvas = document.getElementById('particles');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    var colors = ['#ff0040','#ff7700','#ffff00','#00ff88','#00d4ff','#7b3fe4','#ff00cc'];
+    var particles = [];
+
+    for (var i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 200,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speed: 0.3 + Math.random() * 0.8,
+        dx: (Math.random() - 0.5) * 60,
+        opacity: 0,
+        size: 1 + Math.random() * 2
+      });
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(function(p) {
+        p.y -= p.speed;
+        if (p.y < 0) {
+          p.y = canvas.height + 10;
+          p.x = Math.random() * canvas.width;
+          p.opacity = 0;
+        }
+        var progress = 1 - (p.y / canvas.height);
+        p.opacity = Math.min(progress * 3, 0.7);
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    setTimeout(function() {
+      clearInterval(labelInterval);
+      labelEl.textContent = 'Ready to build!';
+      setTimeout(function() {
+        document.body.classList.add('fade-out');
+        setTimeout(function() {
+          window.location.href = 'auth.html';
+        }, 600);
+      }, 400);
+    }, 3000);
+  </script>
+</body>
+</html>

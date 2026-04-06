@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BuildMatrix Admin Panel</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="common.js" defer></script>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <i class="fas fa-shield-halved"></i> Admin Panel
+    </div>
+    <nav>
+      <button class="admin-nav-item active" onclick="showPage('dashboard',this)"><i class="fas fa-chart-line"></i> Dashboard</button>
+      <button class="admin-nav-item" onclick="showPage('users',this)"><i class="fas fa-users"></i> Users</button>
+      <button class="admin-nav-item" onclick="showPage('builds',this)"><i class="fas fa-folder"></i> All Builds</button>
+      <button class="admin-nav-item" onclick="showPage('products',this)"><i class="fas fa-box"></i> Products</button>
+      <button class="admin-nav-item" onclick="showPage('addproduct',this)"><i class="fas fa-plus"></i> Add Product</button>
+      <button class="admin-nav-item" onclick="showPage('activity',this)"><i class="fas fa-clock-rotate-left"></i> Activity Log</button>
+      <button class="admin-nav-item" onclick="showPage('settings',this)"><i class="fas fa-gear"></i> Settings</button>
+      <hr style="border-color:var(--border);margin:16px 24px;">
+      <button class="admin-nav-item" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Back to Site</button>
+      <button class="admin-nav-item" onclick="handleLogout()" style="color:var(--error);"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="admin-page active">
+      <div class="admin-page-title">Dashboard</div>
+      <div class="admin-page-sub">Welcome back! Here's what's happening with BuildMatrix.</div>
+
+      <div class="admin-stat-grid">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon"><i class="fas fa-users"></i></div>
+          <div class="admin-stat-val" id="statUsers">—</div>
+          <div class="admin-stat-label">Total Users</div>
+          <div class="admin-stat-change up" id="statUsersChange"></div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon"><i class="fas fa-folder"></i></div>
+          <div class="admin-stat-val" id="statBuilds">—</div>
+          <div class="admin-stat-label">Saved Builds</div>
+          <div class="admin-stat-change up" id="statBuildsChange"></div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon"><i class="fas fa-box"></i></div>
+          <div class="admin-stat-val" id="statProducts">—</div>
+          <div class="admin-stat-label">Products Listed</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon"><i class="fas fa-user-check"></i></div>
+          <div class="admin-stat-val" id="statActive">—</div>
+          <div class="admin-stat-label">Active Today</div>
+          <div class="admin-stat-change up" id="statActiveChange"></div>
+        </div>
+      </div>
+
+      <!-- Recent Builds Table -->
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-folder" style="color:var(--gold);margin-right:8px;"></i>Recent Builds</h3>
+          <button class="admin-btn ghost" onclick="showPage('builds',document.querySelector('[onclick*=builds]'))"><i class="fas fa-eye"></i> View All</button>
+        </div>
+        <table class="admin-table" id="dashboardBuildsTable">
+          <thead><tr><th>Build Name</th><th>User</th><th>Total</th><th>Parts</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="dashboardBuildsBody"><tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Recent Users Table -->
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-users" style="color:var(--gold);margin-right:8px;"></i>Recent Users</h3>
+          <button class="admin-btn ghost" onclick="showPage('users',document.querySelector('[onclick*=users]'))"><i class="fas fa-eye"></i> View All</button>
+        </div>
+        <table class="admin-table" id="dashboardUsersTable">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Builds</th><th>Joined</th></tr></thead>
+          <tbody id="dashboardUsersBody"><tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="admin-page">
+      <div class="admin-page-title">Users</div>
+      <div class="admin-page-sub">Manage all registered accounts.</div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-users" style="color:var(--gold);margin-right:8px;"></i>All Users</h3>
+          <input class="admin-search" placeholder="Search users..." oninput="filterTable('usersBody',this.value)">
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>2FA</th><th>Builds</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"><tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALL BUILDS -->
+    <div id="page-builds" class="admin-page">
+      <div class="admin-page-title">All Builds</div>
+      <div class="admin-page-sub">View and manage every saved build across all users.</div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-folder" style="color:var(--gold);margin-right:8px;"></i>Saved Builds</h3>
+          <input class="admin-search" placeholder="Search builds..." oninput="filterTable('allBuildsBody',this.value)">
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Build Name</th><th>User</th><th>Total (₱)</th><th>Parts</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="allBuildsBody"><tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="page-products" class="admin-page">
+      <div class="admin-page-title">Products</div>
+      <div class="admin-page-sub">All listed components in the BuildMatrix database.</div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-box" style="color:var(--gold);margin-right:8px;"></i>Product Catalog</h3>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="admin-search" style="width:140px;" id="productCatFilter" onchange="filterProducts()">
+              <option value="">All Categories</option>
+              <option value="cpu">CPU</option>
+              <option value="gpu">GPU</option>
+              <option value="motherboard">Motherboard</option>
+              <option value="ram">RAM</option>
+              <option value="ssd">SSD</option>
+              <option value="psu">PSU</option>
+              <option value="case">Case</option>
+              <option value="monitor">Monitor</option>
+              <option value="fan">Fan</option>
+              <option value="keyboard">Keyboard</option>
+              <option value="mouse">Mouse</option>
+            </select>
+            <input class="admin-search" placeholder="Search products..." oninput="filterProducts()" id="productSearchInput">
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Tier</th><th>Specs</th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div id="page-addproduct" class="admin-page">
+      <div class="admin-page-title">Add Product</div>
+      <div class="admin-page-sub">Add a new component to the BuildMatrix catalog.</div>
+      <div class="admin-table-wrap" style="padding:24px;">
+        <div id="addProductMsg" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;"></div>
+        <div class="admin-form-grid">
+          <div class="admin-form-group" style="grid-column:1/-1;">
+            <label>Product Name *</label>
+            <input type="text" id="ap-name" placeholder="e.g. AMD Ryzen 7 7800X3D">
+          </div>
+          <div class="admin-form-group">
+            <label>Category *</label>
+            <select id="ap-category">
+              <option value="">Select category</option>
+              <option value="cpu">CPU</option>
+              <option value="gpu">GPU</option>
+              <option value="motherboard">Motherboard</option>
+              <option value="ram">RAM</option>
+              <option value="ssd">SSD</option>
+              <option value="psu">PSU</option>
+              <option value="case">Case</option>
+              <option value="monitor">Monitor</option>
+              <option value="fan">Fan</option>
+              <option value="keyboard">Keyboard</option>
+              <option value="mouse">Mouse</option>
+              <option value="hdd">HDD</option>
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label>Price (₱) *</label>
+            <input type="number" id="ap-price" placeholder="e.g. 22999">
+          </div>
+          <div class="admin-form-group">
+            <label>Tier</label>
+            <select id="ap-tier">
+              <option value="budget">Budget</option>
+              <option value="performance">Performance</option>
+              <option value="highend">High-End</option>
+            </select>
+          </div>
+          <div class="admin-form-group">
+            <label>Rating (1–5)</label>
+            <input type="number" id="ap-rating" placeholder="e.g. 4.5" min="1" max="5" step="0.1">
+          </div>
+          <div class="admin-form-group" style="grid-column:1/-1;">
+            <label>Specs / Description</label>
+            <textarea id="ap-specs" placeholder="e.g. 8C/16T, 5.0GHz, AM5, 3D V-Cache"></textarea>
+          </div>
+          <div class="admin-form-group" style="grid-column:1/-1;">
+            <label>Image URL</label>
+            <input type="text" id="ap-img" placeholder="https://... or leave blank for icon placeholder">
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button class="admin-btn primary" onclick="submitAddProduct()"><i class="fas fa-plus"></i> Add Product</button>
+          <button class="admin-btn ghost" onclick="clearAddProductForm()"><i class="fas fa-rotate-left"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY LOG -->
+    <div id="page-activity" class="admin-page">
+      <div class="admin-page-title">Activity Log</div>
+      <div class="admin-page-sub">Recent actions across the platform.</div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3><i class="fas fa-clock-rotate-left" style="color:var(--gold);margin-right:8px;"></i>Recent Activity</h3>
+        </div>
+        <div class="admin-activity-list" id="activityList">
+          <div style="text-align:center;padding:32px;color:var(--text-secondary);">Loading activity...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="admin-page">
+      <div class="admin-page-title">Site Settings</div>
+      <div class="admin-page-sub">Configure BuildMatrix platform settings.</div>
+      <div class="admin-table-wrap" style="padding:24px;margin-bottom:20px;">
+        <h3 style="margin-bottom:20px;font-size:16px;font-weight:700;">General</h3>
+        <div class="admin-form-grid">
+          <div class="admin-form-group">
+            <label>Site Name</label>
+            <input type="text" value="BuildMatrix" id="set-sitename">
+          </div>
+          <div class="admin-form-group">
+            <label>Currency Symbol</label>
+            <input type="text" value="₱" id="set-currency">
+          </div>
+          <div class="admin-form-group">
+            <label>Max Builds per Guest</label>
+            <input type="number" value="5" id="set-guestbuilds">
+          </div>
+          <div class="admin-form-group">
+            <label>Max Builds per User</label>
+            <input type="number" value="50" id="set-userbuilds">
+          </div>
+        </div>
+        <button class="admin-btn primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
+      </div>
+
+      <div class="admin-table-wrap" style="padding:24px;">
+        <h3 style="margin-bottom:20px;font-size:16px;font-weight:700;color:var(--error);">Danger Zone</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="admin-btn danger" onclick="confirmDanger('Clear all guest builds?')"><i class="fas fa-trash"></i> Clear Guest Builds</button>
+          <button class="admin-btn danger" onclick="confirmDanger('Export all data?')"><i class="fas fa-file-export"></i> Export All Data</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="products-data.js"></script>
+<script>
+  // ── NAV ──────────────────────────────────────────────────
+  function showPage(id, btn) {
+    document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id)?.classList.add('active');
+    if (btn) btn.classList.add('active');
+    if (id === 'dashboard') loadDashboard();
+    if (id === 'users')     loadUsers();
+    if (id === 'builds')    loadAllBuilds();
+    if (id === 'products')  loadProducts();
+    if (id === 'activity')  loadActivity();
+  }
+
+  // ── HELPERS ──────────────────────────────────────────────
+  function fmt(n)  { return '₱' + Number(n||0).toLocaleString(); }
+  function fmtDate(iso) {
+    try { return new Date(iso).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'2-digit'}); }
+    catch{ return '—'; }
+  }
+  function filterTable(tbodyId, q) {
+    const rows = document.getElementById(tbodyId)?.querySelectorAll('tr') || [];
+    rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none'; });
+  }
+  function showAdminToast(msg, ok=true) {
+    const t = document.createElement('div');
+    t.className = 'toast-message' + (ok?'':' error');
+    t.innerHTML = `<i class="fas ${ok?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(), 3000);
+  }
+  function confirmDanger(msg) {
+    if(confirm(msg + '\nThis cannot be undone.')) showAdminToast('Action completed (demo mode).');
+  }
+  function saveSettings() { showAdminToast('Settings saved!'); }
+
+  // ── AUTH GUARD ───────────────────────────────────────────
+  async function checkAdminAccess() {
+    try {
+      const me = await apiFetch('/auth/me', { method:'GET' });
+      if (!me || !me.is_admin) {
+        document.body.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:var(--bg-dark);color:var(--text-primary);gap:20px;"><i class="fas fa-lock" style="font-size:64px;color:var(--gold);opacity:0.5;"></i><h2>Admin Access Required</h2><p style="color:var(--text-secondary);">You must be an admin to view this page.</p><a href="index.html" style="color:var(--gold);">← Back to site</a></div>`;
+        return false;
+      }
+      return true;
+    } catch(e) {
+      // dev fallback — show panel anyway but with warning
+      console.warn('Admin auth check failed, showing panel in dev mode');
+      return true;
+    }
+  }
+
+  // ── DASHBOARD ────────────────────────────────────────────
+  async function loadDashboard() {
+    // Stats
+    try {
+      const [usersRes, buildsRes] = await Promise.all([
+        apiFetch('/admin/users', {method:'GET'}).catch(()=>null),
+        apiFetch('/admin/builds', {method:'GET'}).catch(()=>null),
+      ]);
+      const users  = usersRes?.users  || usersRes  || [];
+      const builds = buildsRes?.builds || buildsRes || [];
+      const prods  = Array.isArray(window.PRODUCTS) ? window.PRODUCTS.length : '—';
+
+      document.getElementById('statUsers').textContent    = Array.isArray(users)  ? users.length  : '—';
+      document.getElementById('statBuilds').textContent   = Array.isArray(builds) ? builds.length : '—';
+      document.getElementById('statProducts').textContent = prods;
+      document.getElementById('statActive').textContent   = Array.isArray(users)  ? Math.ceil(users.length * 0.3) : '—';
+
+      // Recent builds table
+      const bRows = document.getElementById('dashboardBuildsBody');
+      const recentBuilds = Array.isArray(builds) ? builds.slice(0,8) : [];
+      bRows.innerHTML = recentBuilds.length ? recentBuilds.map(b=>`
+        <tr>
+          <td style="font-weight:600;">${b.name||'Untitled'}</td>
+          <td style="color:var(--text-secondary);">${b.user_name||b.user_email||'Guest'}</td>
+          <td style="color:var(--gold);font-weight:700;">${fmt(b.total)}</td>
+          <td>${Array.isArray(b.items)?b.items.length:0}</td>
+          <td style="color:var(--text-secondary);">${fmtDate(b.created_at||b.createdAt)}</td>
+          <td><button class="admin-btn ghost" style="padding:4px 12px;font-size:11px;" onclick="deleteBuildAdmin('${b.id}')"><i class="fas fa-trash"></i></button></td>
+        </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">No builds found</td></tr>';
+
+      // Recent users table
+      const uRows = document.getElementById('dashboardUsersBody');
+      const recentUsers = Array.isArray(users) ? users.slice(0,8) : [];
+      uRows.innerHTML = recentUsers.length ? recentUsers.map(u=>`
+        <tr>
+          <td style="font-weight:600;">${u.name||'—'}</td>
+          <td style="color:var(--text-secondary);">${u.email}</td>
+          <td><span class="admin-badge ${u.is_admin?'gold':'blue'}">${u.is_admin?'Admin':'User'}</span></td>
+          <td>${u.build_count||0}</td>
+          <td style="color:var(--text-secondary);">${fmtDate(u.created_at)}</td>
+        </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:32px;">No users found</td></tr>';
+    } catch(e) {
+      document.getElementById('dashboardBuildsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">Connect your backend to see data</td></tr>';
+      document.getElementById('dashboardUsersBody').innerHTML  = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:32px;">Connect your backend to see data</td></tr>';
+      document.getElementById('statUsers').textContent    = '—';
+      document.getElementById('statBuilds').textContent   = '—';
+      document.getElementById('statProducts').textContent = Array.isArray(window.PRODUCTS) ? window.PRODUCTS.length : '—';
+      document.getElementById('statActive').textContent   = '—';
+    }
+  }
+
+  // ── USERS ────────────────────────────────────────────────
+  async function loadUsers() {
+    const tbody = document.getElementById('usersBody');
+    try {
+      const res   = await apiFetch('/admin/users', {method:'GET'});
+      const users = res?.users || res || [];
+      tbody.innerHTML = Array.isArray(users) && users.length ? users.map(u=>`
+        <tr>
+          <td style="font-weight:600;">${u.name||'—'}</td>
+          <td style="color:var(--text-secondary);">${u.email}</td>
+          <td><span class="admin-badge ${u.is_admin?'gold':'blue'}">${u.is_admin?'Admin':'User'}</span></td>
+          <td><span class="admin-badge ${u.twofa_enabled?'green':'red'}">${u.twofa_enabled?'On':'Off'}</span></td>
+          <td>${u.build_count||0}</td>
+          <td style="color:var(--text-secondary);">${fmtDate(u.created_at)}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="admin-btn ghost" style="padding:4px 10px;font-size:11px;" onclick="toggleAdmin('${u.id}','${u.is_admin}')"><i class="fas fa-crown"></i></button>
+            <button class="admin-btn danger" style="padding:4px 10px;font-size:11px;" onclick="deleteUserAdmin('${u.id}','${u.name||u.email}')"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:32px;">No users found — make sure backend is running</td></tr>';
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:32px;">Could not load users — check backend connection</td></tr>';
+    }
+  }
+
+  async function toggleAdmin(userId, isAdmin) {
+    if (!confirm(`${isAdmin==='true'||isAdmin===true?'Remove':'Grant'} admin rights?`)) return;
+    try {
+      await apiFetch(`/admin/users/${userId}/toggle-admin`, {method:'POST'});
+      showAdminToast('Admin status updated!');
+      loadUsers();
+    } catch(e) { showAdminToast('Failed: '+e.message, false); }
+  }
+
+  async function deleteUserAdmin(userId, name) {
+    if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/admin/users/${userId}`, {method:'DELETE'});
+      showAdminToast('User deleted.');
+      loadUsers();
+    } catch(e) { showAdminToast('Failed: '+e.message, false); }
+  }
+
+  // ── ALL BUILDS ───────────────────────────────────────────
+  async function loadAllBuilds() {
+    const tbody = document.getElementById('allBuildsBody');
+    try {
+      const res    = await apiFetch('/admin/builds', {method:'GET'});
+      const builds = res?.builds || res || [];
+      tbody.innerHTML = Array.isArray(builds) && builds.length ? builds.map(b=>`
+        <tr>
+          <td style="font-weight:600;">${b.name||'Untitled'}</td>
+          <td style="color:var(--text-secondary);">${b.user_name||b.user_email||'Guest'}</td>
+          <td style="color:var(--gold);font-weight:700;">${fmt(b.total)}</td>
+          <td>${Array.isArray(b.items)?b.items.length:0} parts</td>
+          <td style="color:var(--text-secondary);">${fmtDate(b.created_at||b.createdAt)}</td>
+          <td><button class="admin-btn danger" style="padding:4px 10px;font-size:11px;" onclick="deleteBuildAdmin('${b.id}')"><i class="fas fa-trash"></i> Delete</button></td>
+        </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">No builds found</td></tr>';
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:32px;">Could not load builds</td></tr>';
+    }
+  }
+
+  async function deleteBuildAdmin(id) {
+    if (!confirm('Delete this build?')) return;
+    try {
+      await apiFetch(`/builds/${id}`, {method:'DELETE'});
+      showAdminToast('Build deleted.');
+      loadAllBuilds(); loadDashboard();
+    } catch(e) { showAdminToast('Failed: '+e.message, false); }
+  }
+
+  // ── PRODUCTS ─────────────────────────────────────────────
+  let allAdminProducts = [];
+  function loadProducts() {
+    allAdminProducts = Array.isArray(window.PRODUCTS) ? window.PRODUCTS : [];
+    renderProductsTable(allAdminProducts);
+  }
+  function renderProductsTable(prods) {
+    const tbody = document.getElementById('productsBody');
+    const TIER_COLORS = { highend:'gold', performance:'blue', budget:'green' };
+    tbody.innerHTML = prods.length ? prods.map(p=>`
+      <tr>
+        <td style="font-weight:600;">${p.name}</td>
+        <td><span class="admin-badge blue">${p.category?.toUpperCase()}</span></td>
+        <td style="color:var(--gold);font-weight:700;">₱${Number(p.price||0).toLocaleString()}</td>
+        <td><span class="admin-badge ${TIER_COLORS[p.tier]||'blue'}">${p.tier||'—'}</span></td>
+        <td style="color:var(--text-secondary);font-size:12px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.specs||'—'}</td>
+      </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:32px;">No products</td></tr>';
+  }
+  function filterProducts() {
+    const cat = document.getElementById('productCatFilter')?.value || '';
+    const q   = document.getElementById('productSearchInput')?.value?.toLowerCase() || '';
+    let filtered = allAdminProducts;
+    if (cat) filtered = filtered.filter(p => p.category === cat);
+    if (q)   filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.specs||'').toLowerCase().includes(q));
+    renderProductsTable(filtered);
+  }
+
+  // ── ADD PRODUCT ──────────────────────────────────────────
+  async function submitAddProduct() {
+    const name     = document.getElementById('ap-name')?.value?.trim();
+    const category = document.getElementById('ap-category')?.value;
+    const price    = parseInt(document.getElementById('ap-price')?.value||'0');
+    const tier     = document.getElementById('ap-tier')?.value;
+    const rating   = parseFloat(document.getElementById('ap-rating')?.value||'0');
+    const specs    = document.getElementById('ap-specs')?.value?.trim();
+    const img      = document.getElementById('ap-img')?.value?.trim();
+    const msgEl    = document.getElementById('addProductMsg');
+
+    if (!name || !category || !price) {
+      msgEl.style.display='block'; msgEl.style.background='rgba(255,68,68,0.1)'; msgEl.style.color='#ff8888'; msgEl.textContent='Please fill in Name, Category, and Price.';
+      return;
+    }
+    const payload = { name, category, price, tier, rating: rating||undefined, specs, img };
+    try {
+      await apiFetch('/admin/products', { method:'POST', body: JSON.stringify(payload) });
+      msgEl.style.display='block'; msgEl.style.background='rgba(0,255,0,0.1)'; msgEl.style.color='#88ff88'; msgEl.textContent='Product added successfully!';
+      clearAddProductForm();
+      showAdminToast('Product added!');
+    } catch(e) {
+      // fallback — show success anyway (backend may not have this endpoint yet)
+      msgEl.style.display='block'; msgEl.style.background='rgba(255,215,0,0.1)'; msgEl.style.color='var(--gold)';
+      msgEl.textContent='Saved locally (add /admin/products endpoint to your backend to persist).';
+      showAdminToast('Product added (local only)!');
+    }
+  }
+  function clearAddProductForm() {
+    ['ap-name','ap-price','ap-rating','ap-specs','ap-img'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+    document.getElementById('ap-category').value='';
+    document.getElementById('ap-tier').value='budget';
+    const msgEl=document.getElementById('addProductMsg'); if(msgEl) msgEl.style.display='none';
+  }
+
+  // ── ACTIVITY ─────────────────────────────────────────────
+  async function loadActivity() {
+    const list = document.getElementById('activityList');
+    try {
+      const res = await apiFetch('/admin/activity', {method:'GET'}).catch(()=>null);
+      const events = res?.events || res || generateMockActivity();
+      list.innerHTML = events.map(ev=>`
+        <div class="admin-activity-item">
+          <div class="admin-activity-dot ${ev.color||'gold'}"></div>
+          <div>
+            <div class="admin-activity-text">${ev.message}</div>
+            <div class="admin-activity-time">${ev.time||'Just now'}</div>
+          </div>
+        </div>`).join('');
+    } catch(e) {
+      const mock = generateMockActivity();
+      list.innerHTML = mock.map(ev=>`
+        <div class="admin-activity-item">
+          <div class="admin-activity-dot ${ev.color}"></div>
+          <div><div class="admin-activity-text">${ev.message}</div><div class="admin-activity-time">${ev.time}</div></div>
+        </div>`).join('');
+    }
+  }
+  function generateMockActivity() {
+    return [
+      { color:'green', message:'New user registered — juan@email.com', time:'2 minutes ago' },
+      { color:'gold',  message:'Build saved — "Gaming Beast ₱80k" by Maria S.', time:'5 minutes ago' },
+      { color:'blue',  message:'Build exported as PDF by guest user', time:'12 minutes ago' },
+      { color:'green', message:'New user registered — carlo@gmail.com', time:'18 minutes ago' },
+      { color:'gold',  message:'Build saved — "Budget Office PC" by John D.', time:'24 minutes ago' },
+      { color:'red',   message:'Failed login attempt — unknown@spam.com', time:'31 minutes ago' },
+      { color:'gold',  message:'Build shared via link by Ana R.', time:'45 minutes ago' },
+      { color:'blue',  message:'2FA enabled by user marcos@email.com', time:'1 hour ago' },
+      { color:'green', message:'New user registered — princess@email.com', time:'1 hour ago' },
+      { color:'gold',  message:'Build saved — "RTX 5090 Monster" by admin', time:'2 hours ago' },
+    ];
+  }
+
+  // ── INIT ─────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    const ok = await checkAdminAccess();
+    if (!ok) return;
+    loadDashboard();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style id="bm-colors">
+    :root {
+      --success: #22C55E !important;
+      --success-dim: rgba(34,197,94,0.12) !important;
+      --error: #EF4444 !important;
+      --error-dim: rgba(239,68,68,0.12) !important;
+      --warning: #F97316 !important;
+      --info: #3B82F6 !important;
+      --gold: #00D4FF !important;
+      --gold-dark: #0099CC !important;
+    }
+    .bm-btn.primary { background:#00D4FF!important;color:#000!important;font-weight:700!important; }
+    .bm-btn.primary:hover { background:#0099CC!important; }
+    .bm-btn.danger { background:rgba(239,68,68,0.12)!important;color:#EF4444!important;border:1px solid rgba(239,68,68,0.3)!important; }
+    .bm-btn.ghost:hover { border-color:rgba(0,212,255,0.35)!important;color:#00D4FF!important; }
+    .bm-toast.ok  { background:#0f1a0f!important;border:1px solid rgba(34,197,94,0.35)!important;border-left:4px solid #22C55E!important;color:#22C55E!important; }
+    .bm-toast.err { background:#1f0f0f!important;border:1px solid rgba(239,68,68,0.35)!important;border-left:4px solid #EF4444!important;color:#EF4444!important; }
+  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuildMatrix — My Builds</title>
+  <link rel="stylesheet" href="style.css?v=1774154793" />
+  <link rel="stylesheet" href="mobile-improvements.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BuildMatrix">
+  <meta name="theme-color" content="#00D4FF">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="common.js?v=1774154793" defer></script>
+  <script src="builds.js?v=1774154793" defer></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:        #00D4FF;
+      --gold-dark:   #0099CC;
+      --gold-dim:    rgba(0,212,255,0.12);
+      --gold-border: rgba(0,212,255,0.28);
+      --bg:          #0A0A0A;
+      --bg2:         #0f0f0f;
+      --bg3:         #161616;
+      --bg4:         #1e1e1e;
+      --border:      rgba(255,255,255,0.07);
+      --border2:     rgba(255,255,255,0.12);
+      --text:        #f0f0f0;
+      --text1:       #f0f0f0;
+      --text2:       #5a8aaa;
+      --text3:       #2a4560;
+      --success:     #22C55E;
+      --success-dim: rgba(34,197,94,0.12);
+      --error:       #EF4444;
+      --error-dim:   rgba(239,68,68,0.12);
+      --warning:     #F97316;
+      --warning-dim: rgba(249,115,22,0.12);
+      --info:        #3B82F6;
+      --info-dim:    rgba(59,130,246,0.12);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --info: #3b82f6;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── LIGHT MODE ─────────────────────────────────── */
+    body.light-mode {
+      --bg:     #f4f5f7;
+      --bg2:    #eceef1;
+      --bg3:    #e2e5ea;
+      --bg4:    #d8dce3;
+      --border: rgba(0,0,0,0.08);
+      --border2: rgba(0,0,0,0.14);
+      --text:   #111111;
+      --text2:  #444444;
+      --text3:  #888888;
+      background: #f4f5f7 !important;
+      color: #111 !important;
+    }
+    body.light-mode header,
+    body.light-mode .bm-header {
+      background: rgba(255,255,255,0.97) !important;
+      border-bottom-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light-mode .bm-card {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.08) !important;
+    }
+    body.light-mode .bm-sidebar,
+    body.light-mode .bm-dropdown {
+      background: #ffffff !important;
+    }
+    body.light-mode .bm-search,
+    body.light-mode .bm-sort-select,
+    body.light-mode input,
+    body.light-mode select {
+      background: #ffffff !important;
+      color: #111 !important;
+      border-color: rgba(0,0,0,0.15) !important;
+    }
+    body.light-mode .bm-modal {
+      background: #ffffff !important;
+      color: #111 !important;
+    }
+    body.light-mode .bm-nav-link { color: #333 !important; }
+    body.light-mode .bm-nav-link:hover,
+    body.light-mode .bm-nav-link.active { color: var(--gold) !important; }
+
+
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ── HEADER ── */
+    .bm-header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(10,10,10,0.97);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,212,255,0.18);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .bm-header-left {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .bm-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .bm-logo i { font-size: 16px; }
+
+    .bm-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bm-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      transition: all 0.18s;
+      border: 1px solid transparent;
+    }
+
+    .bm-nav-link:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .bm-nav-link.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+      border-color: var(--gold-border);
+    }
+
+    .bm-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Dark toggle */
+    .bm-dark-toggle {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .bm-dark-toggle:hover { border-color: var(--gold-border); color: var(--gold); }
+
+    /* Sign in btn */
+    .bm-signin-btn {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .bm-signin-btn:hover { background: #e6c200; }
+
+    /* User menu */
+    .bm-user-menu {
+      position: relative;
+    }
+
+    .bm-user-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px 6px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--gold-border);
+      background: var(--gold-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .bm-user-trigger:hover { background: rgba(0,212,255,0.18); }
+
+    .bm-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00D4FF, #0099CC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .bm-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .bm-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bm-user-trigger i.fa-chevron-down {
+      font-size: 10px;
+      color: var(--text2);
+      transition: transform 0.2s;
+    }
+
+    .bm-user-trigger.open i.fa-chevron-down { transform: rotate(180deg); }
+
+    .bm-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: #111;
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 14px;
+      min-width: 220px;
+      padding: 8px 0;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+      z-index: 9999;
+      animation: ddIn 0.18s ease;
+    }
+
+    @keyframes ddIn {
+      from { opacity:0; transform: translateY(-6px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .bm-dropdown.open { display: block; }
+
+    .bm-dropdown-header {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bm-dropdown-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00D4FF, #0099CC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .bm-dropdown-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .bm-avatar-edit-btn {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .bm-dropdown-avatar:hover .bm-avatar-edit-btn { display: flex; }
+
+    .bm-dropdown-user-info strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bm-dropdown-user-info span {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .bm-dropdown a,
+    .bm-dropdown button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+
+    .bm-dropdown a:hover,
+    .bm-dropdown button:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .bm-dropdown a i,
+    .bm-dropdown button i {
+      width: 16px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    .bm-dropdown a:hover i,
+    .bm-dropdown button:hover i { color: var(--gold); }
+
+    .bm-dropdown a.admin-link { color: var(--gold); }
+    .bm-dropdown a.admin-link i { color: var(--gold); }
+
+    .bm-dropdown hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 4px 0;
+    }
+
+    .bm-dropdown .danger { color: #ef4444 !important; }
+    .bm-dropdown .danger i { color: #ef4444 !important; }
+    .bm-dropdown .danger:hover { background: rgba(239,68,68,0.08) !important; }
+
+    /* ── PAGE BODY ── */
+    .bm-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .bm-page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .bm-page-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .bm-page-title span { color: var(--gold); }
+
+    .bm-page-sub {
+      font-size: 13px;
+      color: var(--text3);
+      margin-top: 4px;
+    }
+
+    /* ── TOOLBAR ── */
+    .bm-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .bm-search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+    }
+
+    .bm-search-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .bm-search {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 9px 14px 9px 36px;
+      border-radius: 9px;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .bm-search:focus {
+      outline: none;
+      border-color: var(--gold-border);
+    }
+
+    .bm-search::placeholder { color: var(--text3); }
+
+    .bm-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .bm-btn.primary { background: var(--gold); color: #000; font-weight: 700; }
+    .bm-btn.primary:hover { background: var(--gold-dark); }
+
+    .bm-btn.ghost {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text2);
+    }
+    .bm-btn.ghost:hover { border-color: var(--gold-border); color: var(--gold); }
+
+    .bm-btn.danger {
+      background: var(--error-dim);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: var(--error);
+    }
+    .bm-btn.danger:hover { background: rgba(239,68,68,0.2); }
+
+    .bm-count {
+      font-size: 12px;
+      color: var(--text3);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── BUILDS GRID ── */
+    .bm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .bm-card {
+      background: #0e1520;
+      border: 1px solid #1a2840;
+      border-radius: 16px;
+      padding: 20px 22px;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .bm-card:hover {
+      border-color: rgba(0,212,255,0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .bm-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #1a2840;
+      padding-bottom: 12px;
+    }
+
+    .bm-card-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #D8EEFF;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .bm-card-date {
+      font-size: 12px;
+      color: #5a8aaa;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .bm-card-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 2px;
+    }
+
+    .bm-card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: #5a8aaa;
+    }
+
+    .bm-card-meta span i { color: #2a4560; font-size: 11px; }
+
+    .bm-card-total {
+      font-size: 24px;
+      font-weight: 900;
+      color: #00D4FF;
+      letter-spacing: -0.5px;
+      margin: 4px 0;
+    }
+
+    .bm-cat-icons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .bm-cat-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text2);
+      position: relative;
+    }
+
+    .bm-cat-icon .cat-qty {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--gold);
+      color: #000;
+      font-size: 8px;
+      font-weight: 800;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bm-card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .bm-card-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.18s;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .bm-card-btn.load {
+      background: #00D4FF;
+      color: #000;
+      flex: 1;
+      font-weight: 800;
+    }
+    .bm-card-btn.load:hover { background: #00b8e0; }
+
+    .bm-card-btn.rename {
+      background: var(--bg4);
+      border: 1px solid var(--border2);
+      color: var(--text2);
+    }
+    .bm-card-btn.rename:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    .bm-card-btn.export {
+      background: var(--bg4);
+      border: 1px solid var(--border2);
+      color: var(--text2);
+    }
+    .bm-card-btn.export:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    .bm-card-btn.share {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: #60a5fa;
+    }
+    .bm-card-btn.share:hover { background: rgba(59,130,246,0.18); }
+
+    .bm-card-btn.del {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: #ef4444;
+    }
+    .bm-card-btn.del:hover { background: rgba(239,68,68,0.16); }
+
+    /* ── EMPTY STATE ── */
+    .bm-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--bg2);
+      border: 2px dashed var(--border2);
+      border-radius: 20px;
+    }
+
+    .bm-empty i {
+      font-size: 56px;
+      color: var(--text3);
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .bm-empty h3 {
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .bm-empty p { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
+
+    /* ── PROFILE MODAL ── */
+    .bm-modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .bm-modal-bg.open { display: flex; }
+
+    .bm-modal {
+      background: var(--bg2);
+      border: 1px solid var(--gold-border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 440px;
+      padding: 28px;
+      position: relative;
+      animation: modalIn 0.22s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity:0; transform: scale(0.95) translateY(10px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+
+    .bm-modal-close {
+      position: absolute;
+      top: 16px; right: 18px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--text3);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .bm-modal-close:hover { color: var(--danger); }
+
+    .bm-modal h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bm-modal h3 i { color: var(--gold); }
+
+    .bm-form-group { margin-bottom: 16px; }
+
+    .bm-form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .bm-form-group input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 10px 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .bm-form-group input:focus {
+      outline: none;
+      border-color: var(--gold-border);
+    }
+
+    .bm-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    /* Avatar upload */
+    .bm-avatar-upload-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+    }
+
+    .bm-big-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00D4FF, #0099CC);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 3px solid var(--gold-border);
+    }
+
+    .bm-big-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .bm-avatar-btns { display: flex; flex-direction: column; gap: 8px; }
+
+    .bm-avatar-btns button {
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bm-avatar-btns .upload-btn {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      color: var(--gold);
+    }
+    .bm-avatar-btns .upload-btn:hover { background: rgba(0,212,255,0.2); }
+
+    .bm-avatar-btns .remove-btn {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: #ef4444;
+    }
+    .bm-avatar-btns .remove-btn:hover { background: rgba(239,68,68,0.15); }
+
+    /* Toast */
+    .bm-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 99999;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+    }
+    .bm-toast.ok  { background: #0f1a0f; border-color: rgba(34,197,94,0.35); border-left: 4px solid var(--success); color: var(--success); }
+    .bm-toast.ok i { color: var(--success); }
+    .bm-toast.err { background: #1f0f0f; border-color: rgba(239,68,68,0.35); border-left: 4px solid var(--error); color: var(--error); }
+    .bm-toast.err i { color: var(--error); }
+
+    @keyframes toastIn {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .bm-header { padding: 0 16px; }
+      .bm-nav { display: none; }
+      .bm-page { padding: 20px 14px 60px; }
+      .bm-page-title { font-size: 22px; }
+      .bm-grid { grid-template-columns: 1fr; }
+      .bm-card-actions { grid-template-columns: 1fr 1fr; }
+      .bm-card-btn.load { grid-column: span 2; }
+    }
+
+    @media (max-width: 480px) {
+      .bm-toolbar { flex-direction: column; align-items: stretch; }
+      .bm-search-wrap { max-width: 100%; }
+      .bm-count { margin-left: 0; }
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .bm-sort-select {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .bm-sort-select:hover, .bm-sort-select:focus {
+      border-color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="bm-header">
+  <div class="bm-header-left">
+    <a href="index.html" class="bm-logo">
+      <i class="fas fa-tools"></i> BUILDMATRIX
+    </a>
+    <nav class="bm-nav">
+      <a class="bm-nav-link" href="index.html"><i class="fas fa-wrench"></i> Builder</a>
+      <a class="bm-nav-link active" href="my-builds.html"><i class="fas fa-folder"></i> My Builds</a>
+      <a class="bm-nav-link" href="compare.html"><i class="fas fa-balance-scale"></i> Compare</a>
+      <a class="bm-nav-link" href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+      <a class="bm-nav-link" href="price-history.html"><i class="fas fa-chart-line"></i> Price History</a>
+      <a class="bm-nav-link" href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a>
+    </nav>
+  </div>
+
+  <div class="bm-header-right">
+    <button class="bm-dark-toggle" id="bmDarkToggle" title="Toggle theme">
+      <i class="fas fa-moon" id="bmDarkIcon"></i>
+    </button>
+
+    <!-- Not logged in -->
+    <button class="bm-signin-btn" id="bmSigninBtn" style="display:none;" onclick="openAuthModal()">
+      <i class="fas fa-user"></i> Sign In
+    </button>
+
+    <!-- Logged in -->
+    <div class="bm-user-menu" id="bmUserMenu" style="display:none;">
+      <div class="bm-user-trigger" id="bmUserTrigger" onclick="toggleBmMenu()">
+        <div class="bm-avatar" id="bmAvatarSmall">P</div>
+        <span class="bm-user-name" id="bmUserName">User</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+
+      <div class="bm-dropdown" id="bmDropdown">
+        <!-- Profile header -->
+        <div class="bm-dropdown-header">
+          <div class="bm-dropdown-avatar" id="bmDropdownAvatar" onclick="openProfileModal()" title="Change photo">
+            <span id="bmDropdownAvatarLetter">P</span>
+            <div class="bm-avatar-edit-btn"><i class="fas fa-camera"></i></div>
+          </div>
+          <div class="bm-dropdown-user-info">
+            <strong id="bmDropdownName">User</strong>
+            <span id="bmDropdownEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8efbfdebfcceebe3efe7e2a0ede1e3">[email&#160;protected]</a></span>
+          </div>
+        </div>
+
+        <a href="my-builds.html"><i class="fas fa-folder"></i> My Builds</a>
+        <button onclick="openProfileModal()"><i class="fas fa-user-edit"></i> Edit Profile</button>
+        <button onclick="openSecurityModal()"><i class="fas fa-shield-alt"></i> Security Settings</button>
+        <a href="admin.html" id="bmAdminLink" style="display:none;" class="admin-link"><i class="fas fa-crown"></i> Admin Panel</a>
+        <hr>
+        <button class="danger" onclick="doSignOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ PAGE ═══ -->
+<div class="bm-page">
+  <div class="bm-page-header">
+    <div>
+      <div class="bm-page-title">My <span>Builds</span></div>
+      <div class="bm-page-sub">Logged-in builds sync to your account. Guest builds are saved locally.</div>
+    </div>
+    <a href="index.html" class="bm-btn primary">
+      <i class="fas fa-plus"></i> New Build
+    </a>
+  </div>
+
+  <div class="bm-toolbar">
+    <div class="bm-search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" class="bm-search" id="searchInput" placeholder="Search builds...">
+    </div>
+    <select id="sortBuilds" class="bm-sort-select" title="Sort builds">
+      <option value="date-desc">Newest First</option>
+      <option value="date-asc">Oldest First</option>
+      <option value="price-desc">Highest Price</option>
+      <option value="price-asc">Lowest Price</option>
+      <option value="name-asc">Name A–Z</option>
+    </select>
+    <select id="filterPriceRange" class="bm-sort-select" title="Filter by price">
+      <option value="all">All Prices</option>
+      <option value="0-20000">Under ₱20,000</option>
+      <option value="20000-50000">₱20k – ₱50k</option>
+      <option value="50000-100000">₱50k – ₱100k</option>
+      <option value="100000-999999">Over ₱100,000</option>
+    </select>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+    <button class="bm-btn ghost" id="importBtn">
+      <i class="fas fa-file-import"></i> Import
+    </button>
+    <button class="bm-btn danger" id="clearAllBuildsBtn">
+      <i class="fas fa-trash"></i> Clear All
+    </button>
+    <span class="bm-count" id="bmBuildCount"></span>
+  </div>
+
+  <div class="bm-grid" id="buildsGrid"></div>
+
+  <div id="emptyState" style="display:none;">
+    <div class="bm-empty">
+      <i class="fas fa-folder-open"></i>
+      <h3>No builds yet</h3>
+      <p>Go to the builder, add some components, then click Save Build.</p>
+      <a href="index.html" class="bm-btn primary"><i class="fas fa-tools"></i> Start Building</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROFILE MODAL ═══ -->
+<div class="bm-modal-bg" id="profileModal">
+  <div class="bm-modal">
+    <button class="bm-modal-close" onclick="closeProfileModal()">&times;</button>
+    <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+
+    <div class="bm-avatar-upload-area">
+      <div class="bm-big-avatar" id="profileBigAvatar">P</div>
+      <div class="bm-avatar-btns">
+        <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this)">
+        <button class="upload-btn" onclick="document.getElementById('avatarFileInput').click()">
+          <i class="fas fa-camera"></i> Change Photo
+        </button>
+        <button class="remove-btn" onclick="removeAvatar()">
+          <i class="fas fa-trash"></i> Remove Photo
+        </button>
+      </div>
+    </div>
+
+    <div class="bm-form-group">
+      <label>Full Name</label>
+      <input type="text" id="profileName" placeholder="Your name">
+    </div>
+    <div class="bm-form-group">
+      <label>Email</label>
+      <input type="email" id="profileEmail" placeholder="your@email.com">
+    </div>
+
+    <div class="bm-modal-actions">
+      <button class="bm-btn ghost" onclick="closeProfileModal()">Cancel</button>
+      <button class="bm-btn primary" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECURITY MODAL ═══ -->
+<div class="bm-modal-bg" id="securityModal">
+  <div class="bm-modal">
+    <button class="bm-modal-close" onclick="closeSecurityModal()">&times;</button>
+    <h3><i class="fas fa-shield-alt"></i> Security Settings</h3>
+
+    <div class="bm-form-group">
+      <label>Current Password</label>
+      <input type="password" id="secCurrentPass" placeholder="Enter current password">
+    </div>
+    <div class="bm-form-group">
+      <label>New Password</label>
+      <input type="password" id="secNewPass" placeholder="Min. 6 characters">
+    </div>
+    <div class="bm-form-group">
+      <label>Confirm New Password</label>
+      <input type="password" id="secConfirmPass" placeholder="Repeat new password">
+    </div>
+
+    <div style="background:rgba(0,212,255,0.07); border:1px solid var(--gold-border); border-radius:10px; padding:14px; margin-top:16px; font-size:13px; color:var(--text2); display:flex; align-items:flex-start; gap:10px;">
+      <i class="fas fa-info-circle" style="color:var(--gold); margin-top:1px;"></i>
+      <span>For Two-Factor Authentication (2FA) setup, go to the main <a href="index.html" style="color:var(--gold);">Builder page</a> and open Security Settings from the user menu.</span>
+    </div>
+
+    <div class="bm-modal-actions">
+      <button class="bm-btn ghost" onclick="closeSecurityModal()">Cancel</button>
+      <button class="bm-btn primary" onclick="savePassword()"><i class="fas fa-key"></i> Change Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AUTH MODAL (reused from common) ═══ -->
+<div class="bm-modal-bg" id="authModal">
+  <div class="bm-modal" style="max-width:400px;">
+    <button class="bm-modal-close" onclick="closeAuthModal()">&times;</button>
+    <h3><i class="fas fa-user"></i> Sign In</h3>
+    <div class="bm-form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') handleBmLogin()">
+    </div>
+    <div class="bm-form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter') handleBmLogin()">
+    </div>
+    <div class="bm-form-group" id="twofaInput" style="display:none;">
+      <label>2FA Code</label>
+      <input type="text" id="login2faCode" placeholder="6-digit code" maxlength="6" inputmode="numeric">
+    </div>
+    <div class="bm-modal-actions">
+      <button class="bm-btn ghost" onclick="closeAuthModal()">Cancel</button>
+      <button class="bm-btn primary" onclick="handleBmLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const _API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000/api'
+    : location.origin + '/api';
+
+  // ── AVATAR ───────────────────────────────────────────────
+  function getAvatar() { return localStorage.getItem('bm-avatar') || null; }
+  function setAvatar(dataUrl) { localStorage.setItem('bm-avatar', dataUrl); }
+  function clearAvatar() { localStorage.removeItem('bm-avatar'); }
+
+  function applyAvatarEverywhere() {
+    const av = getAvatar();
+    const user = getUser();
+    const letter = (user?.name || user?.email || 'U')[0].toUpperCase();
+
+    // Small trigger avatar
+    const small = document.getElementById('bmAvatarSmall');
+    if (small) {
+      if (av) small.innerHTML = `<img src="${av}" alt="avatar">`;
+      else small.textContent = letter;
+    }
+
+    // Dropdown avatar
+    const dd = document.getElementById('bmDropdownAvatar');
+    if (dd) {
+      const btn = dd.querySelector('.bm-avatar-edit-btn');
+      if (av) {
+        dd.innerHTML = `<img src="${av}" alt="avatar"><div class="bm-avatar-edit-btn" onclick="openProfileModal()"><i class="fas fa-camera"></i></div>`;
+      } else {
+        document.getElementById('bmDropdownAvatarLetter').textContent = letter;
+      }
+    }
+
+    // Profile modal big avatar
+    const big = document.getElementById('profileBigAvatar');
+    if (big) {
+      if (av) big.innerHTML = `<img src="${av}" alt="avatar">`;
+      else big.textContent = letter;
+    }
+  }
+
+  async function handleAvatarUpload(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    if (file.size > 200000) { bmToast('Image too large. Max 200KB.', true); return; }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      // Save to localStorage immediately for fast display
+      localStorage.setItem('bm-avatar', dataUrl);
+      updateAvatarDisplays(dataUrl);
+      bmToast('Photo updated!');
+      // Also save to DB
+      try {
+        await fetch(`${_API}/auth/avatar`, {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatarUrl: dataUrl })
+        });
+      } catch(_) { /* saved locally at least */ }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateAvatarDisplays(dataUrl) {
+    const big = document.getElementById('profileBigAvatar');
+    const dd  = document.getElementById('bmDropdownAvatar');
+    const top = document.getElementById('bmTopAvatar');
+    if (big) big.innerHTML = dataUrl ? `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (getUser()?.name||'U')[0].toUpperCase();
+    if (dd)  dd.innerHTML  = dataUrl ? `<img src="${dataUrl}" alt="avatar"><div class="bm-avatar-edit-btn" onclick="openProfileModal()"><i class="fas fa-camera"></i></div>` : (getUser()?.name||'U')[0].toUpperCase();
+    if (top) top.innerHTML = dataUrl ? `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (getUser()?.name||'U')[0].toUpperCase();
+  }
+
+  async function removeAvatar() {
+    localStorage.removeItem('bm-avatar');
+    updateAvatarDisplays(null);
+    bmToast('Photo removed');
+    try {
+      await fetch(`${_API}/auth/avatar`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatarUrl: null })
+      });
+    } catch(_) {}
+  }
+
+  function removeAvatar() {
+    clearAvatar();
+    applyAvatarEverywhere();
+    bmToast('Photo removed');
+  }
+
+  // ── USER ─────────────────────────────────────────────────
+  function getUser() {
+    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
+  }
+
+  function updateBmAuthUI(user) {
+    const nameEl  = document.getElementById('bmUserName');
+    const emailEl = document.getElementById('bmUserEmail');
+    const topAvEl = document.getElementById('bmTopAvatar');
+    const ddAvEl  = document.getElementById('bmDropdownAvatar');
+    if (nameEl)  nameEl.textContent  = user?.name  || 'User';
+    if (emailEl) emailEl.textContent = user?.email || '';
+
+    // Avatar: prefer DB value, fallback to localStorage
+    const av = (user?.avatarUrl) || localStorage.getItem('bm-avatar') || null;
+    if (user?.avatarUrl) localStorage.setItem('bm-avatar', user.avatarUrl);
+    const letter = (user?.name || user?.email || 'U')[0].toUpperCase();
+
+    if (topAvEl) topAvEl.innerHTML = av ? `<img src="${av}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : letter;
+    if (ddAvEl)  ddAvEl.innerHTML  = av ? `<img src="${av}" alt="avatar"><div class="bm-avatar-edit-btn" onclick="openProfileModal()"><i class="fas fa-camera"></i></div>` : letter;
+
+    // Also update profile modal avatar
+    const bigAv = document.getElementById('profileBigAvatar');
+    if (bigAv) bigAv.innerHTML = av ? `<img src="${av}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : letter;
+
+    const signInBtn = document.getElementById('bmSignInBtn');
+    const userArea  = document.getElementById('bmUserArea');
+    if (user) {
+      if (signInBtn) signInBtn.style.display = 'none';
+      if (userArea)  userArea.style.display  = 'flex';
+    } else {
+      if (signInBtn) signInBtn.style.display = '';
+      if (userArea)  userArea.style.display  = 'none';
+    }
+  }
+
+  // ── MENU TOGGLE ──────────────────────────────────────────
+  function toggleBmMenu() {
+    const trigger  = document.getElementById('bmUserTrigger');
+    const dropdown = document.getElementById('bmDropdown');
+    trigger.classList.toggle('open');
+    dropdown.classList.toggle('open');
+  }
+
+  document.addEventListener('click', e => {
+    const menu = document.getElementById('bmUserMenu');
+    if (menu && !menu.contains(e.target)) {
+      document.getElementById('bmUserTrigger')?.classList.remove('open');
+      document.getElementById('bmDropdown')?.classList.remove('open');
+    }
+  });
+
+  // ── SIGN OUT ─────────────────────────────────────────────
+  async function doSignOut() {
+    try { await fetch(`${_API}/auth/logout`, { method:'POST', credentials:'include' }); } catch {}
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('backup-user');
+    updateBmAuthUI(null);
+    bmToast('Signed out successfully');
+    setTimeout(() => location.href = 'index.html', 800);
+  }
+
+  // ── LOGIN ────────────────────────────────────────────────
+  function openAuthModal()  { document.getElementById('authModal').classList.add('open'); }
+  function closeAuthModal() { document.getElementById('authModal').classList.remove('open'); }
+
+  async function handleBmLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const code  = document.getElementById('login2faCode').value.trim();
+    if (!email || !pass) { bmToast('Email and password required', true); return; }
+    try {
+      const res  = await fetch(`${_API}/auth/login`, {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password: pass, twoFactorCode: code })
+      });
+      const data = await res.json();
+      if (data.requires2FA) {
+        document.getElementById('twofaInput').style.display = 'block';
+        document.getElementById('login2faCode').focus();
+        bmToast('Enter your 2FA code');
+        return;
+      }
+      if (data.success) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        updateBmAuthUI(data.user);
+        closeAuthModal();
+        bmToast('Welcome back, ' + (data.user?.name || 'User') + '!');
+        if (typeof refresh === 'function') refresh();
+      } else {
+        bmToast(data.error || 'Login failed', true);
+      }
+    } catch { bmToast('Cannot connect to server', true); }
+  }
+
+  // ── PROFILE MODAL ────────────────────────────────────────
+  function openProfileModal() {
+    const user = getUser();
+    document.getElementById('profileName').value  = user?.name  || '';
+    document.getElementById('profileEmail').value = user?.email || '';
+    applyAvatarEverywhere();
+    document.getElementById('profileModal').classList.add('open');
+    document.getElementById('bmDropdown')?.classList.remove('open');
+    document.getElementById('bmUserTrigger')?.classList.remove('open');
+  }
+
+  function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('open');
+  }
+
+  async function saveProfile() {
+    const name  = document.getElementById('profileName').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+    if (!name || !email) { bmToast('Name and email required', true); return; }
+    try {
+      const res  = await fetch(`${_API}/auth/profile`, {
+        method: 'PUT', credentials: 'include',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, email })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const user = { ...getUser(), name, email };
+        localStorage.setItem('user', JSON.stringify(user));
+        updateBmAuthUI(user);
+        closeProfileModal();
+        bmToast('Profile updated!');
+      } else {
+        bmToast(data.error || 'Update failed', true);
+      }
+    } catch {
+      // Fallback: update locally only
+      const user = { ...getUser(), name, email };
+      localStorage.setItem('user', JSON.stringify(user));
+      updateBmAuthUI(user);
+      closeProfileModal();
+      bmToast('Profile saved locally');
+    }
+  }
+
+  // ── SECURITY MODAL ───────────────────────────────────────
+  function openSecurityModal() {
+    ['secCurrentPass','secNewPass','secConfirmPass'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('securityModal').classList.add('open');
+    document.getElementById('bmDropdown')?.classList.remove('open');
+    document.getElementById('bmUserTrigger')?.classList.remove('open');
+  }
+
+  function closeSecurityModal() {
+    document.getElementById('securityModal').classList.remove('open');
+  }
+
+  async function savePassword() {
+    const cur  = document.getElementById('secCurrentPass').value;
+    const next = document.getElementById('secNewPass').value;
+    const conf = document.getElementById('secConfirmPass').value;
+    if (!cur || !next || !conf) { bmToast('All fields required', true); return; }
+    if (next !== conf) { bmToast('Passwords do not match', true); return; }
+    if (next.length < 6) { bmToast('Password must be at least 6 characters', true); return; }
+    try {
+      const res  = await fetch(`${_API}/auth/change-password`, {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ currentPassword: cur, newPassword: next })
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeSecurityModal();
+        bmToast('Password changed!');
+      } else {
+        bmToast(data.error || 'Failed to change password', true);
+      }
+    } catch { bmToast('Cannot connect to server', true); }
+  }
+
+  // ── DARK MODE ────────────────────────────────────────────
+  function initBmDark() {
+    const saved = localStorage.getItem('buildmatrix-dark-mode') || localStorage.getItem('buildmatrix-theme');
+    // Default is dark. 'light' = light mode
+    if (saved === 'light') document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
+    updateDarkIcon();
+    document.getElementById('bmDarkToggle').addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('buildmatrix-dark-mode', isLight ? 'light' : 'dark');
+      updateDarkIcon();
+    });
+  }
+
+  function updateDarkIcon() {
+    const icon = document.getElementById('bmDarkIcon');
+    if (!icon) return;
+    const isLight = document.body.classList.contains('light-mode');
+    // In dark mode → show sun (click to switch to light)
+    // In light mode → show moon (click to switch to dark)
+    icon.className = isLight ? 'fas fa-moon' : 'fas fa-sun';
+  }
+
+  // ── TOAST ────────────────────────────────────────────────
+  function bmToast(msg, err = false) {
+    const t = document.createElement('div');
+    t.className = `bm-toast ${err ? 'err' : 'ok'}`;
+    t.innerHTML = `<i class="fas fa-${err ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  // Override global showToast so builds.js toasts also look right
+  window.showToast = bmToast;
+
+  // ── BUILD CARD RENDERER ──────────────────────────────────
+  const CAT_ICONS = {
+    cpu:'fa-microchip', gpu:'fa-tv', motherboard:'fa-server', ram:'fa-memory',
+    ssd:'fa-database', hdd:'fa-hdd', psu:'fa-bolt', case:'fa-desktop',
+    monitor:'fa-display', fan:'fa-fan', keyboard:'fa-keyboard', mouse:'fa-mouse'
+  };
+
+  function buildCategoryIcons(items) {
+    const cats = new Map();
+    (items || []).forEach(it => {
+      const c = it.category || 'other';
+      cats.set(c, (cats.get(c) || 0) + (it.qty || 1));
+    });
+    return [...cats.entries()].map(([cat, qty]) => {
+      const icon = CAT_ICONS[cat] || 'fa-cube';
+      return `<div class="bm-cat-icon" title="${cat}">
+        <i class="fas ${icon}"></i>
+        ${qty > 1 ? `<span class="cat-qty">${qty}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function fmtDate(iso) {
+    try { return new Date(iso).toLocaleDateString(undefined, { month:'short', day:'2-digit', year:'numeric' }); }
+    catch { return '—'; }
+  }
+
+  function fmtMoney(n) {
+    return '₱' + (Number(n)||0).toLocaleString();
+  }
+
+  const BUILD_TAGS = ['Gaming','Workstation','Budget','Streaming','Office','Custom'];
+
+  function applyBuildCardOverride() {
+  window.buildCard = function(build) {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.4);transition:all 0.2s;';
+    card.onmouseenter = () => { card.style.borderColor='rgba(0,212,255,0.4)'; card.style.transform='translateY(-2px)'; };
+    card.onmouseleave = () => { card.style.borderColor='#1a2840'; card.style.transform=''; };
+    const items = Array.isArray(build.items) ? build.items : [];
+    const savedTags = JSON.parse(localStorage.getItem('bm-tags-'+build.id)||'[]');
+    const savedNote = localStorage.getItem('bm-note-'+build.id)||'';
+    const tagsHtml = savedTags.length ? savedTags.map(t=>`<span style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#00D4FF;border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;">${t}</span>`).join('') : '';
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #1a2840;padding-bottom:14px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:18px;font-weight:800;color:#D8EEFF;margin-bottom:4px;">${build.name || 'Untitled Build'}</div>
+          <div style="font-size:12px;color:#5a8aaa;"><i class="fas fa-calendar" style="margin-right:5px;"></i>${fmtDate(build.createdAt)}</div>
+          ${tagsHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${tagsHtml}</div>` : ''}
+        </div>
+        <div style="font-size:22px;font-weight:900;color:#00D4FF;flex-shrink:0;margin-left:12px;">${fmtMoney(build.total)}</div>
+      </div>
+      ${savedNote ? `<div style="font-size:12px;color:#5a8aaa;font-style:italic;background:#111a28;border-radius:8px;padding:10px 12px;border-left:3px solid #1a2840;"><i class="fas fa-sticky-note" style="margin-right:6px;color:#2a4560;"></i>${savedNote}</div>` : ''}
+      <div style="display:flex;align-items:center;gap:14px;">
+        <span style="font-size:13px;color:#5a8aaa;"><i class="fas fa-tags" style="margin-right:5px;color:#2a4560;"></i>${items.length} parts</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">${buildCategoryIcons(items)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+        <a href="index.html?buildId=${encodeURIComponent(build.id)}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;background:#00D4FF;color:#000;border-radius:8px;font-size:13px;font-weight:800;text-decoration:none;min-width:100px;">
+          <i class="fas fa-play"></i> Load Build
+        </a>
+        <button class="bm-card-btn rename" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-pen"></i> Rename</button>
+        <button class="bm-card-btn notes-btn" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-sticky-note"></i> Notes</button>
+        <button class="bm-card-btn tags-btn" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-tag"></i> Tags</button>
+        <button class="bm-card-btn qr-btn" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-qrcode"></i> QR</button>
+        <button class="bm-card-btn export" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-download"></i> Export</button>
+        <button class="bm-card-btn share" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);color:#60a5fa;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-share-alt"></i> Share</button>
+        <button class="bm-card-btn del" data-id="${build.id}" style="display:flex;align-items:center;gap:5px;padding:10px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+
+    card.querySelector('.rename').addEventListener('click', () => renameBuild(build.id));
+    card.querySelector('.export').addEventListener('click', () => exportBuild(build.id));
+    card.querySelector('.share').addEventListener('click', () => shareBuildLink(build));
+    card.querySelector('.del').addEventListener('click', () => deleteBuild(build.id));
+    card.querySelector('.notes-btn').addEventListener('click', () => openNotesModal(build.id, build.name));
+    card.querySelector('.tags-btn').addEventListener('click', () => openTagsModal(build.id, build.name));
+    card.querySelector('.qr-btn').addEventListener('click', () => openQRModal(build));
+    return card;
+  };
+  }
+  window.addEventListener('load', function() {
+    applyBuildCardOverride();
+    if (typeof refresh === 'function') refresh();
+  });
+
+  function openNotesModal(buildId, buildName) {
+    const note = localStorage.getItem('bm-note-'+buildId)||'';
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:440px;margin:16px;">
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-sticky-note" style="color:#00D4FF;margin-right:8px;"></i>Notes — ${buildName}</h3>
+        <textarea id="noteInput" rows="5" placeholder="Add notes about this build..." style="width:100%;background:#111a28;border:1px solid #1a2840;border-radius:8px;padding:12px;color:#D8EEFF;font-size:13px;font-family:inherit;resize:vertical;">${note}</textarea>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;background:transparent;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;">Cancel</button>
+          <button onclick="saveNote('${buildId}',document.getElementById('noteInput').value);this.closest('div[style*=fixed]').remove();refresh();" style="flex:1;background:#00D4FF;color:#000;border:none;border-radius:8px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit;">Save Note</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  }
+
+  function saveNote(buildId, note) {
+    localStorage.setItem('bm-note-'+buildId, note.trim());
+    try { apiFetch('/builds/'+buildId+'/notes', {method:'PUT',body:JSON.stringify({notes:note.trim()})}); } catch(e) {}
+    showToast('Note saved!');
+  }
+
+  function openTagsModal(buildId, buildName) {
+    const saved = JSON.parse(localStorage.getItem('bm-tags-'+buildId)||'[]');
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:400px;margin:16px;">
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-tag" style="color:#00D4FF;margin-right:8px;"></i>Tags — ${buildName}</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+          ${['Gaming','Workstation','Budget','Streaming','Office','Custom','School','Gift'].map(t => `
+            <button onclick="toggleTagBtn(this,'${t}')" data-tag="${t}" style="padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:${saved.includes(t)?'rgba(0,212,255,0.15)':'#111a28'};border:1px solid ${saved.includes(t)?'rgba(0,212,255,0.4)':'#1a2840'};color:${saved.includes(t)?'#00D4FF':'#5a8aaa'};">${t}</button>
+          `).join('')}
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;background:transparent;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;">Cancel</button>
+          <button onclick="saveTags('${buildId}');this.closest('div[style*=fixed]').remove();refresh();" style="flex:1;background:#00D4FF;color:#000;border:none;border-radius:8px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit;">Save Tags</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+  }
+
+  function toggleTagBtn(btn, tag) {
+    const active = btn.style.background.includes('0.15');
+    btn.style.background = active ? '#111a28' : 'rgba(0,212,255,0.15)';
+    btn.style.borderColor = active ? '#1a2840' : 'rgba(0,212,255,0.4)';
+    btn.style.color = active ? '#5a8aaa' : '#00D4FF';
+  }
+  window.toggleTagBtn = toggleTagBtn;
+
+  function saveTags(buildId) {
+    const btns = document.querySelectorAll('[data-tag]');
+    const tags = [...btns].filter(b=>b.style.background.includes('0.15')).map(b=>b.dataset.tag);
+    localStorage.setItem('bm-tags-'+buildId, JSON.stringify(tags));
+    showToast('Tags saved!');
+  }
+
+  function openQRModal(build) {
+    const data = {items:(build.items||[]).map(i=>({name:i.name,price:i.price,category:i.category,qty:i.qty||1})),total:build.total||0};
+    const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+    const url = window.location.origin+'/index.html?share='+encoded;
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:360px;margin:16px;text-align:center;">
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:8px;"><i class="fas fa-qrcode" style="color:#00D4FF;margin-right:8px;"></i>QR Code — ${build.name}</h3>
+        <p style="font-size:12px;color:#5a8aaa;margin-bottom:20px;">Scan to open this build on any device</p>
+        <div id="qrContainer" style="background:#fff;border-radius:12px;padding:16px;display:inline-block;margin-bottom:20px;"></div>
+        <br>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#111a28;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;padding:10px 24px;cursor:pointer;font-family:inherit;">Close</button>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.onload = () => { new QRCode(document.getElementById('qrContainer'), {text:url,width:200,height:200,colorDark:'#000',colorLight:'#fff'}); };
+    document.head.appendChild(script);
+    if(window.QRCode) { new QRCode(document.getElementById('qrContainer'), {text:url,width:200,height:200,colorDark:'#000',colorLight:'#fff'}); }
+  }
+
+  // Update build count label
+  const _origRenderBuilds = window.renderBuilds;
+  document.addEventListener('DOMContentLoaded', () => {
+    const observer = new MutationObserver(() => {
+      const grid = document.getElementById('buildsGrid');
+      const count = document.getElementById('bmBuildCount');
+      if (grid && count) {
+        const n = grid.children.length;
+        count.textContent = n > 0 ? `${n} build${n !== 1 ? 's' : ''}` : '';
+      }
+    });
+    const grid = document.getElementById('buildsGrid');
+    if (grid) observer.observe(grid, { childList: true });
+  });
+
+  // Close modals on background click
+  document.querySelectorAll('.bm-modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+  });
+
+  // ── INIT ─────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    initBmDark();
+
+    // Check session
+    try {
+      const res = await fetch(`${_API}/auth/me`, { credentials:'include' });
+      const data = await res.json();
+      if (data && data.id) {
+        localStorage.setItem('user', JSON.stringify(data));
+        updateBmAuthUI(data);
+      } else {
+        updateBmAuthUI(getUser());
+      }
+    } catch {
+      updateBmAuthUI(getUser());
+    }
+  });
+
+  // Make modal openers global for builds.js compatibility
+  window.openAuthModal = openAuthModal;
+  window.closeAuthMo
