@@ -1,4 +1,4 @@
-const NGROK_URL = 'https://PASTE_YOUR_NGROK_URL_HERE';
+﻿const NGROK_URL = 'https://PASTE_YOUR_NGROK_URL_HERE';
 
 const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'https://buildmatrix-clean.onrender.com/api'
@@ -308,3 +308,4 @@ function showFavorites() {
 
 window.open2FASetup = open2FASetup;
 window.showFavorites = showFavorites;
+

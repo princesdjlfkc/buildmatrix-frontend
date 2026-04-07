@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <script>
@@ -716,11 +716,11 @@
           <a href="#" class="nav-link">GUIDES <i class="fas fa-chevron-down"></i></a>
           <div class="dropdown">
             <div class="dropdown-content">
-              <a href="#" onclick="openArticle('diy'); return false;">🔧 DIY Builder Guides</a>
-              <a href="#" onclick="openArticle('cooling'); return false;">❄️ Cooling Guides</a>
-              <a href="#" onclick="openArticle('overclocking'); return false;">⚡ Overclocking Guides</a>
-              <a href="#" onclick="openArticle('troubleshooting'); return false;">🔍 Troubleshooting</a>
-              <a href="#" onclick="openArticle('fans'); return false;">🌀 Fans - Everything You Need</a>
+              <a href="#" onclick="openArticle('diy'); return false;">ðŸ”§ DIY Builder Guides</a>
+              <a href="#" onclick="openArticle('cooling'); return false;">â„ï¸ Cooling Guides</a>
+              <a href="#" onclick="openArticle('overclocking'); return false;">âš¡ Overclocking Guides</a>
+              <a href="#" onclick="openArticle('troubleshooting'); return false;">ðŸ” Troubleshooting</a>
+              <a href="#" onclick="openArticle('fans'); return false;">ðŸŒ€ Fans - Everything You Need</a>
             </div>
           </div>
         </div>
@@ -729,10 +729,10 @@
           <a href="#" class="nav-link">SOFTWARE <i class="fas fa-chevron-down"></i></a>
           <div class="dropdown">
             <div class="dropdown-content">
-              <a href="#" onclick="openArticle('studio'); return false;">🎨 BuildMatrix Studio</a>
-              <a href="#" onclick="openArticle('compatibility'); return false;">✓ Compatibility Checker</a>
-              <a href="#" onclick="openArticle('performance'); return false;">📊 Performance Analyzer</a>
-              <a href="#" onclick="openArticle('budget'); return false;">💰 Budget Calculator</a>
+              <a href="#" onclick="openArticle('studio'); return false;">ðŸŽ¨ BuildMatrix Studio</a>
+              <a href="#" onclick="openArticle('compatibility'); return false;">âœ“ Compatibility Checker</a>
+              <a href="#" onclick="openArticle('performance'); return false;">ðŸ“Š Performance Analyzer</a>
+              <a href="#" onclick="openArticle('budget'); return false;">ðŸ’° Budget Calculator</a>
             </div>
           </div>
         </div>
@@ -788,7 +788,7 @@
     <div class="hero-content">
       <div class="hero-badge">RTX 50 SERIES</div>
       <h1 class="hero-title">NVIDIA GeForce RTX 5090</h1>
-      <p class="hero-subtitle">The Next Generation of Gaming • DLSS 4 • Neural Rendering</p>
+      <p class="hero-subtitle">The Next Generation of Gaming â€¢ DLSS 4 â€¢ Neural Rendering</p>
       <div class="hero-buttons">
         <button class="hero-btn primary" onclick="document.getElementById('builder-container').scrollIntoView({behavior:'smooth',block:'start'})">START BUILDING</button>
       </div>
@@ -895,9 +895,9 @@
         </div>
         <select class="sort-select" id="sortSelect" onchange="applyAllFilters()">
           <option value="default">Sort: Default</option>
-          <option value="price-asc">Price: Low → High</option>
-          <option value="price-desc">Price: High → Low</option>
-          <option value="name-asc">Name: A → Z</option>
+          <option value="price-asc">Price: Low â†’ High</option>
+          <option value="price-desc">Price: High â†’ Low</option>
+          <option value="name-asc">Name: A â†’ Z</option>
         </select>
         <div class="price-range-wrap">
           <i class="fas fa-tag" style="font-size:11px;"></i>
@@ -941,7 +941,7 @@
 
       <div class="total-cost">
         <span>Total:</span>
-        <span id="totalPrice">₱0</span>
+        <span id="totalPrice">â‚±0</span>
       </div>
 
       <div class="build-actions">
@@ -978,15 +978,15 @@
       <div id="perfScorePanel" class="perf-score-panel" style="display:none;">
         <h3><i class="fas fa-tachometer-alt" style="color:var(--gold);"></i> Performance Score</h3>
         <div class="perf-row">
-          <div class="perf-row-header"><span class="perf-row-label">🎮 Gaming</span><span class="perf-row-val" id="perfGaming">0</span></div>
+          <div class="perf-row-header"><span class="perf-row-label">ðŸŽ® Gaming</span><span class="perf-row-val" id="perfGaming">0</span></div>
           <div class="perf-bar-track"><div class="perf-bar-fill" id="perfGamingBar" style="width:0%"></div></div>
         </div>
         <div class="perf-row">
-          <div class="perf-row-header"><span class="perf-row-label">💼 Productivity</span><span class="perf-row-val" id="perfProd">0</span></div>
+          <div class="perf-row-header"><span class="perf-row-label">ðŸ’¼ Productivity</span><span class="perf-row-val" id="perfProd">0</span></div>
           <div class="perf-bar-track"><div class="perf-bar-fill" id="perfProdBar" style="width:0%;background:linear-gradient(90deg,#00aaff,#0066cc)"></div></div>
         </div>
         <div class="perf-row">
-          <div class="perf-row-header"><span class="perf-row-label">📡 Streaming</span><span class="perf-row-val" id="perfStream">0</span></div>
+          <div class="perf-row-header"><span class="perf-row-label">ðŸ“¡ Streaming</span><span class="perf-row-val" id="perfStream">0</span></div>
           <div class="perf-bar-track"><div class="perf-bar-fill" id="perfStreamBar" style="width:0%;background:linear-gradient(90deg,#aa44ff,#7722cc)"></div></div>
         </div>
       </div>
@@ -1109,7 +1109,7 @@
       <div style="padding:24px 28px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg-card);z-index:2;border-radius:20px 20px 0 0;">
         <div>
           <h2 style="font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px;"><i class="fas fa-layer-group" style="color:var(--gold);margin-right:8px;"></i>Build Templates</h2>
-          <p style="font-size:12px;color:var(--text-secondary);">Balanced, accurate builds — customize after applying</p>
+          <p style="font-size:12px;color:var(--text-secondary);">Balanced, accurate builds â€” customize after applying</p>
         </div>
         <button onclick="closeBuildTemplates()" style="background:rgba(255,255,255,0.07);border:none;color:var(--text-secondary);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">&times;</button>
       </div>
@@ -1118,8 +1118,8 @@
         <div class="bm-template-card" onclick="applyBuildTemplate('office')">
           <div class="bmt-badge" style="background:rgba(34,197,94,0.12);color:#22C55E;border-color:rgba(34,197,94,0.3);">BUDGET</div>
           <div class="bmt-name">Budget Office</div>
-          <div class="bmt-price">~₱19,894</div>
-          <div class="bmt-parts">Ryzen 5 5600G · B450 · 8GB DDR4 · 480GB SSD · 500W</div>
+          <div class="bmt-price">~â‚±19,894</div>
+          <div class="bmt-parts">Ryzen 5 5600G Â· B450 Â· 8GB DDR4 Â· 480GB SSD Â· 500W</div>
           <div class="bmt-tags"><span>Integrated Graphics</span><span>Work & Study</span><span>Low Power</span></div>
           <button class="bmt-apply">Apply Template <i class="fas fa-arrow-right"></i></button>
         </div>
@@ -1127,17 +1127,17 @@
         <div class="bm-template-card" onclick="applyBuildTemplate('gaming_starter')">
           <div class="bmt-badge" style="background:rgba(59,130,246,0.12);color:#3B82F6;border-color:rgba(59,130,246,0.3);">STARTER</div>
           <div class="bmt-name">Gaming Starter</div>
-          <div class="bmt-price">~₱48,293</div>
-          <div class="bmt-parts">Ryzen 5 5600X · RTX 3060 · B550 · 16GB DDR4 · 1TB SSD · 550W</div>
-          <div class="bmt-tags"><span>1080p Gaming</span><span>60–100+ FPS</span><span>Balanced</span></div>
+          <div class="bmt-price">~â‚±48,293</div>
+          <div class="bmt-parts">Ryzen 5 5600X Â· RTX 3060 Â· B550 Â· 16GB DDR4 Â· 1TB SSD Â· 550W</div>
+          <div class="bmt-tags"><span>1080p Gaming</span><span>60â€“100+ FPS</span><span>Balanced</span></div>
           <button class="bmt-apply">Apply Template <i class="fas fa-arrow-right"></i></button>
         </div>
 
         <div class="bm-template-card" onclick="applyBuildTemplate('gaming_performance')">
           <div class="bmt-badge" style="background:rgba(123,63,228,0.12);color:#9b6ef3;border-color:rgba(123,63,228,0.3);">PERFORMANCE</div>
           <div class="bmt-name">Gaming Performance</div>
-          <div class="bmt-price">~₱69,293</div>
-          <div class="bmt-parts">Ryzen 7 5700X · RX 6800 · B550 · 32GB DDR4 · 1TB NVMe · 750W</div>
+          <div class="bmt-price">~â‚±69,293</div>
+          <div class="bmt-parts">Ryzen 7 5700X Â· RX 6800 Â· B550 Â· 32GB DDR4 Â· 1TB NVMe Â· 750W</div>
           <div class="bmt-tags"><span>1440p Gaming</span><span>High FPS</span><span>Streaming Ready</span></div>
           <button class="bmt-apply">Apply Template <i class="fas fa-arrow-right"></i></button>
         </div>
@@ -1145,8 +1145,8 @@
         <div class="bm-template-card" onclick="applyBuildTemplate('extreme')">
           <div class="bmt-badge" style="background:rgba(239,68,68,0.12);color:#EF4444;border-color:rgba(239,68,68,0.3);">EXTREME</div>
           <div class="bmt-name">Extreme Gaming</div>
-          <div class="bmt-price">~₱132,393</div>
-          <div class="bmt-parts">Ryzen 7 5800X3D · RTX 3090 Ti · X570 · 16GB DDR4 · 2TB NVMe · 1000W</div>
+          <div class="bmt-price">~â‚±132,393</div>
+          <div class="bmt-parts">Ryzen 7 5800X3D Â· RTX 3090 Ti Â· X570 Â· 16GB DDR4 Â· 2TB NVMe Â· 1000W</div>
           <div class="bmt-tags"><span>4K Gaming</span><span>Max Settings</span><span>No Bottleneck</span></div>
           <button class="bmt-apply">Apply Template <i class="fas fa-arrow-right"></i></button>
         </div>
@@ -1293,33 +1293,33 @@
         <button class="modal-close" onclick="closeAutoBuildModal()">&times;</button>
       </div>
       <div class="auto-build-content">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px;">Pick your use case and budget — we'll pick the best parts for you.</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:18px;">Pick your use case and budget â€” we'll pick the best parts for you.</div>
         <div class="ab-use-case-grid">
           <button class="ab-use-case-btn active" data-purpose="gaming" onclick="selectAbPurpose(this)">
-            <div class="ab-icon">🎮</div>
+            <div class="ab-icon">ðŸŽ®</div>
             <div class="ab-label">GAMING</div>
           </button>
           <button class="ab-use-case-btn" data-purpose="productivity" onclick="selectAbPurpose(this)">
-            <div class="ab-icon">💼</div>
+            <div class="ab-icon">ðŸ’¼</div>
             <div class="ab-label">WORK</div>
           </button>
           <button class="ab-use-case-btn" data-purpose="streaming" onclick="selectAbPurpose(this)">
-            <div class="ab-icon">📡</div>
+            <div class="ab-icon">ðŸ“¡</div>
             <div class="ab-label">STREAMING</div>
           </button>
         </div>
         <div style="margin-bottom:6px;">
           <div class="ab-budget-display">
-            <span id="abBudgetDisplay">₱50,000</span>
+            <span id="abBudgetDisplay">â‚±50,000</span>
             <span>Max budget</span>
           </div>
           <input type="range" class="ab-budget-slider" id="abBudgetSlider" min="15000" max="200000" step="5000" value="50000" oninput="updateAbBudget(this.value)">
           <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:2px;">
-            <span>₱15,000</span><span>₱200,000</span>
+            <span>â‚±15,000</span><span>â‚±200,000</span>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-          ${[15000,30000,50000,75000,100000,150000].map(v=>`<button onclick="document.getElementById('abBudgetSlider').value=${v};updateAbBudget(${v})" style="background:var(--bg-surface);border:1px solid var(--border);color:var(--text-muted);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">₱${v.toLocaleString()}</button>`).join('')}
+          ${[15000,30000,50000,75000,100000,150000].map(v=>`<button onclick="document.getElementById('abBudgetSlider').value=${v};updateAbBudget(${v})" style="background:var(--bg-surface);border:1px solid var(--border);color:var(--text-muted);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">â‚±${v.toLocaleString()}</button>`).join('')}
         </div>
         <button onclick="generateAutoBuild()" style="width:100%;padding:13px;background:var(--gold);color:#000;border:none;border-radius:40px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:18px;transition:transform .15s,box-shadow .15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,212,255,0.35)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
           <i class="fas fa-magic"></i> Generate Build
@@ -1376,7 +1376,7 @@
       const sort = document.getElementById('sortSelect')?.value || 'default';
       const maxPrice = parseInt(document.getElementById('priceRange')?.value || '200000');
       const priceLabel = document.getElementById('priceRangeLabel');
-      if (priceLabel) priceLabel.textContent = maxPrice >= 200000 ? 'All' : '₱' + maxPrice.toLocaleString();
+      if (priceLabel) priceLabel.textContent = maxPrice >= 200000 ? 'All' : 'â‚±' + maxPrice.toLocaleString();
 
       let pool = getSubFilteredPool();
 
@@ -1427,7 +1427,7 @@
             <div class="product-info">
               <h3>${escapeHtml(product.name)}</h3>
               <p class="product-specs">${escapeHtml(specs.substring(0,80))}${specs.length > 80 ? '...' : ''}</p>
-              <div class="product-price">₱${price.toLocaleString()}</div>
+              <div class="product-price">â‚±${price.toLocaleString()}</div>
               ${badgeText ? `<span style="${badgeStyle}">${badgeText}</span>` : ''}
               <button class="add-to-build" data-name="${escapeHtml(product.name)}" data-price="${price}" data-category="${product.category}">+ Add to Build</button>
             </div>
@@ -1785,15 +1785,15 @@
       const b = products.find(p => p.name === selB.value);
       if (!a || !b) { result.innerHTML = '<p style="color:#aaa">Select two different products to compare.</p>'; return; }
       const fields = [
-        ['Price', '₱' + Number(a.price||0).toLocaleString(), '₱' + Number(b.price||0).toLocaleString()],
-        ['Tier', a.tier||'—', b.tier||'—'],
-        ['Specs', a.specs||'—', b.specs||'—'],
-        ['Rating', a.rating ? a.rating.toFixed(1) + ' ★' : '—', b.rating ? b.rating.toFixed(1) + ' ★' : '—'],
+        ['Price', 'â‚±' + Number(a.price||0).toLocaleString(), 'â‚±' + Number(b.price||0).toLocaleString()],
+        ['Tier', a.tier||'â€”', b.tier||'â€”'],
+        ['Specs', a.specs||'â€”', b.specs||'â€”'],
+        ['Rating', a.rating ? a.rating.toFixed(1) + ' â˜…' : 'â€”', b.rating ? b.rating.toFixed(1) + ' â˜…' : 'â€”'],
       ];
       if (a.meta && typeof a.meta==='object') {
         Object.keys(a.meta).forEach(k => {
-          const va = a.meta[k] != null ? a.meta[k] : '—';
-          const vb = (b.meta && b.meta[k] != null) ? b.meta[k] : '—';
+          const va = a.meta[k] != null ? a.meta[k] : 'â€”';
+          const vb = (b.meta && b.meta[k] != null) ? b.meta[k] : 'â€”';
           fields.push([k.charAt(0).toUpperCase()+k.slice(1), va, vb]);
         });
       }
@@ -1870,7 +1870,7 @@
         <tr>
           <td style="padding:8px;color:#aaa;font-size:12px;text-transform:uppercase;">${item.category}</td>
           <td style="padding:8px;color:#fff;font-size:13px;">${item.name}</td>
-          <td style="padding:8px;color:#00D4FF;font-size:13px;font-weight:700;">₱${Number(item.price).toLocaleString()}</td>
+          <td style="padding:8px;color:#00D4FF;font-size:13px;font-weight:700;">â‚±${Number(item.price).toLocaleString()}</td>
         </tr>`).join('');
 
       resultEl.innerHTML = `
@@ -1883,7 +1883,7 @@
           <tbody>${rows}</tbody>
           <tfoot><tr>
             <td colspan="2" style="padding:10px 8px;color:#fff;font-weight:700;border-top:1px solid #444;">TOTAL</td>
-            <td style="padding:10px 8px;color:#00D4FF;font-weight:700;border-top:1px solid #444;">₱${total.toLocaleString()}</td>
+            <td style="padding:10px 8px;color:#00D4FF;font-weight:700;border-top:1px solid #444;">â‚±${total.toLocaleString()}</td>
           </tfoot>
         </table>
         <button onclick="applyAutoBuild()" class="submit-btn" style="margin-top:14px;width:100%;">
@@ -2045,7 +2045,7 @@
         modal.style.display = 'flex';
         if (typeof open2FASetup === 'function') open2FASetup();
       } else {
-        showToast('2FA setup — go to My Builds > Security Settings');
+        showToast('2FA setup â€” go to My Builds > Security Settings');
       }
     }
 
@@ -2270,7 +2270,7 @@
         modal.style.display = 'flex';
         if (typeof open2FASetup === 'function') open2FASetup();
       } else {
-        showToast('2FA setup — go to My Builds > Security Settings');
+        showToast('2FA setup â€” go to My Builds > Security Settings');
       }
     }
 
@@ -2410,39 +2410,39 @@
         icon: '<i class="fas fa-microchip"></i>',
         badge: 'CPU GUIDE',
         title: 'How to Choose the Right CPU for Your Build',
-        meta: '8 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        meta: '8 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
-          <p>The CPU (Central Processing Unit) is the brain of your PC. Choosing the wrong one can bottleneck your entire build — but with this guide, you'll know exactly what to look for.</p>
+          <p>The CPU (Central Processing Unit) is the brain of your PC. Choosing the wrong one can bottleneck your entire build â€” but with this guide, you'll know exactly what to look for.</p>
           <h3><i class="fas fa-list-check"></i> What to look for</h3>
           <table>
             <tr><th>Spec</th><th>What it means</th><th>Recommendation</th></tr>
             <tr><td>Core count</td><td>Number of processing units</td><td>6+ cores for gaming, 12+ for content creation</td></tr>
-            <tr><td>Clock speed</td><td>GHz — how fast each core runs</td><td>Higher is better for gaming (5GHz+)</td></tr>
+            <tr><td>Clock speed</td><td>GHz â€” how fast each core runs</td><td>Higher is better for gaming (5GHz+)</td></tr>
             <tr><td>TDP (watts)</td><td>How much power/heat it uses</td><td>Match to your cooler capacity</td></tr>
             <tr><td>Socket type</td><td>Must match your motherboard</td><td>AM5 for AMD Ryzen, LGA1851 for Intel</td></tr>
             <tr><td>Integrated graphics</td><td>Built-in GPU fallback</td><td>Useful if you don't have a discrete GPU yet</td></tr>
           </table>
-          <h3><i class="fab fa-amd"></i> AMD Ryzen — Best for most builders</h3>
+          <h3><i class="fab fa-amd"></i> AMD Ryzen â€” Best for most builders</h3>
           <p>AMD's Ryzen processors offer excellent multi-core performance for the price. The Ryzen 5 and Ryzen 7 series are the sweet spot for gaming and productivity.</p>
           <ul>
-            <li><strong>Ryzen 5 7600X</strong> — Best budget gaming CPU. 6 cores, 5.3GHz boost.</li>
-            <li><strong>Ryzen 7 7800X3D</strong> — Best gaming CPU overall. AMD's 3D V-Cache destroys games.</li>
-            <li><strong>Ryzen 9 7950X</strong> — Best for creators. 16 cores for heavy rendering & streaming.</li>
+            <li><strong>Ryzen 5 7600X</strong> â€” Best budget gaming CPU. 6 cores, 5.3GHz boost.</li>
+            <li><strong>Ryzen 7 7800X3D</strong> â€” Best gaming CPU overall. AMD's 3D V-Cache destroys games.</li>
+            <li><strong>Ryzen 9 7950X</strong> â€” Best for creators. 16 cores for heavy rendering & streaming.</li>
           </ul>
-          <h3><i class="fas fa-microchip"></i> Intel Core — Strong single-core speed</h3>
+          <h3><i class="fas fa-microchip"></i> Intel Core â€” Strong single-core speed</h3>
           <ul>
-            <li><strong>Core i5-14600K</strong> — Great all-rounder, strong gaming value.</li>
-            <li><strong>Core i7-14700K</strong> — Excellent for streaming + gaming simultaneously.</li>
-            <li><strong>Core i9-14900K</strong> — Flagship power, but runs hot.</li>
+            <li><strong>Core i5-14600K</strong> â€” Great all-rounder, strong gaming value.</li>
+            <li><strong>Core i7-14700K</strong> â€” Excellent for streaming + gaming simultaneously.</li>
+            <li><strong>Core i9-14900K</strong> â€” Flagship power, but runs hot.</li>
           </ul>
-          <div class="tip-box"><strong>💡 Pro Tip:</strong> For pure gaming, prioritize clock speed and single-core performance over core count. Never buy a CPU without checking socket compatibility with your motherboard!</div>
+          <div class="tip-box"><strong>ðŸ’¡ Pro Tip:</strong> For pure gaming, prioritize clock speed and single-core performance over core count. Never buy a CPU without checking socket compatibility with your motherboard!</div>
           <h3><i class="fas fa-peso-sign"></i> Budget recommendations (Philippine prices)</h3>
           <table>
             <tr><th>Budget</th><th>Recommended CPU</th><th>Est. Price</th></tr>
-            <tr><td>₱5,000–₱8,000</td><td>AMD Ryzen 5 5600</td><td>~₱7,299</td></tr>
-            <tr><td>₱10,000–₱15,000</td><td>AMD Ryzen 7 5800X3D</td><td>~₱14,999</td></tr>
-            <tr><td>₱15,000–₱25,000</td><td>AMD Ryzen 7 7800X3D</td><td>~₱22,999</td></tr>
-            <tr><td>₱25,000+</td><td>Intel Core i9-14900K</td><td>~₱29,999</td></tr>
+            <tr><td>â‚±5,000â€“â‚±8,000</td><td>AMD Ryzen 5 5600</td><td>~â‚±7,299</td></tr>
+            <tr><td>â‚±10,000â€“â‚±15,000</td><td>AMD Ryzen 7 5800X3D</td><td>~â‚±14,999</td></tr>
+            <tr><td>â‚±15,000â€“â‚±25,000</td><td>AMD Ryzen 7 7800X3D</td><td>~â‚±22,999</td></tr>
+            <tr><td>â‚±25,000+</td><td>Intel Core i9-14900K</td><td>~â‚±29,999</td></tr>
           </table>
         `
       },
@@ -2450,104 +2450,104 @@
         icon: '<i class="fas fa-screwdriver-wrench"></i>',
         badge: 'BEGINNER GUIDE',
         title: 'PC Building: Step by Step for Beginners',
-        meta: '12 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        meta: '12 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
-          <p>Building your own PC is one of the most rewarding things you can do as a tech enthusiast — and it's easier than you think. This guide walks you through the whole process from zero to boot screen.</p>
-          <div class="tip-box"><strong>🛠️ Tools you'll need:</strong> Phillips-head screwdriver (size 2), anti-static wrist strap (recommended), zip ties for cable management, and good lighting.</div>
-          <h3><i class="fas fa-microchip"></i> Step 1 — Install CPU into motherboard</h3>
-          <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Lift the CPU socket lever</strong>On Intel boards, lift the lever and remove the plastic cover. On AMD AM4/AM5, lift the lever — no cover to remove.</div></div>
-          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Align and drop in the CPU</strong>Match the gold triangle on the CPU corner to the triangle on the socket. Lower it straight down — never force it.</div></div>
+          <p>Building your own PC is one of the most rewarding things you can do as a tech enthusiast â€” and it's easier than you think. This guide walks you through the whole process from zero to boot screen.</p>
+          <div class="tip-box"><strong>ðŸ› ï¸ Tools you'll need:</strong> Phillips-head screwdriver (size 2), anti-static wrist strap (recommended), zip ties for cable management, and good lighting.</div>
+          <h3><i class="fas fa-microchip"></i> Step 1 â€” Install CPU into motherboard</h3>
+          <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Lift the CPU socket lever</strong>On Intel boards, lift the lever and remove the plastic cover. On AMD AM4/AM5, lift the lever â€” no cover to remove.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Align and drop in the CPU</strong>Match the gold triangle on the CPU corner to the triangle on the socket. Lower it straight down â€” never force it.</div></div>
           <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Apply thermal paste & attach cooler</strong>Apply a pea-sized dot of thermal paste on the CPU center, then mount your cooler on top.</div></div>
-          <h3><i class="fas fa-memory"></i> Step 2 — Install RAM</h3>
+          <h3><i class="fas fa-memory"></i> Step 2 â€” Install RAM</h3>
           <p>For 2 sticks, use slots A2 and B2 (2nd and 4th from CPU) to enable dual-channel mode. Press firmly on both ends until you hear two clicks.</p>
-          <h3><i class="fas fa-database"></i> Step 3 — Install SSD</h3>
-          <p>For M.2 NVMe: insert at 30°, press flat, secure with screw. For SATA SSD: connect the SATA data + power cables and mount in a drive bay.</p>
-          <h3><i class="fas fa-server"></i> Step 4 — Mount motherboard in case</h3>
+          <h3><i class="fas fa-database"></i> Step 3 â€” Install SSD</h3>
+          <p>For M.2 NVMe: insert at 30Â°, press flat, secure with screw. For SATA SSD: connect the SATA data + power cables and mount in a drive bay.</p>
+          <h3><i class="fas fa-server"></i> Step 4 â€” Mount motherboard in case</h3>
           <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Install standoffs</strong>Screw brass standoffs into case positions matching your board size (ATX/mATX/ITX).</div></div>
           <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Snap in I/O shield</strong>Press the metal I/O shield from the motherboard box into the rear of the case until it clicks.</div></div>
-          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Lower board in and screw down</strong>Align ports with I/O shield, holes with standoffs, use 6–9 screws — don't overtighten.</div></div>
-          <h3><i class="fas fa-bolt"></i> Step 5 — Install PSU & connect cables</h3>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Lower board in and screw down</strong>Align ports with I/O shield, holes with standoffs, use 6â€“9 screws â€” don't overtighten.</div></div>
+          <h3><i class="fas fa-bolt"></i> Step 5 â€” Install PSU & connect cables</h3>
           <ul>
-            <li>24-pin ATX → motherboard</li>
-            <li>8-pin EPS → CPU power header (top-left of board)</li>
-            <li>PCIe 6+2 pin → GPU</li>
+            <li>24-pin ATX â†’ motherboard</li>
+            <li>8-pin EPS â†’ CPU power header (top-left of board)</li>
+            <li>PCIe 6+2 pin â†’ GPU</li>
             <li>Front panel connectors (power button, USB, audio)</li>
           </ul>
-          <h3><i class="fas fa-tv"></i> Step 6 — Install GPU</h3>
+          <h3><i class="fas fa-tv"></i> Step 6 â€” Install GPU</h3>
           <p>Remove PCIe slot covers from the case rear, press GPU into the top PCIe x16 slot until it clicks, screw in the bracket, then connect PCIe power cables.</p>
-          <div class="tip-box"><strong>💡 First boot tip:</strong> Connect your monitor to the GPU, not the motherboard. If it doesn't POST, reseat your RAM first — it's the most common cause of no-display issues.</div>
+          <div class="tip-box"><strong>ðŸ’¡ First boot tip:</strong> Connect your monitor to the GPU, not the motherboard. If it doesn't POST, reseat your RAM first â€” it's the most common cause of no-display issues.</div>
         `
       },
       airflow: {
         icon: '<i class="fas fa-fan"></i>',
         badge: 'COOLING GUIDE',
         title: 'Case Airflow Optimization Guide',
-        meta: '6 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        meta: '6 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>Good airflow is the difference between a PC that runs at peak performance and one that throttles itself. Here's how to set yours up correctly.</p>
-          <div class="tip-box"><strong>✅ Ideal setup:</strong> 2–3 intake fans at front + 1 exhaust at rear + 1 exhaust at top. This creates a clean front-to-back airflow path.</div>
+          <div class="tip-box"><strong>âœ… Ideal setup:</strong> 2â€“3 intake fans at front + 1 exhaust at rear + 1 exhaust at top. This creates a clean front-to-back airflow path.</div>
           <h3><i class="fas fa-route"></i> Fan direction guide</h3>
           <table>
             <tr><th>Position</th><th>Direction</th><th>Why</th></tr>
             <tr><td>Front fans</td><td>Intake (IN)</td><td>Pull cool air over GPU & drives</td></tr>
             <tr><td>Bottom fans</td><td>Intake (IN)</td><td>Feed PSU and GPU directly</td></tr>
             <tr><td>Rear fan</td><td>Exhaust (OUT)</td><td>Push CPU hot air straight out</td></tr>
-            <tr><td>Top fans</td><td>Exhaust (OUT)</td><td>Hot air rises — let it escape</td></tr>
+            <tr><td>Top fans</td><td>Exhaust (OUT)</td><td>Hot air rises â€” let it escape</td></tr>
           </table>
           <h3><i class="fas fa-water"></i> AIO Liquid Cooler placement</h3>
           <ul>
-            <li><strong>240/280mm radiator</strong> — Front intake or top exhaust</li>
-            <li><strong>360mm radiator</strong> — Front intake only for best CPU temps</li>
-            <li>Never mount a radiator as top intake — it recirculates hot case air</li>
+            <li><strong>240/280mm radiator</strong> â€” Front intake or top exhaust</li>
+            <li><strong>360mm radiator</strong> â€” Front intake only for best CPU temps</li>
+            <li>Never mount a radiator as top intake â€” it recirculates hot case air</li>
           </ul>
           <h3><i class="fas fa-cable-car"></i> Cable management = better airflow</h3>
-          <p>Route all cables behind the motherboard tray. Bundled cables behind the board instead of crossing the main chamber can lower temps by 3–5°C.</p>
-          <div class="tip-box"><strong>💡 Quick test:</strong> Run Cinebench or FurMark. CPU should stay under 85°C, GPU under 83°C. If hotter, add a front intake fan first.</div>
+          <p>Route all cables behind the motherboard tray. Bundled cables behind the board instead of crossing the main chamber can lower temps by 3â€“5Â°C.</p>
+          <div class="tip-box"><strong>ðŸ’¡ Quick test:</strong> Run Cinebench or FurMark. CPU should stay under 85Â°C, GPU under 83Â°C. If hotter, add a front intake fan first.</div>
         `
       },
 
       diy: {
         icon: '<i class="fas fa-screwdriver-wrench"></i>',
         badge: 'DIY GUIDE',
-        title: 'DIY PC Builder — Complete Guide',
-        meta: '10 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'DIY PC Builder â€” Complete Guide',
+        meta: '10 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>Building your own PC gives you full control over performance, aesthetics, and budget. This comprehensive guide covers everything a first-time builder needs to know before buying a single part.</p>
           <h3><i class="fas fa-clipboard-list"></i> Planning your build</h3>
           <p>Before buying anything, answer these three questions:</p>
           <ul>
             <li><strong>What will you use it for?</strong> Gaming, video editing, school work, streaming, or all of the above?</li>
-            <li><strong>What's your budget?</strong> In the Philippines, a capable gaming PC starts around ₱30,000–₱40,000.</li>
-            <li><strong>Do you need peripherals?</strong> Monitor, keyboard, mouse, and OS cost money too — factor them in.</li>
+            <li><strong>What's your budget?</strong> In the Philippines, a capable gaming PC starts around â‚±30,000â€“â‚±40,000.</li>
+            <li><strong>Do you need peripherals?</strong> Monitor, keyboard, mouse, and OS cost money too â€” factor them in.</li>
           </ul>
           <h3><i class="fas fa-puzzle-piece"></i> The essential parts list</h3>
           <table>
             <tr><th>Component</th><th>Purpose</th><th>Budget %</th></tr>
-            <tr><td>CPU</td><td>Brain of the PC</td><td>15–20%</td></tr>
-            <tr><td>GPU</td><td>Gaming performance</td><td>30–40%</td></tr>
-            <tr><td>Motherboard</td><td>Connects everything</td><td>10–15%</td></tr>
-            <tr><td>RAM</td><td>Short-term memory</td><td>8–12%</td></tr>
-            <tr><td>SSD</td><td>Storage speed</td><td>8–10%</td></tr>
-            <tr><td>PSU</td><td>Powers everything</td><td>8–10%</td></tr>
-            <tr><td>Case</td><td>Houses everything</td><td>5–10%</td></tr>
-            <tr><td>Cooler</td><td>Keeps CPU cool</td><td>5–8%</td></tr>
+            <tr><td>CPU</td><td>Brain of the PC</td><td>15â€“20%</td></tr>
+            <tr><td>GPU</td><td>Gaming performance</td><td>30â€“40%</td></tr>
+            <tr><td>Motherboard</td><td>Connects everything</td><td>10â€“15%</td></tr>
+            <tr><td>RAM</td><td>Short-term memory</td><td>8â€“12%</td></tr>
+            <tr><td>SSD</td><td>Storage speed</td><td>8â€“10%</td></tr>
+            <tr><td>PSU</td><td>Powers everything</td><td>8â€“10%</td></tr>
+            <tr><td>Case</td><td>Houses everything</td><td>5â€“10%</td></tr>
+            <tr><td>Cooler</td><td>Keeps CPU cool</td><td>5â€“8%</td></tr>
           </table>
           <h3><i class="fas fa-triangle-exclamation"></i> Common beginner mistakes</h3>
           <ul>
             <li>Buying a CPU and motherboard with incompatible sockets</li>
-            <li>Skimping on the PSU — always buy from a reputable brand with at least 80+ Bronze certification</li>
+            <li>Skimping on the PSU â€” always buy from a reputable brand with at least 80+ Bronze certification</li>
             <li>Forgetting thermal paste (check if your cooler includes it)</li>
             <li>Not installing the I/O shield before mounting the motherboard</li>
             <li>Plugging the monitor into the motherboard instead of the GPU</li>
           </ul>
-          <div class="tip-box"><strong>💡 Use BuildMatrix:</strong> Add components using the builder on this page. It automatically checks CPU-motherboard socket compatibility and power requirements in real time.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Use BuildMatrix:</strong> Add components using the builder on this page. It automatically checks CPU-motherboard socket compatibility and power requirements in real time.</div>
           <h3><i class="fas fa-peso-sign"></i> Sample builds by budget</h3>
           <table>
             <tr><th>Budget</th><th>Profile</th><th>Key Parts</th></tr>
-            <tr><td>₱20,000–₱30,000</td><td>School / Office</td><td>Ryzen 5 5600, RX 6600, 16GB DDR4</td></tr>
-            <tr><td>₱40,000–₱55,000</td><td>1080p Gaming</td><td>Ryzen 5 7600X, RTX 4060, 16GB DDR5</td></tr>
-            <tr><td>₱70,000–₱90,000</td><td>1440p Gaming</td><td>Ryzen 7 7800X3D, RTX 4070, 32GB DDR5</td></tr>
-            <tr><td>₱120,000+</td><td>Creator / 4K</td><td>Ryzen 9 7950X, RTX 4090, 64GB DDR5</td></tr>
+            <tr><td>â‚±20,000â€“â‚±30,000</td><td>School / Office</td><td>Ryzen 5 5600, RX 6600, 16GB DDR4</td></tr>
+            <tr><td>â‚±40,000â€“â‚±55,000</td><td>1080p Gaming</td><td>Ryzen 5 7600X, RTX 4060, 16GB DDR5</td></tr>
+            <tr><td>â‚±70,000â€“â‚±90,000</td><td>1440p Gaming</td><td>Ryzen 7 7800X3D, RTX 4070, 32GB DDR5</td></tr>
+            <tr><td>â‚±120,000+</td><td>Creator / 4K</td><td>Ryzen 9 7950X, RTX 4090, 64GB DDR5</td></tr>
           </table>
         `
       },
@@ -2555,7 +2555,7 @@
         icon: '<i class="fas fa-snowflake"></i>',
         badge: 'COOLING GUIDE',
         title: 'Complete PC Cooling Guide',
-        meta: '7 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        meta: '7 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>Cooling is one of the most overlooked parts of a build. Too little cooling and your components throttle, age faster, or crash under load. This guide covers every cooling option available.</p>
           <h3><i class="fas fa-wind"></i> Stock coolers</h3>
@@ -2563,66 +2563,66 @@
           <h3><i class="fas fa-tower-broadcast"></i> Air coolers</h3>
           <p>Air coolers use a heatsink and fan to dissipate heat. They are reliable, silent at idle, and have no failure points (no pump to fail).</p>
           <ul>
-            <li><strong>Low-profile (e.g. ID-Cooling IS-47K)</strong> — For small cases, handles up to 65W TDP</li>
-            <li><strong>Single tower (e.g. DeepCool AK400)</strong> — Handles up to 150W, excellent value</li>
-            <li><strong>Dual tower (e.g. Noctua NH-D15)</strong> — Best air cooling available, rivals 280mm AIOs</li>
+            <li><strong>Low-profile (e.g. ID-Cooling IS-47K)</strong> â€” For small cases, handles up to 65W TDP</li>
+            <li><strong>Single tower (e.g. DeepCool AK400)</strong> â€” Handles up to 150W, excellent value</li>
+            <li><strong>Dual tower (e.g. Noctua NH-D15)</strong> â€” Best air cooling available, rivals 280mm AIOs</li>
           </ul>
           <h3><i class="fas fa-water"></i> AIO liquid coolers</h3>
           <p>All-in-One (AIO) coolers pump liquid between a CPU block and a radiator. They provide better cooling than most air coolers and look great with RGB. However, they have more failure points and cost more.</p>
           <table>
             <tr><th>Radiator size</th><th>Best for</th><th>Est. price</th></tr>
-            <tr><td>120mm</td><td>Budget / low TDP CPUs</td><td>₱2,000–₱3,500</td></tr>
-            <tr><td>240mm</td><td>Mid-range builds</td><td>₱3,500–₱6,000</td></tr>
-            <tr><td>280mm</td><td>High-performance builds</td><td>₱5,000–₱9,000</td></tr>
-            <tr><td>360mm</td><td>Flagship CPUs (i9, R9)</td><td>₱7,000–₱15,000</td></tr>
+            <tr><td>120mm</td><td>Budget / low TDP CPUs</td><td>â‚±2,000â€“â‚±3,500</td></tr>
+            <tr><td>240mm</td><td>Mid-range builds</td><td>â‚±3,500â€“â‚±6,000</td></tr>
+            <tr><td>280mm</td><td>High-performance builds</td><td>â‚±5,000â€“â‚±9,000</td></tr>
+            <tr><td>360mm</td><td>Flagship CPUs (i9, R9)</td><td>â‚±7,000â€“â‚±15,000</td></tr>
           </table>
           <h3><i class="fas fa-temperature-high"></i> Target temperatures</h3>
           <ul>
-            <li><strong>CPU idle:</strong> 30–45°C is normal</li>
-            <li><strong>CPU under load:</strong> Under 85°C is healthy; 90°C+ is throttling territory</li>
-            <li><strong>GPU idle:</strong> 35–50°C is normal</li>
-            <li><strong>GPU under load:</strong> Under 83°C is ideal; 90°C+ may cause performance drops</li>
+            <li><strong>CPU idle:</strong> 30â€“45Â°C is normal</li>
+            <li><strong>CPU under load:</strong> Under 85Â°C is healthy; 90Â°C+ is throttling territory</li>
+            <li><strong>GPU idle:</strong> 35â€“50Â°C is normal</li>
+            <li><strong>GPU under load:</strong> Under 83Â°C is ideal; 90Â°C+ may cause performance drops</li>
           </ul>
-          <div class="tip-box"><strong>💡 Tip:</strong> Reapply thermal paste every 2–3 years on air coolers. Old, dried-out paste is one of the most common causes of unexpected temperature spikes in older builds.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Tip:</strong> Reapply thermal paste every 2â€“3 years on air coolers. Old, dried-out paste is one of the most common causes of unexpected temperature spikes in older builds.</div>
         `
       },
       overclocking: {
         icon: '<i class="fas fa-gauge-high"></i>',
         badge: 'OVERCLOCKING',
-        title: 'Overclocking Guide — Squeeze More Performance',
-        meta: '9 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'Overclocking Guide â€” Squeeze More Performance',
+        meta: '9 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
-          <p>Overclocking lets you push your CPU or GPU beyond its factory-rated speeds for free extra performance. It's not magic — you're trading electrical headroom for speed — but done correctly it's safe and rewarding.</p>
-          <div class="tip-box"><strong>⚠️ Warning:</strong> Overclocking can void your warranty and, if done improperly, can cause instability or shorten component lifespan. Always proceed gradually and monitor temperatures.</div>
+          <p>Overclocking lets you push your CPU or GPU beyond its factory-rated speeds for free extra performance. It's not magic â€” you're trading electrical headroom for speed â€” but done correctly it's safe and rewarding.</p>
+          <div class="tip-box"><strong>âš ï¸ Warning:</strong> Overclocking can void your warranty and, if done improperly, can cause instability or shorten component lifespan. Always proceed gradually and monitor temperatures.</div>
           <h3><i class="fas fa-microchip"></i> CPU overclocking</h3>
           <p>You need an unlocked CPU (AMD Ryzen or Intel K/KF suffix) and a motherboard that supports overclocking (AMD X-series or Intel Z-series chipset).</p>
           <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Enter BIOS</strong>Restart and press Del or F2 during boot to enter your motherboard BIOS. Navigate to the CPU/OC settings section.</div></div>
-          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Raise the multiplier</strong>Increase the CPU multiplier in small steps (e.g. 4.5GHz → 4.7GHz → 4.9GHz). Save and boot each time.</div></div>
-          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Stress test</strong>Run Cinebench R23 or Prime95 for 15–30 minutes. Watch CPU temps — stay under 85°C. If it crashes or throttles, reduce the overclock or increase voltage slightly.</div></div>
+          <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Raise the multiplier</strong>Increase the CPU multiplier in small steps (e.g. 4.5GHz â†’ 4.7GHz â†’ 4.9GHz). Save and boot each time.</div></div>
+          <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Stress test</strong>Run Cinebench R23 or Prime95 for 15â€“30 minutes. Watch CPU temps â€” stay under 85Â°C. If it crashes or throttles, reduce the overclock or increase voltage slightly.</div></div>
           <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Adjust voltage if needed</strong>If the system is unstable, increase core voltage in small increments (0.025V steps). Never exceed 1.35V on most consumer CPUs.</div></div>
           <h3><i class="fas fa-tv"></i> GPU overclocking</h3>
           <p>GPU overclocking is easier and safer than CPU overclocking. Use MSI Afterburner (free):</p>
           <ul>
             <li>Raise core clock by +50 MHz, test with FurMark or 3DMark</li>
-            <li>Raise memory clock by +100–200 MHz</li>
-            <li>Increase power limit to 110–120% if your PSU allows</li>
+            <li>Raise memory clock by +100â€“200 MHz</li>
+            <li>Increase power limit to 110â€“120% if your PSU allows</li>
             <li>If artifacts or crashes appear, dial back the last change</li>
           </ul>
           <h3><i class="fas fa-memory"></i> RAM overclocking (XMP/EXPO)</h3>
-          <p>This is the easiest overclock available. In BIOS, enable XMP (Intel) or EXPO (AMD). This sets your RAM to its rated speed (e.g. 3200MHz or 6000MHz) instead of the default 2133MHz. It's safe, officially supported, and gives a free performance boost — especially for AMD Ryzen which is very sensitive to RAM speed.</p>
-          <div class="tip-box"><strong>💡 Best bang for buck:</strong> Enable XMP/EXPO first — it's one click in BIOS and gives free performance. Then consider GPU overclocking. CPU overclocking gives diminishing returns on modern chips that already boost aggressively.</div>
+          <p>This is the easiest overclock available. In BIOS, enable XMP (Intel) or EXPO (AMD). This sets your RAM to its rated speed (e.g. 3200MHz or 6000MHz) instead of the default 2133MHz. It's safe, officially supported, and gives a free performance boost â€” especially for AMD Ryzen which is very sensitive to RAM speed.</p>
+          <div class="tip-box"><strong>ðŸ’¡ Best bang for buck:</strong> Enable XMP/EXPO first â€” it's one click in BIOS and gives free performance. Then consider GPU overclocking. CPU overclocking gives diminishing returns on modern chips that already boost aggressively.</div>
         `
       },
       troubleshooting: {
         icon: '<i class="fas fa-magnifying-glass"></i>',
         badge: 'TROUBLESHOOTING',
-        title: 'PC Troubleshooting — Fix Common Problems',
-        meta: '8 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'PC Troubleshooting â€” Fix Common Problems',
+        meta: '8 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>Something's wrong with your PC? Don't panic. Most problems have simple causes. This guide walks through the most common issues and how to fix them.</p>
           <h3><i class="fas fa-power-off"></i> PC won't turn on at all</h3>
           <ul>
-            <li>Check the PSU switch on the back — make sure it's in the ON (I) position</li>
+            <li>Check the PSU switch on the back â€” make sure it's in the ON (I) position</li>
             <li>Verify the power cable is fully seated in the wall and the PSU</li>
             <li>Check that the 24-pin ATX and 8-pin EPS cables are fully clicked in</li>
             <li>Make sure the front panel power button header is connected correctly (check your motherboard manual)</li>
@@ -2630,11 +2630,11 @@
           </ul>
           <h3><i class="fas fa-display"></i> No display / black screen</h3>
           <ul>
-            <li><strong>Most common cause:</strong> Monitor plugged into motherboard instead of GPU — always use the GPU ports</li>
-            <li>Reseat the RAM — remove both sticks, clean contacts with an eraser, and reinsert</li>
+            <li><strong>Most common cause:</strong> Monitor plugged into motherboard instead of GPU â€” always use the GPU ports</li>
+            <li>Reseat the RAM â€” remove both sticks, clean contacts with an eraser, and reinsert</li>
             <li>Try one RAM stick at a time in slot A2</li>
             <li>Reseat the GPU in the PCIe slot</li>
-            <li>Check if the motherboard has any diagnostic LED lights or beep codes — consult the manual</li>
+            <li>Check if the motherboard has any diagnostic LED lights or beep codes â€” consult the manual</li>
           </ul>
           <h3><i class="fas fa-icicles"></i> PC freezing or crashing</h3>
           <ul>
@@ -2646,57 +2646,57 @@
           <h3><i class="fas fa-volume-xmark"></i> No sound</h3>
           <ul>
             <li>Check that the front panel audio header is connected to the correct pins on the motherboard</li>
-            <li>In Windows, right-click the speaker icon → Sound settings → ensure the correct output device is selected</li>
+            <li>In Windows, right-click the speaker icon â†’ Sound settings â†’ ensure the correct output device is selected</li>
             <li>For HDMI audio, select your monitor/TV as the audio device</li>
             <li>Reinstall audio drivers from your motherboard manufacturer's website</li>
           </ul>
           <h3><i class="fas fa-gauge-simple-high"></i> PC running slower than expected</h3>
           <ul>
-            <li>Enable XMP/EXPO in BIOS — RAM running at default 2133MHz instead of rated speed is very common</li>
+            <li>Enable XMP/EXPO in BIOS â€” RAM running at default 2133MHz instead of rated speed is very common</li>
             <li>Check Task Manager for background processes eating CPU or RAM</li>
             <li>Make sure your SSD is in an M.2 NVMe slot, not a SATA slot (10x speed difference)</li>
             <li>Verify your GPU is running in the PCIe x16 slot, not x4</li>
           </ul>
-          <div class="tip-box"><strong>💡 Golden rule:</strong> Change only ONE thing at a time when troubleshooting. If you change multiple things at once, you won't know which fix actually worked.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Golden rule:</strong> Change only ONE thing at a time when troubleshooting. If you change multiple things at once, you won't know which fix actually worked.</div>
         `
       },
       fans: {
         icon: '<i class="fas fa-fan"></i>',
         badge: 'FANS GUIDE',
-        title: 'Case Fans — Everything You Need to Know',
-        meta: '7 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'Case Fans â€” Everything You Need to Know',
+        meta: '7 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>Fans are the foundation of your cooling system. The right fans in the right configuration make a dramatic difference in both temperature and noise levels.</p>
           <h3><i class="fas fa-ruler"></i> Fan sizes explained</h3>
           <table>
             <tr><th>Size</th><th>Airflow</th><th>Noise</th><th>Best use</th></tr>
             <tr><td>80mm</td><td>Low</td><td>High</td><td>Small cases only</td></tr>
-            <tr><td>120mm</td><td>Medium</td><td>Medium</td><td>Universal — rear exhaust, radiators</td></tr>
+            <tr><td>120mm</td><td>Medium</td><td>Medium</td><td>Universal â€” rear exhaust, radiators</td></tr>
             <tr><td>140mm</td><td>High</td><td>Low</td><td>Front intake, top exhaust</td></tr>
             <tr><td>200mm</td><td>Very high</td><td>Very low</td><td>Large cases, side intake</td></tr>
           </table>
           <h3><i class="fas fa-plug"></i> PWM vs DC fans</h3>
-          <p><strong>PWM (4-pin):</strong> The motherboard controls fan speed automatically based on temperature. Fans ramp up when needed and slow down when idle — quieter overall and more precise. Always prefer PWM.</p>
+          <p><strong>PWM (4-pin):</strong> The motherboard controls fan speed automatically based on temperature. Fans ramp up when needed and slow down when idle â€” quieter overall and more precise. Always prefer PWM.</p>
           <p><strong>DC (3-pin):</strong> Run at a fixed voltage. Speed control is less precise. Fine for exhaust fans that you always want at full speed.</p>
           <h3><i class="fas fa-star"></i> Fan recommendations by budget</h3>
           <ul>
-            <li><strong>Budget:</strong> Arctic P12 / Arctic F12 — excellent airflow for low price</li>
-            <li><strong>Mid-range:</strong> DeepCool FC120 / Thermalright TL-C12 Pro — great value RGB options</li>
-            <li><strong>Premium:</strong> Noctua NF-A12x25 / be quiet! Silent Wings — class-leading noise levels</li>
+            <li><strong>Budget:</strong> Arctic P12 / Arctic F12 â€” excellent airflow for low price</li>
+            <li><strong>Mid-range:</strong> DeepCool FC120 / Thermalright TL-C12 Pro â€” great value RGB options</li>
+            <li><strong>Premium:</strong> Noctua NF-A12x25 / be quiet! Silent Wings â€” class-leading noise levels</li>
           </ul>
           <h3><i class="fas fa-sliders"></i> Fan curve tuning</h3>
-          <p>In your motherboard BIOS or using fan control software like Fan Control (free), you can set custom fan curves. A good curve keeps fans quiet at idle (below 40°C) and only ramps up under gaming load. A flat 100% curve is loud and unnecessary at idle.</p>
-          <div class="tip-box"><strong>💡 How many fans do you need?</strong> Minimum: 1 front intake + 1 rear exhaust. Ideal: 2–3 front intake + 1 rear + 1 top exhaust. More fans rarely help beyond that — airflow path matters more than fan count.</div>
+          <p>In your motherboard BIOS or using fan control software like Fan Control (free), you can set custom fan curves. A good curve keeps fans quiet at idle (below 40Â°C) and only ramps up under gaming load. A flat 100% curve is loud and unnecessary at idle.</p>
+          <div class="tip-box"><strong>ðŸ’¡ How many fans do you need?</strong> Minimum: 1 front intake + 1 rear exhaust. Ideal: 2â€“3 front intake + 1 rear + 1 top exhaust. More fans rarely help beyond that â€” airflow path matters more than fan count.</div>
           <h3><i class="fas fa-broom"></i> Fan maintenance</h3>
-          <p>Dust buildup on fans reduces airflow significantly over time. Clean dust filters every 1–3 months by removing them and rinsing under water (let dry fully before reinstalling). Use compressed air to clean fan blades once or twice a year.</p>
+          <p>Dust buildup on fans reduces airflow significantly over time. Clean dust filters every 1â€“3 months by removing them and rinsing under water (let dry fully before reinstalling). Use compressed air to clean fan blades once or twice a year.</p>
         `
       },
 
       studio: {
         icon: '<i class="fas fa-palette"></i>',
         badge: 'SOFTWARE',
-        title: 'BuildMatrix Studio — Visual PC Planner',
-        meta: '4 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'BuildMatrix Studio â€” Visual PC Planner',
+        meta: '4 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>BuildMatrix Studio is the visual planning layer of BuildMatrix. It lets you plan, visualize, and organize your PC build before you spend a single peso.</p>
           <h3><i class="fas fa-list-check"></i> What you can do with Studio</h3>
@@ -2711,82 +2711,82 @@
           <p>Use the filter bar to narrow by brand (AMD / Intel / NVIDIA), use the search bar to find specific models, and use the price range slider to stay within budget. Sort by price or name to compare options quickly.</p>
           <h3><i class="fas fa-floppy-disk"></i> Saving builds</h3>
           <p>If you're logged in, your builds sync to your account and can be accessed from any browser. If you're a guest, builds are stored locally in your browser. You can export any build as a JSON file and import it later or on another device.</p>
-          <div class="tip-box"><strong>💡 Tip:</strong> Use the "Analyze Build" button after adding parts — it runs a real-time compatibility check on your CPU socket, power headroom, and GPU fitment.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Tip:</strong> Use the "Analyze Build" button after adding parts â€” it runs a real-time compatibility check on your CPU socket, power headroom, and GPU fitment.</div>
         `
       },
       compatibility: {
         icon: '<i class="fas fa-circle-check"></i>',
         badge: 'SOFTWARE',
-        title: 'Compatibility Checker — How It Works',
-        meta: '5 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'Compatibility Checker â€” How It Works',
+        meta: '5 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
           <p>The BuildMatrix Compatibility Checker automatically validates your part selection in real time as you build. No more buying a CPU only to discover it doesn't fit your motherboard.</p>
           <h3><i class="fas fa-plug"></i> What gets checked</h3>
           <table>
             <tr><th>Check</th><th>What it validates</th></tr>
-            <tr><td>CPU ↔ Motherboard socket</td><td>AM4/AM5 for AMD, LGA1700/1851 for Intel — must match exactly</td></tr>
+            <tr><td>CPU â†” Motherboard socket</td><td>AM4/AM5 for AMD, LGA1700/1851 for Intel â€” must match exactly</td></tr>
             <tr><td>Power draw vs PSU wattage</td><td>CPU TDP + GPU TDP + 100W overhead vs PSU rated watts</td></tr>
             <tr><td>GPU length vs case clearance</td><td>GPU card length in mm vs case's maximum GPU length spec</td></tr>
           </table>
           <h3><i class="fas fa-triangle-exclamation"></i> Understanding the results</h3>
           <ul>
-            <li><strong style="color:#ff8888;">❌ Critical error</strong> — A hard incompatibility. The parts will not work together (e.g. wrong socket). Fix this before buying.</li>
-            <li><strong style="color:#ffaa00;">⚠️ Warning</strong> — A potential issue (e.g. tight power headroom). Manageable but worth addressing.</li>
-            <li><strong style="color:#88ff88;">✅ Pass</strong> — Components are confirmed compatible on that check.</li>
+            <li><strong style="color:#ff8888;">âŒ Critical error</strong> â€” A hard incompatibility. The parts will not work together (e.g. wrong socket). Fix this before buying.</li>
+            <li><strong style="color:#ffaa00;">âš ï¸ Warning</strong> â€” A potential issue (e.g. tight power headroom). Manageable but worth addressing.</li>
+            <li><strong style="color:#88ff88;">âœ… Pass</strong> â€” Components are confirmed compatible on that check.</li>
           </ul>
           <h3><i class="fas fa-screwdriver"></i> How to use it</h3>
           <p>Simply add a CPU, GPU, motherboard, and PSU to your build using the builder on this page. The compatibility panel in the right sidebar updates automatically. Click "Analyze Build" to run a full scored analysis powered by the BuildMatrix backend.</p>
-          <div class="tip-box"><strong>💡 Note:</strong> The checker covers the most critical compatibility points. Always double-check RAM speed support and cooler clearance in your motherboard and case manual before purchasing.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Note:</strong> The checker covers the most critical compatibility points. Always double-check RAM speed support and cooler clearance in your motherboard and case manual before purchasing.</div>
         `
       },
       performance: {
         icon: '<i class="fas fa-chart-line"></i>',
         badge: 'SOFTWARE',
-        title: 'Performance Analyzer — Estimate Your Build\'s Power',
-        meta: '4 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'Performance Analyzer â€” Estimate Your Build\'s Power',
+        meta: '4 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
-          <p>The BuildMatrix Performance Analyzer gives you an estimated performance score for your build across three use cases: Gaming, Productivity, and Streaming — before you buy anything.</p>
+          <p>The BuildMatrix Performance Analyzer gives you an estimated performance score for your build across three use cases: Gaming, Productivity, and Streaming â€” before you buy anything.</p>
           <h3><i class="fas fa-tachometer-alt"></i> How scores are calculated</h3>
           <p>Each CPU and GPU in the BuildMatrix database has an internal performance rating based on real-world benchmarks. When you add a CPU and GPU to your build, the analyzer combines their ratings and maps them to the three use case scores.</p>
           <table>
             <tr><th>Score</th><th>Based on</th><th>What it reflects</th></tr>
-            <tr><td>🎮 Gaming</td><td>CPU + GPU average</td><td>FPS in modern games at 1080p–1440p</td></tr>
-            <tr><td>💼 Productivity</td><td>CPU rating weighted</td><td>Speed in apps, compiling, multitasking</td></tr>
-            <tr><td>📡 Streaming</td><td>CPU + GPU weighted</td><td>Ability to stream while gaming</td></tr>
+            <tr><td>ðŸŽ® Gaming</td><td>CPU + GPU average</td><td>FPS in modern games at 1080pâ€“1440p</td></tr>
+            <tr><td>ðŸ’¼ Productivity</td><td>CPU rating weighted</td><td>Speed in apps, compiling, multitasking</td></tr>
+            <tr><td>ðŸ“¡ Streaming</td><td>CPU + GPU weighted</td><td>Ability to stream while gaming</td></tr>
           </table>
           <h3><i class="fas fa-gamepad"></i> Estimated FPS panel</h3>
           <p>Once you've added a CPU and GPU, the FPS panel shows rough estimated frame rates in popular titles:</p>
           <ul>
-            <li><strong>Valorant</strong> — Very CPU-dependent, scales well with clock speed</li>
-            <li><strong>GTA V</strong> — Balanced CPU+GPU workload</li>
-            <li><strong>Cyberpunk 2077</strong> — GPU-heavy, demanding even at 1080p</li>
+            <li><strong>Valorant</strong> â€” Very CPU-dependent, scales well with clock speed</li>
+            <li><strong>GTA V</strong> â€” Balanced CPU+GPU workload</li>
+            <li><strong>Cyberpunk 2077</strong> â€” GPU-heavy, demanding even at 1080p</li>
           </ul>
-          <div class="tip-box"><strong>💡 Note:</strong> These are estimates based on component performance ratings, not exact benchmark numbers. Real-world FPS varies by resolution, settings, and driver version. Use these as a directional guide, not a guarantee.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Note:</strong> These are estimates based on component performance ratings, not exact benchmark numbers. Real-world FPS varies by resolution, settings, and driver version. Use these as a directional guide, not a guarantee.</div>
           <h3><i class="fas fa-arrow-up"></i> Improving your score</h3>
-          <p>If your gaming score is low, upgrade the GPU first — it has the biggest single impact on gaming FPS. If your productivity score is low, upgrade the CPU or add more RAM. For streaming, you need both a strong CPU (for encoding) and a capable GPU.</p>
+          <p>If your gaming score is low, upgrade the GPU first â€” it has the biggest single impact on gaming FPS. If your productivity score is low, upgrade the CPU or add more RAM. For streaming, you need both a strong CPU (for encoding) and a capable GPU.</p>
         `
       },
       budget: {
         icon: '<i class="fas fa-coins"></i>',
         badge: 'SOFTWARE',
-        title: 'Budget Calculator — Smart Allocation Guide',
-        meta: '5 min read &nbsp;·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;·&nbsp; March 2026',
+        title: 'Budget Calculator â€” Smart Allocation Guide',
+        meta: '5 min read &nbsp;Â·&nbsp; <i class="fas fa-user"></i> BuildMatrix Team &nbsp;Â·&nbsp; March 2026',
         body: `
-          <p>One of the biggest mistakes PC builders make is spending too much on one part and not enough on another — creating a bottleneck. The BuildMatrix Budget Calculator helps you allocate your budget optimally.</p>
+          <p>One of the biggest mistakes PC builders make is spending too much on one part and not enough on another â€” creating a bottleneck. The BuildMatrix Budget Calculator helps you allocate your budget optimally.</p>
           <h3><i class="fas fa-percent"></i> Recommended budget splits</h3>
           <table>
             <tr><th>Component</th><th>Gaming build</th><th>Productivity build</th><th>Balanced</th></tr>
-            <tr><td>GPU</td><td>35–40%</td><td>15–20%</td><td>30–35%</td></tr>
-            <tr><td>CPU</td><td>15–20%</td><td>25–30%</td><td>18–22%</td></tr>
-            <tr><td>Motherboard</td><td>10–12%</td><td>12–15%</td><td>10–12%</td></tr>
-            <tr><td>RAM</td><td>8–10%</td><td>10–15%</td><td>9–11%</td></tr>
-            <tr><td>SSD</td><td>7–10%</td><td>8–12%</td><td>8–10%</td></tr>
-            <tr><td>PSU</td><td>7–9%</td><td>7–9%</td><td>7–9%</td></tr>
-            <tr><td>Case</td><td>5–8%</td><td>5–8%</td><td>5–8%</td></tr>
-            <tr><td>Cooler</td><td>4–6%</td><td>5–8%</td><td>4–6%</td></tr>
+            <tr><td>GPU</td><td>35â€“40%</td><td>15â€“20%</td><td>30â€“35%</td></tr>
+            <tr><td>CPU</td><td>15â€“20%</td><td>25â€“30%</td><td>18â€“22%</td></tr>
+            <tr><td>Motherboard</td><td>10â€“12%</td><td>12â€“15%</td><td>10â€“12%</td></tr>
+            <tr><td>RAM</td><td>8â€“10%</td><td>10â€“15%</td><td>9â€“11%</td></tr>
+            <tr><td>SSD</td><td>7â€“10%</td><td>8â€“12%</td><td>8â€“10%</td></tr>
+            <tr><td>PSU</td><td>7â€“9%</td><td>7â€“9%</td><td>7â€“9%</td></tr>
+            <tr><td>Case</td><td>5â€“8%</td><td>5â€“8%</td><td>5â€“8%</td></tr>
+            <tr><td>Cooler</td><td>4â€“6%</td><td>5â€“8%</td><td>4â€“6%</td></tr>
           </table>
           <h3><i class="fas fa-scale-balanced"></i> Avoiding bottlenecks</h3>
-          <p>A bottleneck occurs when one component limits the potential of another. The most common example: pairing a ₱5,000 CPU with a ₱50,000 GPU. The CPU won't be able to feed the GPU fast enough, wasting your GPU investment.</p>
+          <p>A bottleneck occurs when one component limits the potential of another. The most common example: pairing a â‚±5,000 CPU with a â‚±50,000 GPU. The CPU won't be able to feed the GPU fast enough, wasting your GPU investment.</p>
           <ul>
             <li><strong>Gaming:</strong> GPU is king. Don't cheap out here. Match it with a mid-range CPU.</li>
             <li><strong>Streaming:</strong> You need a strong CPU for encoding. Don't bottleneck it with a weak chip.</li>
@@ -2794,7 +2794,7 @@
           </ul>
           <h3><i class="fas fa-calculator"></i> Using the Budget Calculator</h3>
           <p>Click "Budget Guide" in the build panel on the right. Enter your total budget and the calculator will suggest a recommended allocation across each component category, helping you know how much to spend on each part before you start browsing.</p>
-          <div class="tip-box"><strong>💡 Real talk:</strong> In the Philippines, GPU prices can be significantly higher than MSRP due to import taxes and resellers. Check current prices at Shopee, Lazada, and CDR-King before finalizing your budget.</div>
+          <div class="tip-box"><strong>ðŸ’¡ Real talk:</strong> In the Philippines, GPU prices can be significantly higher than MSRP due to import taxes and resellers. Check current prices at Shopee, Lazada, and CDR-King before finalizing your budget.</div>
         `
       }
     };
@@ -3174,101 +3174,101 @@ if ('serviceWorker' in navigator) {
 (function() {
   var FOOTER_INFO = {
     about: {
-      icon: '🏗️',
+      icon: 'ðŸ—ï¸',
       title: 'About BuildMatrix',
-      body: 'BuildMatrix is a Philippine-focused PC builder platform that helps you plan, price, and configure your dream PC build — all in one place. We provide real-time part pricing in Philippine Peso, compatibility checks, and smart auto-build recommendations so you can build with confidence.',
+      body: 'BuildMatrix is a Philippine-focused PC builder platform that helps you plan, price, and configure your dream PC build â€” all in one place. We provide real-time part pricing in Philippine Peso, compatibility checks, and smart auto-build recommendations so you can build with confidence.',
       tags: ['Made in the Philippines', 'Free to Use', 'PWA Supported'],
     },
     contact: {
-      icon: '✉️',
+      icon: 'âœ‰ï¸',
       title: 'Contact Us',
       body: 'Have a question, suggestion, or found a bug? We\'d love to hear from you. Reach out to the BuildMatrix team and we\'ll get back to you as soon as possible.',
-      tags: ['Response within 24–48 hrs'],
-      action: { label: '📧 Send a Message', fn: function() { closeFooterInfo(); showToast('Email feature coming soon!'); } },
+      tags: ['Response within 24â€“48 hrs'],
+      action: { label: 'ðŸ“§ Send a Message', fn: function() { closeFooterInfo(); showToast('Email feature coming soon!'); } },
     },
     blog: {
-      icon: '📰',
+      icon: 'ðŸ“°',
       title: 'BuildMatrix Blog',
       body: 'Stay up to date with the latest PC hardware news, build showcases, price drops, and tips from the BuildMatrix team. Our blog covers everything from budget builds to high-end gaming rigs.',
       tags: ['Hardware News', 'Build Showcases', 'Tips & Tricks'],
     },
     careers: {
-      icon: '💼',
+      icon: 'ðŸ’¼',
       title: 'Careers at BuildMatrix',
       body: 'We\'re a small team passionate about PC building and web development. If you\'re a developer, designer, or hardware enthusiast who wants to help build something great, we\'d love to connect.',
       tags: ['Remote Friendly', 'Passionate Team'],
-      action: { label: '📩 Express Interest', fn: function() { closeFooterInfo(); showToast('Careers page coming soon!'); } },
+      action: { label: 'ðŸ“© Express Interest', fn: function() { closeFooterInfo(); showToast('Careers page coming soon!'); } },
     },
     pcbuilder: {
-      icon: '🖥️',
+      icon: 'ðŸ–¥ï¸',
       title: 'PC Builder',
-      body: 'Our core tool — browse hundreds of PC components, add them to your build list, check compatibility in real time, and see your total cost instantly. Save your build to your account or share it with a link.',
+      body: 'Our core tool â€” browse hundreds of PC components, add them to your build list, check compatibility in real time, and see your total cost instantly. Save your build to your account or share it with a link.',
       tags: ['Real-time Compatibility', 'Philippine Prices', 'Save & Share'],
-      action: { label: '🚀 Open Builder', fn: function() { closeFooterInfo(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+      action: { label: 'ðŸš€ Open Builder', fn: function() { closeFooterInfo(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     },
     compare: {
-      icon: '⚖️',
+      icon: 'âš–ï¸',
       title: 'Compare Parts',
-      body: 'Side-by-side part comparison lets you evaluate two components across specs like clock speed, TDP, core count, and price — so you can make the smarter choice before adding anything to your build.',
+      body: 'Side-by-side part comparison lets you evaluate two components across specs like clock speed, TDP, core count, and price â€” so you can make the smarter choice before adding anything to your build.',
       tags: ['CPU & GPU Comparisons', 'Spec Breakdown'],
-      action: { label: '⚖️ Open Compare Tool', fn: function() { closeFooterInfo(); openCompareModal(); } },
+      action: { label: 'âš–ï¸ Open Compare Tool', fn: function() { closeFooterInfo(); openCompareModal(); } },
     },
     autobuild: {
-      icon: '⚡',
+      icon: 'âš¡',
       title: 'Auto Build Generator',
-      body: 'Set your budget and use case — Gaming, Productivity, or Streaming — and BuildMatrix will automatically pick the best-balanced set of components that fit within your budget.',
+      body: 'Set your budget and use case â€” Gaming, Productivity, or Streaming â€” and BuildMatrix will automatically pick the best-balanced set of components that fit within your budget.',
       tags: ['Budget-aware', 'Gaming / Productivity / Streaming'],
-      action: { label: '⚡ Generate a Build', fn: function() { closeFooterInfo(); openAutoBuildModal(); } },
+      action: { label: 'âš¡ Generate a Build', fn: function() { closeFooterInfo(); openAutoBuildModal(); } },
     },
     compat: {
-      icon: '🔗',
+      icon: 'ðŸ”—',
       title: 'Compatibility Checker',
-      body: 'BuildMatrix automatically checks for common compatibility issues as you add parts to your build — including CPU socket vs. motherboard match, RAM type mismatches, PSU wattage sufficiency, and more.',
+      body: 'BuildMatrix automatically checks for common compatibility issues as you add parts to your build â€” including CPU socket vs. motherboard match, RAM type mismatches, PSU wattage sufficiency, and more.',
       tags: ['Socket Check', 'RAM Type', 'PSU Wattage', 'Chipset'],
-      action: { label: '🔗 Check My Build', fn: function() { closeFooterInfo(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+      action: { label: 'ðŸ”— Check My Build', fn: function() { closeFooterInfo(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     },
     guides: {
-      icon: '📖',
+      icon: 'ðŸ“–',
       title: 'Build Guides',
-      body: 'Step-by-step guides for every skill level — from your very first budget build to a high-end workstation. Our guides include part recommendations, assembly tips, and common mistakes to avoid.',
+      body: 'Step-by-step guides for every skill level â€” from your very first budget build to a high-end workstation. Our guides include part recommendations, assembly tips, and common mistakes to avoid.',
       tags: ['Beginner Friendly', 'Budget to High-End', 'Assembly Tips'],
     },
     tutorials: {
-      icon: '🎓',
+      icon: 'ðŸŽ“',
       title: 'Tutorials',
       body: 'Short, focused tutorials covering specific PC building topics: how to pick a CPU cooler, what PSU efficiency ratings mean, how to install an M.2 SSD, cable management basics, and more.',
       tags: ['Short & Focused', 'Hardware 101', 'Step-by-Step'],
     },
     faq: {
-      icon: '❓',
+      icon: 'â“',
       title: 'Frequently Asked Questions',
-      body: 'Quick answers to the most common questions about using BuildMatrix — how builds are saved, how compatibility checks work, how to share a build, and what to do if a part is out of stock.',
+      body: 'Quick answers to the most common questions about using BuildMatrix â€” how builds are saved, how compatibility checks work, how to share a build, and what to do if a part is out of stock.',
       tags: ['How Saving Works', 'Sharing Builds', 'Compatibility FAQs'],
     },
     glossary: {
-      icon: '📚',
+      icon: 'ðŸ“š',
       title: 'PC Building Glossary',
-      body: 'New to PC building? Our glossary covers the essential terms you need to know — TDP, PCIe, NVMe, DDR5, socket types, refresh rates, and dozens more — explained in plain language.',
+      body: 'New to PC building? Our glossary covers the essential terms you need to know â€” TDP, PCIe, NVMe, DDR5, socket types, refresh rates, and dozens more â€” explained in plain language.',
       tags: ['TDP', 'PCIe', 'NVMe', 'DDR5', 'Socket Types'],
     },
     helpcenter: {
-      icon: '🛟',
+      icon: 'ðŸ›Ÿ',
       title: 'Help Center',
       body: 'Find answers to common issues with your BuildMatrix account, saved builds, and site features. Our Help Center covers account management, build syncing, export options, and troubleshooting tips.',
       tags: ['Account Help', 'Build Syncing', 'Export & Share'],
     },
     forum: {
-      icon: '💬',
+      icon: 'ðŸ’¬',
       title: 'Community Forum',
-      body: 'Join the BuildMatrix community — ask for build advice, show off your completed rig, vote on parts, and help other builders make better decisions. A community for Filipino PC enthusiasts.',
+      body: 'Join the BuildMatrix community â€” ask for build advice, show off your completed rig, vote on parts, and help other builders make better decisions. A community for Filipino PC enthusiasts.',
       tags: ['Build Advice', 'Show Your Rig', 'Filipino PC Community'],
     },
     contactsupport: {
-      icon: '🎧',
+      icon: 'ðŸŽ§',
       title: 'Contact Support',
       body: 'Running into an issue with the site, your account, or your saved builds? Contact our support team and we\'ll help you sort it out. Include your username and a brief description of the problem.',
       tags: ['Account Issues', 'Bug Reports', 'Response within 48 hrs'],
-      action: { label: '🎧 Get Help', fn: function() { closeFooterInfo(); showToast('Support form coming soon!'); } },
+      action: { label: 'ðŸŽ§ Get Help', fn: function() { closeFooterInfo(); showToast('Support form coming soon!'); } },
     },
   };
 
@@ -3525,9 +3525,9 @@ if ('serviceWorker' in navigator) {
       var pct = Math.min(100, Math.round((total / psuW) * 100));
       var headroom = psuW - total;
       var color, status;
-      if (pct > 90)      { color = '#EF4444'; status = '⚠️ PSU overloaded — upgrade required'; }
-      else if (pct > 75) { color = '#F97316'; status = '⚠️ Low headroom — ' + headroom + 'W remaining'; }
-      else               { color = '#22C55E'; status = '✅ Good — ' + headroom + 'W headroom (' + pct + '% load)'; }
+      if (pct > 90)      { color = '#EF4444'; status = 'âš ï¸ PSU overloaded â€” upgrade required'; }
+      else if (pct > 75) { color = '#F97316'; status = 'âš ï¸ Low headroom â€” ' + headroom + 'W remaining'; }
+      else               { color = '#22C55E'; status = 'âœ… Good â€” ' + headroom + 'W headroom (' + pct + '% load)'; }
       if (barEl)    { barEl.style.width = pct + '%'; barEl.style.background = color; }
       if (statusEl) { statusEl.textContent = status; statusEl.style.color = color; }
     } else {
@@ -3539,7 +3539,7 @@ if ('serviceWorker' in navigator) {
     if (cpuTdp)        rows.push(['CPU', cpuTdp]);
     if (gpuTdp)        rows.push(['GPU', gpuTdp]);
     rows.push(['Motherboard', moboW]);
-    if (ramW)          rows.push(['RAM ×' + ramCnt, ramW]);
+    if (ramW)          rows.push(['RAM Ã—' + ramCnt, ramW]);
     if (ssdW + hddW)   rows.push(['Storage', ssdW + hddW]);
     rows.push(['System / Fans', sysW]);
 
@@ -3568,7 +3568,7 @@ if ('serviceWorker' in navigator) {
     panel.style.display = 'block';
 
     if (diff < 20) {
-      panel.innerHTML = '<div class="bottleneck-ok"><i class="fas fa-check-circle"></i><span>Balanced build — CPU and GPU are well matched</span></div>';
+      panel.innerHTML = '<div class="bottleneck-ok"><i class="fas fa-check-circle"></i><span>Balanced build â€” CPU and GPU are well matched</span></div>';
       return;
     }
 
@@ -3629,3 +3629,4 @@ if ('serviceWorker' in navigator) {
 </style>
 </body>
 </html>
+

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BuildMatrix — Sign In</title>
+  <title>BuildMatrix â€” Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -311,7 +311,7 @@
 
   <div class="page">
     <div class="logo-row" onclick="window.location.href='loading.html'">
-      <span class="logo-icon">⚙️</span>
+      <span class="logo-icon">âš™ï¸</span>
       <span class="logo-text">BUILDMATRIX</span>
     </div>
 
@@ -334,7 +334,7 @@
             <div>
               <div class="field-label">Password</div>
               <div class="field-wrap">
-                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+                <input type="password" id="loginPassword" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
                 <i class="fas fa-lock"></i>
               </div>
             </div>
@@ -351,7 +351,7 @@
             <button class="btn btn-ghost" onclick="continueAsGuest()">
               <i class="fas fa-user-secret"></i> Continue as Guest
             </button>
-            <div style="font-size:11px;color:#2a4560;margin-top:8px;">Builds saved locally — no account needed</div>
+            <div style="font-size:11px;color:#2a4560;margin-top:8px;">Builds saved locally â€” no account needed</div>
           </div>
         </div>
 
@@ -581,7 +581,7 @@
         }
       })
       .catch(function() {
-        setError('forgot-error', 'Connection error — backend may be offline');
+        setError('forgot-error', 'Connection error â€” backend may be offline');
         document.getElementById('forgotSendBtn').disabled = false;
       });
     }
@@ -626,7 +626,7 @@
       }
       if (!backendOnline) {
         signupOtpVerified = true;
-        showToast('Backend offline — email verification skipped', false);
+        showToast('Backend offline â€” email verification skipped', false);
         return;
       }
       document.getElementById('regSendBtn').disabled = true;
@@ -655,7 +655,7 @@
       .catch(function() {
         signupOtpVerified = true;
         document.getElementById('reg-otp-row').style.display = 'none';
-        showToast('Backend offline — email verification skipped');
+        showToast('Backend offline â€” email verification skipped');
         document.getElementById('regSendBtn').disabled = false;
       });
     }
@@ -788,7 +788,7 @@
       })
       .catch(function() {
         setLoading('loginBtn', false);
-        setError('login-error', 'Connection error — try guest mode');
+        setError('login-error', 'Connection error â€” try guest mode');
       });
     }
 
@@ -808,3 +808,4 @@
   </script>
 </body>
 </html>
+

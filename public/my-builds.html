@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <style id="bm-colors">
@@ -21,7 +21,7 @@
   </style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BuildMatrix — My Builds</title>
+  <title>BuildMatrix â€” My Builds</title>
   <link rel="stylesheet" href="style.css?v=1774154793" />
   <link rel="stylesheet" href="mobile-improvements.css" />
   <link rel="manifest" href="/manifest.json">
@@ -74,7 +74,7 @@
       overflow-x: hidden;
     }
 
-    /* ── LIGHT MODE ─────────────────────────────────── */
+    /* â”€â”€ LIGHT MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     body.light-mode {
       --bg:     #f4f5f7;
       --bg2:    #eceef1;
@@ -121,7 +121,7 @@
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; }
 
-    /* ── HEADER ── */
+    /* â”€â”€ HEADER â”€â”€ */
     .bm-header {
       position: sticky;
       top: 0;
@@ -411,7 +411,7 @@
     .bm-dropdown .danger i { color: #ef4444 !important; }
     .bm-dropdown .danger:hover { background: rgba(239,68,68,0.08) !important; }
 
-    /* ── PAGE BODY ── */
+    /* â”€â”€ PAGE BODY â”€â”€ */
     .bm-page {
       max-width: 1200px;
       margin: 0 auto;
@@ -442,7 +442,7 @@
       margin-top: 4px;
     }
 
-    /* ── TOOLBAR ── */
+    /* â”€â”€ TOOLBAR â”€â”€ */
     .bm-toolbar {
       display: flex;
       align-items: center;
@@ -524,7 +524,7 @@
       white-space: nowrap;
     }
 
-    /* ── BUILDS GRID ── */
+    /* â”€â”€ BUILDS GRID â”€â”€ */
     .bm-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -693,7 +693,7 @@
     }
     .bm-card-btn.del:hover { background: rgba(239,68,68,0.16); }
 
-    /* ── EMPTY STATE ── */
+    /* â”€â”€ EMPTY STATE â”€â”€ */
     .bm-empty {
       grid-column: 1 / -1;
       text-align: center;
@@ -718,7 +718,7 @@
 
     .bm-empty p { font-size: 14px; color: var(--text3); margin-bottom: 24px; }
 
-    /* ── PROFILE MODAL ── */
+    /* â”€â”€ PROFILE MODAL â”€â”€ */
     .bm-modal-bg {
       display: none;
       position: fixed;
@@ -901,7 +901,7 @@
       to   { opacity:1; transform: translateY(0); }
     }
 
-    /* ── MOBILE ── */
+    /* â”€â”€ MOBILE â”€â”€ */
     @media (max-width: 768px) {
       .bm-header { padding: 0 16px; }
       .bm-nav { display: none; }
@@ -942,7 +942,7 @@
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
+<!-- â•â•â• HEADER â•â•â• -->
 <header class="bm-header">
   <div class="bm-header-left">
     <a href="index.html" class="bm-logo">
@@ -1000,7 +1000,7 @@
   </div>
 </header>
 
-<!-- ═══ PAGE ═══ -->
+<!-- â•â•â• PAGE â•â•â• -->
 <div class="bm-page">
   <div class="bm-page-header">
     <div>
@@ -1022,14 +1022,14 @@
       <option value="date-asc">Oldest First</option>
       <option value="price-desc">Highest Price</option>
       <option value="price-asc">Lowest Price</option>
-      <option value="name-asc">Name A–Z</option>
+      <option value="name-asc">Name Aâ€“Z</option>
     </select>
     <select id="filterPriceRange" class="bm-sort-select" title="Filter by price">
       <option value="all">All Prices</option>
-      <option value="0-20000">Under ₱20,000</option>
-      <option value="20000-50000">₱20k – ₱50k</option>
-      <option value="50000-100000">₱50k – ₱100k</option>
-      <option value="100000-999999">Over ₱100,000</option>
+      <option value="0-20000">Under â‚±20,000</option>
+      <option value="20000-50000">â‚±20k â€“ â‚±50k</option>
+      <option value="50000-100000">â‚±50k â€“ â‚±100k</option>
+      <option value="100000-999999">Over â‚±100,000</option>
     </select>
     <input type="file" id="importFile" accept=".json" style="display:none;">
     <button class="bm-btn ghost" id="importBtn">
@@ -1053,7 +1053,7 @@
   </div>
 </div>
 
-<!-- ═══ PROFILE MODAL ═══ -->
+<!-- â•â•â• PROFILE MODAL â•â•â• -->
 <div class="bm-modal-bg" id="profileModal">
   <div class="bm-modal">
     <button class="bm-modal-close" onclick="closeProfileModal()">&times;</button>
@@ -1088,7 +1088,7 @@
   </div>
 </div>
 
-<!-- ═══ SECURITY MODAL ═══ -->
+<!-- â•â•â• SECURITY MODAL â•â•â• -->
 <div class="bm-modal-bg" id="securityModal">
   <div class="bm-modal">
     <button class="bm-modal-close" onclick="closeSecurityModal()">&times;</button>
@@ -1119,7 +1119,7 @@
   </div>
 </div>
 
-<!-- ═══ AUTH MODAL (reused from common) ═══ -->
+<!-- â•â•â• AUTH MODAL (reused from common) â•â•â• -->
 <div class="bm-modal-bg" id="authModal">
   <div class="bm-modal" style="max-width:400px;">
     <button class="bm-modal-close" onclick="closeAuthModal()">&times;</button>
@@ -1148,7 +1148,7 @@
     ? 'https://buildmatrix-clean.onrender.com/api'
     : location.origin + '/api';
 
-  // ── AVATAR ───────────────────────────────────────────────
+  // â”€â”€ AVATAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function getAvatar() { return localStorage.getItem('bm-avatar') || null; }
   function setAvatar(dataUrl) { localStorage.setItem('bm-avatar', dataUrl); }
   function clearAvatar() { localStorage.removeItem('bm-avatar'); }
@@ -1235,7 +1235,7 @@
     bmToast('Photo removed');
   }
 
-  // ── USER ─────────────────────────────────────────────────
+  // â”€â”€ USER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function getUser() {
     try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
   }
@@ -1271,7 +1271,7 @@
     }
   }
 
-  // ── MENU TOGGLE ──────────────────────────────────────────
+  // â”€â”€ MENU TOGGLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function toggleBmMenu() {
     const trigger  = document.getElementById('bmUserTrigger');
     const dropdown = document.getElementById('bmDropdown');
@@ -1287,7 +1287,7 @@
     }
   });
 
-  // ── SIGN OUT ─────────────────────────────────────────────
+  // â”€â”€ SIGN OUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function doSignOut() {
     try { await fetch(`${_API}/auth/logout`, { method:'POST', credentials:'include' }); } catch {}
     localStorage.removeItem('user');
@@ -1297,7 +1297,7 @@
     setTimeout(() => location.href = 'index.html', 800);
   }
 
-  // ── LOGIN ────────────────────────────────────────────────
+  // â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openAuthModal()  { document.getElementById('authModal').classList.add('open'); }
   function closeAuthModal() { document.getElementById('authModal').classList.remove('open'); }
 
@@ -1331,7 +1331,7 @@
     } catch { bmToast('Cannot connect to server', true); }
   }
 
-  // ── PROFILE MODAL ────────────────────────────────────────
+  // â”€â”€ PROFILE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openProfileModal() {
     const user = getUser();
     document.getElementById('profileName').value  = user?.name  || '';
@@ -1376,7 +1376,7 @@
     }
   }
 
-  // ── SECURITY MODAL ───────────────────────────────────────
+  // â”€â”€ SECURITY MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openSecurityModal() {
     ['secCurrentPass','secNewPass','secConfirmPass'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
@@ -1413,7 +1413,7 @@
     } catch { bmToast('Cannot connect to server', true); }
   }
 
-  // ── DARK MODE ────────────────────────────────────────────
+  // â”€â”€ DARK MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initBmDark() {
     const saved = localStorage.getItem('buildmatrix-dark-mode') || localStorage.getItem('buildmatrix-theme');
     // Default is dark. 'light' = light mode
@@ -1432,12 +1432,12 @@
     const icon = document.getElementById('bmDarkIcon');
     if (!icon) return;
     const isLight = document.body.classList.contains('light-mode');
-    // In dark mode → show sun (click to switch to light)
-    // In light mode → show moon (click to switch to dark)
+    // In dark mode â†’ show sun (click to switch to light)
+    // In light mode â†’ show moon (click to switch to dark)
     icon.className = isLight ? 'fas fa-moon' : 'fas fa-sun';
   }
 
-  // ── TOAST ────────────────────────────────────────────────
+  // â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function bmToast(msg, err = false) {
     const t = document.createElement('div');
     t.className = `bm-toast ${err ? 'err' : 'ok'}`;
@@ -1449,7 +1449,7 @@
   // Override global showToast so builds.js toasts also look right
   window.showToast = bmToast;
 
-  // ── BUILD CARD RENDERER ──────────────────────────────────
+  // â”€â”€ BUILD CARD RENDERER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const CAT_ICONS = {
     cpu:'fa-microchip', gpu:'fa-tv', motherboard:'fa-server', ram:'fa-memory',
     ssd:'fa-database', hdd:'fa-hdd', psu:'fa-bolt', case:'fa-desktop',
@@ -1473,11 +1473,11 @@
 
   function fmtDate(iso) {
     try { return new Date(iso).toLocaleDateString(undefined, { month:'short', day:'2-digit', year:'numeric' }); }
-    catch { return '—'; }
+    catch { return 'â€”'; }
   }
 
   function fmtMoney(n) {
-    return '₱' + (Number(n)||0).toLocaleString();
+    return 'â‚±' + (Number(n)||0).toLocaleString();
   }
 
   const BUILD_TAGS = ['Gaming','Workstation','Budget','Streaming','Office','Custom'];
@@ -1541,7 +1541,7 @@
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML = `
       <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:440px;margin:16px;">
-        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-sticky-note" style="color:#00D4FF;margin-right:8px;"></i>Notes — ${buildName}</h3>
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-sticky-note" style="color:#00D4FF;margin-right:8px;"></i>Notes â€” ${buildName}</h3>
         <textarea id="noteInput" rows="5" placeholder="Add notes about this build..." style="width:100%;background:#111a28;border:1px solid #1a2840;border-radius:8px;padding:12px;color:#D8EEFF;font-size:13px;font-family:inherit;resize:vertical;">${note}</textarea>
         <div style="display:flex;gap:10px;margin-top:16px;">
           <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;background:transparent;border:1px solid #1a2840;color:#5a8aaa;border-radius:8px;padding:10px;cursor:pointer;font-family:inherit;">Cancel</button>
@@ -1564,7 +1564,7 @@
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML = `
       <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:400px;margin:16px;">
-        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-tag" style="color:#00D4FF;margin-right:8px;"></i>Tags — ${buildName}</h3>
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:16px;"><i class="fas fa-tag" style="color:#00D4FF;margin-right:8px;"></i>Tags â€” ${buildName}</h3>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
           ${['Gaming','Workstation','Budget','Streaming','Office','Custom','School','Gift'].map(t => `
             <button onclick="toggleTagBtn(this,'${t}')" data-tag="${t}" style="padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:${saved.includes(t)?'rgba(0,212,255,0.15)':'#111a28'};border:1px solid ${saved.includes(t)?'rgba(0,212,255,0.4)':'#1a2840'};color:${saved.includes(t)?'#00D4FF':'#5a8aaa'};">${t}</button>
@@ -1602,7 +1602,7 @@
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML = `
       <div style="background:#0e1520;border:1px solid #1a2840;border-radius:16px;padding:28px;width:100%;max-width:360px;margin:16px;text-align:center;">
-        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:8px;"><i class="fas fa-qrcode" style="color:#00D4FF;margin-right:8px;"></i>QR Code — ${build.name}</h3>
+        <h3 style="font-size:16px;font-weight:800;color:#D8EEFF;margin-bottom:8px;"><i class="fas fa-qrcode" style="color:#00D4FF;margin-right:8px;"></i>QR Code â€” ${build.name}</h3>
         <p style="font-size:12px;color:#5a8aaa;margin-bottom:20px;">Scan to open this build on any device</p>
         <div id="qrContainer" style="background:#fff;border-radius:12px;padding:16px;display:inline-block;margin-bottom:20px;"></div>
         <br>
@@ -1637,7 +1637,7 @@
     bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
   });
 
-  // ── INIT ─────────────────────────────────────────────────
+  // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   document.addEventListener('DOMContentLoaded', async () => {
     initBmDark();
 
@@ -1659,3 +1659,4 @@
   // Make modal openers global for builds.js compatibility
   window.openAuthModal = openAuthModal;
   window.closeAuthMo
+
