@@ -501,8 +501,8 @@
 
   <script>
     var API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-      ? 'https://buildmatrix-clean.onrender.com/api'
-      : window.location.origin + '/api';
+      ? 'http://localhost:5000/api'
+      : 'https://buildmatrix-clean.onrender.com/api';
 
     var backendOnline = false;
     var forgotOtpSent = false;
