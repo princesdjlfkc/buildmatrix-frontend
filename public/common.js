@@ -74,31 +74,19 @@ async function apiFetch(path, options = {}) {
 }
 
 async function syncUserFromSession() {
+  // Always trust localStorage first — don't wipe it just because session fails
+  const localUser = getCurrentUser();
   try {
     const me = await apiFetch("/auth/me", { method: "GET" });
     if (me && me.id) {
       setCurrentUser(me);
       return me;
     } else {
-      const backup = sessionStorage.getItem("backup-user");
-      if (backup) {
-        const backupUser = JSON.parse(backup);
-        setCurrentUser(backupUser);
-        return backupUser;
-      }
-      setCurrentUser(null);
-      return null;
+      return localUser || null;
     }
   } catch (e) {
-    if (e?.status === 401) {
-      const backup = sessionStorage.getItem("backup-user");
-      if (backup) {
-        const backupUser = JSON.parse(backup);
-        return backupUser;
-      }
-      setCurrentUser(null);
-    }
-    return null;
+    // If backend is unreachable or session expired, keep localStorage user
+    return localUser || null;
   }
 }
 
