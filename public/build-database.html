@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Build Database — GPU, CPU & SSD Specs</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Exo+2:wght@300;400;600;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090f;--bg2:#0c0f18;--bg3:#111520;--bg4:#161c28;
+  --border:#1a2235;--border2:#243045;
+  --nvidia:#76b900;--amd:#ed1c24;--intel:#0071c5;
+  --accent:#e8c84a;--accent2:#ff6b35;
+  --text:#b8cce0;--text2:#7a9ab8;--text3:#3d5570;
+  --white:#f0f6ff;
+  --gpu:#a78bfa;--cpu:#fb923c;--ssd:#34d399;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* GRID BG */
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,34,53,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(26,34,53,0.4) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.95);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
+.hdr{max-width:1800px;margin:0 auto;padding:0 1.5rem;height:56px;display:flex;align-items:center;gap:1.5rem;}
+.logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:3px;text-transform:uppercase;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.logo-icon{width:28px;height:28px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:900;color:#000;}
+.logo em{color:var(--accent);font-style:normal;}
+nav{display:flex;gap:2px;margin-left:auto;}
+nav a{color:var(--text2);text-decoration:none;font-size:0.78rem;font-weight:600;padding:0.35rem 0.8rem;border-radius:4px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+nav a:hover{color:var(--white);background:rgba(255,255,255,0.06);}
+nav a.active{color:var(--accent);background:rgba(232,200,74,0.08);}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:1.2rem 1.5rem;position:relative;z-index:10;}
+.topbar-inner{max-width:1800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+.db-title{display:flex;flex-direction:column;}
+.db-title h1{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:2px;color:var(--white);line-height:1;}
+.db-title span{font-size:0.78rem;color:var(--text2);letter-spacing:0.5px;margin-top:2px;}
+.db-counts{display:flex;gap:2rem;}
+.db-count{display:flex;flex-direction:column;align-items:center;}
+.db-count-num{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;line-height:1;}
+.db-count-num.g{color:var(--gpu);}
+.db-count-num.c{color:var(--cpu);}
+.db-count-num.s{color:var(--ssd);}
+.db-count-label{font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
+
+/* CONTROLS */
+.ctrl-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:0.75rem 1.5rem;position:sticky;top:56px;z-index:150;}
+.ctrl-inner{max-width:1800px;margin:0 auto;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+
+/* Category tabs */
+.cat-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.cat-tab{background:transparent;border:none;color:var(--text2);padding:0.45rem 1rem;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:1px;text-transform:uppercase;border-right:1px solid var(--border);transition:all 0.15s;white-space:nowrap;}
+.cat-tab:last-child{border-right:none;}
+.cat-tab:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+.cat-tab.active.gpu{color:var(--gpu);background:rgba(167,139,250,0.1);}
+.cat-tab.active.cpu{color:var(--cpu);background:rgba(251,146,60,0.1);}
+.cat-tab.active.ssd{color:var(--ssd);background:rgba(52,211,153,0.1);}
+.cat-tab.active.all{color:var(--accent);background:rgba(232,200,74,0.08);}
+
+/* Brand filter buttons */
+.brand-tabs{display:flex;gap:4px;}
+.brand-btn{background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:0.4rem 0.9rem;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;border-radius:5px;transition:all 0.15s;white-space:nowrap;}
+.brand-btn:hover{border-color:var(--border2);color:var(--white);}
+.brand-btn.active.nvidia{color:var(--nvidia);background:rgba(118,185,0,0.1);border-color:rgba(118,185,0,0.3);}
+.brand-btn.active.amd{color:var(--amd);background:rgba(237,28,36,0.1);border-color:rgba(237,28,36,0.3);}
+.brand-btn.active.intel{color:var(--intel);background:rgba(0,113,197,0.1);border-color:rgba(0,113,197,0.3);}
+.brand-btn.active.all{color:var(--accent);background:rgba(232,200,74,0.08);border-color:rgba(232,200,74,0.2);}
+
+/* Search & selects */
+.search-wrap{flex:1;min-width:180px;max-width:320px;position:relative;}
+.search-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--white);padding:0.45rem 0.75rem 0.45rem 2rem;border-radius:5px;font-family:'Exo 2',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;left:0.65rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.8rem;pointer-events:none;}
+.ctrl-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.45rem 0.7rem;border-radius:5px;font-family:'Exo 2',sans-serif;font-size:0.8rem;outline:none;cursor:pointer;transition:border-color 0.15s;}
+.ctrl-select:focus{border-color:var(--accent);}
+.res-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text3);white-space:nowrap;}
+
+/* TABLE */
+.tbl-wrap{max-width:1800px;margin:0 auto;padding:1.5rem;position:relative;z-index:5;}
+.specs-tbl{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.specs-tbl thead{position:sticky;top:108px;z-index:10;}
+.specs-tbl thead tr{background:var(--bg4);}
+.specs-tbl th{padding:0.6rem 0.7rem;text-align:left;font-family:'Rajdhani',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;font-size:0.7rem;color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid var(--border2);user-select:none;transition:color 0.15s;}
+.specs-tbl th:hover{color:var(--text);}
+.specs-tbl th.sorted-asc,.specs-tbl th.sorted-desc{color:var(--accent);}
+.specs-tbl th .arr{margin-left:3px;font-size:0.65rem;}
+.specs-tbl tbody tr{border-bottom:1px solid rgba(26,34,53,0.8);transition:background 0.1s;cursor:pointer;}
+.specs-tbl tbody tr:hover{background:rgba(255,255,255,0.03);}
+.specs-tbl td{padding:0.5rem 0.7rem;vertical-align:middle;}
+.chip-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.92rem;color:var(--white);letter-spacing:0.3px;}
+.chip-name:hover{color:var(--accent);}
+.mono{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text2);}
+.mono.hi{color:var(--white);}
+.brand-nvidia{color:var(--nvidia);font-weight:700;font-size:0.75rem;}
+.brand-amd{color:var(--amd);font-weight:700;font-size:0.75rem;}
+.brand-intel{color:var(--intel);font-weight:700;font-size:0.75rem;}
+.brand-samsung{color:#60a5fa;font-weight:700;font-size:0.75rem;}
+.brand-wd,.brand-western-digital{color:#38bdf8;font-weight:700;font-size:0.75rem;}
+.brand-seagate{color:#a78bfa;font-weight:700;font-size:0.75rem;}
+.brand-crucial,.brand-micron{color:#4ade80;font-weight:700;font-size:0.75rem;}
+.brand-kingston{color:#f87171;font-weight:700;font-size:0.75rem;}
+.badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:0.65rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;}
+.badge-gpu{background:rgba(167,139,250,0.15);color:var(--gpu);border:1px solid rgba(167,139,250,0.25);}
+.badge-cpu{background:rgba(251,146,60,0.15);color:var(--cpu);border:1px solid rgba(251,146,60,0.25);}
+.badge-ssd{background:rgba(52,211,153,0.15);color:var(--ssd);border:1px solid rgba(52,211,153,0.25);}
+.perf-cell{display:flex;align-items:center;gap:5px;}
+.pbar{height:3px;width:60px;background:var(--border);border-radius:2px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:2px;}
+.pbar-fill.gpu{background:var(--gpu);}
+.pbar-fill.cpu{background:var(--cpu);}
+.pbar-fill.ssd{background:var(--ssd);}
+
+/* NO RESULTS */
+.no-res{text-align:center;padding:5rem 2rem;color:var(--text3);}
+.no-res .icon{font-size:3rem;margin-bottom:1rem;opacity:0.3;}
+
+/* DETAIL PANEL */
+.overlay-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px);}
+.overlay-bg.show{opacity:1;pointer-events:all;}
+.detail-panel{position:fixed;top:0;right:-660px;width:640px;height:100vh;background:var(--bg2);border-left:1px solid var(--border2);z-index:400;transition:right 0.3s cubic-bezier(0.16,1,0.3,1);overflow-y:auto;display:flex;flex-direction:column;}
+.detail-panel.open{right:0;}
+.dp-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg3);position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;}
+.dp-header-left{display:flex;flex-direction:column;gap:4px;}
+.dp-brand-badge{display:flex;gap:6px;align-items:center;}
+.dp-title{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--white);line-height:1.1;}
+.dp-sub{font-size:0.78rem;color:var(--text2);}
+.dp-close{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2);width:34px;height:34px;border-radius:5px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.dp-close:hover{color:var(--white);border-color:var(--border2);}
+.dp-body{flex:1;padding:0;}
+.dp-section{border-bottom:1px solid var(--border);}
+.dp-section-title{padding:0.7rem 1.5rem;background:var(--bg4);font-family:'Rajdhani',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.dp-row{display:flex;justify-content:space-between;align-items:center;padding:0.45rem 1rem;border-bottom:1px solid rgba(26,34,53,0.5);border-right:1px solid rgba(26,34,53,0.5);}
+.dp-row:nth-child(even){border-right:none;}
+.dp-key{font-size:0.75rem;color:var(--text2);letter-spacing:0.3px;}
+.dp-val{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--white);text-align:right;max-width:55%;word-break:break-word;}
+.dp-val.green{color:#4ade80;}
+.dp-val.yellow{color:var(--accent);}
+.dp-perf-section{padding:1rem 1.5rem;}
+.dp-perf-section h4{font-family:'Rajdhani',sans-serif;font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:0.75rem;}
+.dp-perf-bar{margin-bottom:0.6rem;}
+.dp-perf-label{display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;}
+.dp-perf-track{background:var(--border);height:6px;border-radius:3px;overflow:hidden;}
+.dp-perf-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:1rem 1.5rem;text-align:center;font-size:0.75rem;color:var(--text3);position:relative;z-index:5;}
+footer a{color:var(--accent);text-decoration:none;}
+
+@media(max-width:1000px){
+  .specs-tbl th:nth-child(n+6){display:none;}
+  .specs-tbl td:nth-child(n+6){display:none;}
+  .detail-panel{width:100%;right:-100%;}
+}
+@media(max-width:600px){
+  .db-counts{display:none;}
+  .brand-tabs{flex-wrap:wrap;}
+  .ctrl-inner{gap:0.4rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">B</div>
+      BUILD<em>DB</em>
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="build-database.html" class="active">Build DB</a>
+      <a href="builder.html">PC Builder</a>
+      <a href="compare.html">Compare</a>
+    </nav>
+  </div>
+</header>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="db-title">
+      <h1>BUILD DATABASE</h1>
+      <span>Complete GPU · CPU · SSD technical specifications</span>
+    </div>
+    <div class="db-counts">
+      <div class="db-count"><div class="db-count-num g" id="cnt-gpu">0</div><div class="db-count-label">GPUs</div></div>
+      <div class="db-count"><div class="db-count-num c" id="cnt-cpu">0</div><div class="db-count-label">CPUs</div></div>
+      <div class="db-count"><div class="db-count-num s" id="cnt-ssd">0</div><div class="db-count-label">SSDs</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="ctrl-bar">
+  <div class="ctrl-inner">
+    <!-- Category -->
+    <div class="cat-tabs">
+      <button class="cat-tab active gpu" data-cat="gpu">GPU</button>
+      <button class="cat-tab cpu" data-cat="cpu">CPU</button>
+      <button class="cat-tab ssd" data-cat="ssd">SSD</button>
+      <button class="cat-tab all" data-cat="all">All</button>
+    </div>
+    <!-- Brand filter -->
+    <div class="brand-tabs" id="brand-tabs">
+      <button class="brand-btn active all" data-brand="all">All</button>
+      <button class="brand-btn nvidia" data-brand="NVIDIA">NVIDIA</button>
+      <button class="brand-btn amd" data-brand="AMD">AMD</button>
+      <button class="brand-btn intel" data-brand="Intel">Intel</button>
+    </div>
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="Search name, arch, specs…"/>
+    </div>
+    <!-- Arch filter -->
+    <select class="ctrl-select" id="arch-filter"><option value="">All Architectures</option></select>
+    <!-- Sort -->
+    <select class="ctrl-select" id="sort-sel">
+      <option value="">Default Order</option>
+      <option value="name">Name A–Z</option>
+      <option value="year_desc">Newest First</option>
+      <option value="year_asc">Oldest First</option>
+      <option value="perf_desc">Performance ↓</option>
+      <option value="tdp_asc">TDP (Low→High)</option>
+    </select>
+    <div class="res-count" id="res-count">—</div>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+  <table class="specs-tbl" id="main-tbl">
+    <thead id="tbl-head"></thead>
+    <tbody id="tbl-body"></tbody>
+  </table>
+  <div class="no-res" id="no-res" style="display:none;">
+    <div class="icon">⚙</div>
+    No results match your filters.
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay-bg" id="overlay" onclick="closeDetail()"></div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-header">
+    <div class="dp-header-left">
+      <div class="dp-brand-badge" id="dp-badges"></div>
+      <div class="dp-title" id="dp-title">—</div>
+      <div class="dp-sub" id="dp-sub">—</div>
+    </div>
+    <button class="dp-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<footer>
+  Build Database &nbsp;·&nbsp; Specifications sourced from manufacturer datasheets &nbsp;·&nbsp;
+  <a href="index.html">← Back to Homepage</a>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════
+// GPU DATABASE — Complete TechPowerUp-level specs
+// ══════════════════════════════════════════════════════
+const GPUS = [
+// ── NVIDIA Blackwell ──────────────────────────────────
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 5090',arch:'Blackwell',gen:'GB202',year:2025,launch:'Jan 30, 2025',price:'$1999',process:'TSMC 4N',transistors:'92.2B',die_size:'744 mm²',
+ shaders:21760,tmus:680,rops:176,tensor_cores:'4th Gen',rt_cores:'4th Gen',
+ base_clk:2017,boost_clk:2407,mem_size:'32 GB',mem_type:'GDDR7',mem_bus:512,mem_bw:1792,
+ tflops_fp32:83.7,pixel_rate:424,tex_rate:1637,
+ tdp:575,pcie:'PCIe 5.0 x16',outputs:'3× DP 2.1, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:100},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 5080',arch:'Blackwell',gen:'GB203',year:2025,launch:'Jan 30, 2025',price:'$999',process:'TSMC 4N',transistors:'45.6B',die_size:'378 mm²',
+ shaders:10752,tmus:336,rops:112,tensor_cores:'4th Gen',rt_cores:'4th Gen',
+ base_clk:2295,boost_clk:2617,mem_size:'16 GB',mem_type:'GDDR7',mem_bus:256,mem_bw:960,
+ tflops_fp32:56.3,pixel_rate:293,tex_rate:879,
+ tdp:360,pcie:'PCIe 5.0 x16',outputs:'3× DP 2.1, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:72},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 5070 Ti',arch:'Blackwell',gen:'GB203',year:2025,launch:'Feb 20, 2025',price:'$749',process:'TSMC 4N',transistors:'45.6B',die_size:'378 mm²',
+ shaders:8960,tmus:280,rops:96,tensor_cores:'4th Gen',rt_cores:'4th Gen',
+ base_clk:2295,boost_clk:2452,mem_size:'16 GB',mem_type:'GDDR7',mem_bus:256,mem_bw:896,
+ tflops_fp32:43.9,pixel_rate:235,tex_rate:687,
+ tdp:300,pcie:'PCIe 5.0 x16',outputs:'3× DP 2.1, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:61},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 5070',arch:'Blackwell',gen:'GB205',year:2025,launch:'Mar 5, 2025',price:'$549',process:'TSMC 4N',transistors:'30.0B',die_size:'287 mm²',
+ shaders:6144,tmus:192,rops:80,tensor_cores:'4th Gen',rt_cores:'4th Gen',
+ base_clk:2164,boost_clk:2512,mem_size:'12 GB',mem_type:'GDDR7',mem_bus:192,mem_bw:672,
+ tflops_fp32:30.9,pixel_rate:201,tex_rate:482,
+ tdp:250,pcie:'PCIe 5.0 x16',outputs:'3× DP 2.1, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:50},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 5060 Ti',arch:'Blackwell',gen:'GB206',year:2025,launch:'Apr 2025',price:'$379',process:'TSMC 4N',transistors:'19.0B',die_size:'186 mm²',
+ shaders:4608,tmus:144,rops:48,tensor_cores:'4th Gen',rt_cores:'4th Gen',
+ base_clk:2310,boost_clk:2572,mem_size:'16 GB',mem_type:'GDDR7',mem_bus:128,mem_bw:448,
+ tflops_fp32:23.7,pixel_rate:123,tex_rate:370,
+ tdp:180,pcie:'PCIe 5.0 x8',outputs:'3× DP 2.1, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:39},
+
+// ── NVIDIA Ada Lovelace ──────────────────────────────
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4090',arch:'Ada Lovelace',gen:'AD102',year:2022,launch:'Oct 12, 2022',price:'$1599',process:'TSMC 4N',transistors:'76.3B',die_size:'608.4 mm²',
+ shaders:16384,tmus:512,rops:176,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2235,boost_clk:2520,mem_size:'24 GB',mem_type:'GDDR6X',mem_bus:384,mem_bw:1008,
+ tflops_fp32:82.6,pixel_rate:443.5,tex_rate:1290,
+ tdp:450,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:85},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4080 Super',arch:'Ada Lovelace',gen:'AD103',year:2024,launch:'Jan 31, 2024',price:'$999',process:'TSMC 4N',transistors:'45.9B',die_size:'378.6 mm²',
+ shaders:10240,tmus:320,rops:112,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2295,boost_clk:2550,mem_size:'16 GB',mem_type:'GDDR6X',mem_bus:256,mem_bw:736,
+ tflops_fp32:52.2,pixel_rate:285.6,tex_rate:816,
+ tdp:320,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:62},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4080',arch:'Ada Lovelace',gen:'AD103',year:2022,launch:'Nov 16, 2022',price:'$1199',process:'TSMC 4N',transistors:'45.9B',die_size:'378.6 mm²',
+ shaders:9728,tmus:304,rops:112,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2205,boost_clk:2505,mem_size:'16 GB',mem_type:'GDDR6X',mem_bus:256,mem_bw:716.8,
+ tflops_fp32:48.7,pixel_rate:280.6,tex_rate:761,
+ tdp:320,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:58},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4070 Ti Super',arch:'Ada Lovelace',gen:'AD103',year:2024,launch:'Jan 24, 2024',price:'$799',process:'TSMC 4N',transistors:'45.9B',die_size:'378.6 mm²',
+ shaders:8448,tmus:264,rops:112,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2340,boost_clk:2610,mem_size:'16 GB',mem_type:'GDDR6X',mem_bus:256,mem_bw:672,
+ tflops_fp32:44.1,pixel_rate:292.3,tex_rate:689,
+ tdp:285,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:53},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4070 Ti',arch:'Ada Lovelace',gen:'AD104',year:2023,launch:'Jan 5, 2023',price:'$799',process:'TSMC 4N',transistors:'35.8B',die_size:'294.5 mm²',
+ shaders:7680,tmus:240,rops:80,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2310,boost_clk:2610,mem_size:'12 GB',mem_type:'GDDR6X',mem_bus:192,mem_bw:504,
+ tflops_fp32:40.1,pixel_rate:208.8,tex_rate:626,
+ tdp:285,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:48},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4070 Super',arch:'Ada Lovelace',gen:'AD104',year:2024,launch:'Jan 17, 2024',price:'$599',process:'TSMC 4N',transistors:'35.8B',die_size:'294.5 mm²',
+ shaders:7168,tmus:224,rops:80,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:1980,boost_clk:2475,mem_size:'12 GB',mem_type:'GDDR6X',mem_bus:192,mem_bw:504,
+ tflops_fp32:35.5,pixel_rate:198,tex_rate:554,
+ tdp:220,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:44},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4070',arch:'Ada Lovelace',gen:'AD104',year:2023,launch:'Apr 13, 2023',price:'$599',process:'TSMC 4N',transistors:'35.8B',die_size:'294.5 mm²',
+ shaders:5888,tmus:184,rops:64,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:1920,boost_clk:2475,mem_size:'12 GB',mem_type:'GDDR6X',mem_bus:192,mem_bw:504,
+ tflops_fp32:29.1,pixel_rate:158.4,tex_rate:455,
+ tdp:200,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:38},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4060 Ti 16GB',arch:'Ada Lovelace',gen:'AD106',year:2023,launch:'Jul 18, 2023',price:'$499',process:'TSMC 4N',transistors:'22.9B',die_size:'188 mm²',
+ shaders:4352,tmus:136,rops:48,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:2310,boost_clk:2535,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:128,mem_bw:288,
+ tflops_fp32:22.1,pixel_rate:121.7,tex_rate:344,
+ tdp:165,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:30},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 4060',arch:'Ada Lovelace',gen:'AD107',year:2023,launch:'Jun 29, 2023',price:'$299',process:'TSMC 4N',transistors:'18.9B',die_size:'159 mm²',
+ shaders:3072,tmus:96,rops:32,tensor_cores:'4th Gen',rt_cores:'3rd Gen',
+ base_clk:1830,boost_clk:2460,mem_size:'8 GB',mem_type:'GDDR6',mem_bus:128,mem_bw:272,
+ tflops_fp32:15.1,pixel_rate:78.7,tex_rate:236,
+ tdp:115,pcie:'PCIe 4.0 x8',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:22},
+
+// ── NVIDIA Ampere ────────────────────────────────────
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 3090 Ti',arch:'Ampere',gen:'GA102',year:2022,launch:'Mar 29, 2022',price:'$1999',process:'Samsung 8nm',transistors:'28.3B',die_size:'628.4 mm²',
+ shaders:10752,tmus:336,rops:112,tensor_cores:'3rd Gen',rt_cores:'2nd Gen',
+ base_clk:1560,boost_clk:1860,mem_size:'24 GB',mem_type:'GDDR6X',mem_bus:384,mem_bw:1008,
+ tflops_fp32:40.0,pixel_rate:208.3,tex_rate:625,
+ tdp:450,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:50},
+
+{cat:'gpu',brand:'NVIDIA',name:'GeForce RTX 3080 Ti',arch:'Ampere',gen:'GA102',year:2021,launch:'Jun 3, 2021',price:'$1199',process:'Samsung 8nm',transistors:'28.3B',die_size:'628.4 mm²',
+ shaders:10240,tmus:320,rops:112,tensor_cores:'3rd Gen',rt_cores:'2nd Gen',
+ base_clk:1365,boost_clk:1665,mem_size:'12 GB',mem_type:'GDDR6X',mem_bus:384,mem_bw:912,
+ tflops_fp32:34.1,pixel_rate:186.5,tex_rate:533,
+ tdp:350,pcie:'PCIe 4.0 x16',outputs:'3× DP 1.4a, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:44},
+
+// ── AMD RDNA 4 ───────────────────────────────────────
+{cat:'gpu',brand:'AMD',name:'Radeon RX 9070 XT',arch:'RDNA 4',gen:'Navi 48',year:2025,launch:'Mar 27, 2025',price:'$599',process:'TSMC 4nm',transistors:'53.9B',die_size:'357 mm²',
+ shaders:4096,tmus:256,rops:128,tensor_cores:'AI Accelerators',rt_cores:'3rd Gen',
+ base_clk:2400,boost_clk:2970,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:576,
+ tflops_fp32:48.7,pixel_rate:380.2,tex_rate:760.3,
+ tdp:304,pcie:'PCIe 5.0 x8',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:55},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 9070',arch:'RDNA 4',gen:'Navi 48',year:2025,launch:'Mar 27, 2025',price:'$449',process:'TSMC 4nm',transistors:'53.9B',die_size:'357 mm²',
+ shaders:3584,tmus:224,rops:128,tensor_cores:'AI Accelerators',rt_cores:'3rd Gen',
+ base_clk:1851,boost_clk:2520,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:576,
+ tflops_fp32:36.0,pixel_rate:322.6,tex_rate:564.5,
+ tdp:220,pcie:'PCIe 5.0 x8',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:47},
+
+// ── AMD RDNA 3 ───────────────────────────────────────
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7900 XTX',arch:'RDNA 3',gen:'Navi 31',year:2022,launch:'Dec 13, 2022',price:'$999',process:'TSMC 5nm + 6nm',transistors:'57.7B',die_size:'536 mm²',
+ shaders:12288,tmus:384,rops:192,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1900,boost_clk:2500,mem_size:'24 GB',mem_type:'GDDR6',mem_bus:384,mem_bw:960,
+ tflops_fp32:61.4,pixel_rate:480,tex_rate:960,
+ tdp:355,pcie:'PCIe 4.0 x16',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:72},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7900 XT',arch:'RDNA 3',gen:'Navi 31',year:2022,launch:'Dec 13, 2022',price:'$899',process:'TSMC 5nm + 6nm',transistors:'57.7B',die_size:'536 mm²',
+ shaders:10752,tmus:336,rops:192,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1500,boost_clk:2400,mem_size:'20 GB',mem_type:'GDDR6',mem_bus:320,mem_bw:800,
+ tflops_fp32:51.6,pixel_rate:460.8,tex_rate:806,
+ tdp:315,pcie:'PCIe 4.0 x16',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:63},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7900 GRE',arch:'RDNA 3',gen:'Navi 31',year:2023,launch:'Aug 25, 2023',price:'$549',process:'TSMC 5nm + 6nm',transistors:'57.7B',die_size:'536 mm²',
+ shaders:9728,tmus:304,rops:192,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1594,boost_clk:2245,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:576,
+ tflops_fp32:43.7,pixel_rate:430.8,tex_rate:683,
+ tdp:260,pcie:'PCIe 4.0 x16',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:54},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7800 XT',arch:'RDNA 3',gen:'Navi 32',year:2023,launch:'Sep 6, 2023',price:'$499',process:'TSMC 5nm + 6nm',transistors:'28.1B',die_size:'346 mm²',
+ shaders:3840,tmus:240,rops:96,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1295,boost_clk:2124,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:624,
+ tflops_fp32:37.4,pixel_rate:203.9,tex_rate:510,
+ tdp:263,pcie:'PCIe 4.0 x8',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:41},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7700 XT',arch:'RDNA 3',gen:'Navi 32',year:2023,launch:'Sep 6, 2023',price:'$449',process:'TSMC 5nm + 6nm',transistors:'28.1B',die_size:'346 mm²',
+ shaders:3456,tmus:216,rops:96,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1700,boost_clk:2544,mem_size:'12 GB',mem_type:'GDDR6',mem_bus:192,mem_bw:432,
+ tflops_fp32:35.2,pixel_rate:244.2,tex_rate:549,
+ tdp:245,pcie:'PCIe 4.0 x8',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:36},
+
+{cat:'gpu',brand:'AMD',name:'Radeon RX 7600',arch:'RDNA 3',gen:'Navi 33',year:2023,launch:'May 25, 2023',price:'$269',process:'TSMC 6nm',transistors:'13.3B',die_size:'204 mm²',
+ shaders:2048,tmus:128,rops:64,tensor_cores:'AI Accelerators',rt_cores:'2nd Gen',
+ base_clk:1720,boost_clk:2655,mem_size:'8 GB',mem_type:'GDDR6',mem_bus:128,mem_bw:288,
+ tflops_fp32:21.5,pixel_rate:169.9,tex_rate:339.8,
+ tdp:165,pcie:'PCIe 4.0 x8',outputs:'1× DP 2.1, 1× HDMI 2.1, 2× USB-C',api:'DirectX 12 Ultimate',perf:24},
+
+// ── Intel Arc Battlemage ────────────────────────────
+{cat:'gpu',brand:'Intel',name:'Arc B580',arch:'Battlemage',gen:'BMG-G21',year:2024,launch:'Dec 5, 2024',price:'$249',process:'TSMC 5nm',transistors:'18.7B',die_size:'251 mm²',
+ shaders:2560,tmus:160,rops:80,tensor_cores:'XMX 4th Gen',rt_cores:'2nd Gen',
+ base_clk:2670,boost_clk:2670,mem_size:'12 GB',mem_type:'GDDR6',mem_bus:192,mem_bw:456,
+ tflops_fp32:13.7,pixel_rate:213.6,tex_rate:427.2,
+ tdp:190,pcie:'PCIe 4.0 x8',outputs:'3× DP 2.0, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:23},
+
+{cat:'gpu',brand:'Intel',name:'Arc B770',arch:'Battlemage',gen:'BMG-G10',year:2025,launch:'2025',price:'$349',process:'TSMC 5nm',transistors:'28.0B',die_size:'337 mm²',
+ shaders:4096,tmus:256,rops:128,tensor_cores:'XMX 4th Gen',rt_cores:'2nd Gen',
+ base_clk:2400,boost_clk:2700,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:576,
+ tflops_fp32:22.1,pixel_rate:345.6,tex_rate:691.2,
+ tdp:225,pcie:'PCIe 4.0 x16',outputs:'3× DP 2.0, 1× HDMI 2.1',api:'DirectX 12 Ultimate',perf:31},
+
+// ── Intel Arc Alchemist ─────────────────────────────
+{cat:'gpu',brand:'Intel',name:'Arc A770 16GB',arch:'Alchemist',gen:'ACM-G10',year:2022,launch:'Oct 12, 2022',price:'$349',process:'TSMC 6nm',transistors:'21.7B',die_size:'406 mm²',
+ shaders:4096,tmus:256,rops:128,tensor_cores:'XMX 3rd Gen',rt_cores:'1st Gen',
+ base_clk:2100,boost_clk:2400,mem_size:'16 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:560,
+ tflops_fp32:19.7,pixel_rate:307.2,tex_rate:614.4,
+ tdp:225,pcie:'PCIe 4.0 x16',outputs:'3× DP 2.0, 1× HDMI 2.0b',api:'DirectX 12 Ultimate',perf:20},
+
+{cat:'gpu',brand:'Intel',name:'Arc A750',arch:'Alchemist',gen:'ACM-G10',year:2022,launch:'Oct 12, 2022',price:'$289',process:'TSMC 6nm',transistors:'21.7B',die_size:'406 mm²',
+ shaders:3584,tmus:224,rops:112,tensor_cores:'XMX 3rd Gen',rt_cores:'1st Gen',
+ base_clk:2050,boost_clk:2400,mem_size:'8 GB',mem_type:'GDDR6',mem_bus:256,mem_bw:512,
+ tflops_fp32:17.2,pixel_rate:268.8,tex_rate:537.6,
+ tdp:225,pcie:'PCIe 4.0 x16',outputs:'3× DP 2.0, 1× HDMI 2.0b',api:'DirectX 12 Ultimate',perf:16},
+];
+
+// ══════════════════════════════════════════════════════
+// CPU DATABASE — Complete specs
+// ══════════════════════════════════════════════════════
+const CPUS = [
+// ── Intel Arrow Lake ────────────────────────────────
+{cat:'cpu',brand:'Intel',name:'Core Ultra 9 285K',arch:'Arrow Lake',gen:'Arrow Lake-S',year:2024,launch:'Oct 24, 2024',price:'$589',process:'Intel 20A / TSMC N3B',transistors:'N/A',die_size:'N/A',
+ cores:24,pcores:8,ecores:16,threads:24,base_p:3.7,boost_p:5.7,base_e:3.2,boost_e:4.6,
+ tdp:125,pbt:250,cache_l1:'2.4 MB',cache_l2:'40 MB',cache_l3:'36 MB',
+ socket:'LGA1851',imc:'DDR5-6400 / DDR4-3200',pcie:'PCIe 5.0 (20 lanes) + PCIe 4.0 (4 lanes)',igpu:'Intel Arc 140V (4 Xe cores)',
+ max_temp:'105°C',unlock:true,perf:82},
+
+{cat:'cpu',brand:'Intel',name:'Core Ultra 7 265K',arch:'Arrow Lake',gen:'Arrow Lake-S',year:2024,launch:'Oct 24, 2024',price:'$394',process:'Intel 20A / TSMC N3B',transistors:'N/A',die_size:'N/A',
+ cores:20,pcores:8,ecores:12,threads:20,base_p:3.9,boost_p:5.5,base_e:3.3,boost_e:4.6,
+ tdp:125,pbt:250,cache_l1:'2.0 MB',cache_l2:'36 MB',cache_l3:'30 MB',
+ socket:'LGA1851',imc:'DDR5-6400 / DDR4-3200',pcie:'PCIe 5.0 (20 lanes)',igpu:'Intel Arc 130V (4 Xe cores)',
+ max_temp:'105°C',unlock:true,perf:74},
+
+{cat:'cpu',brand:'Intel',name:'Core Ultra 5 245K',arch:'Arrow Lake',gen:'Arrow Lake-S',year:2024,launch:'Oct 24, 2024',price:'$309',process:'Intel 20A / TSMC N3B',transistors:'N/A',die_size:'N/A',
+ cores:14,pcores:6,ecores:8,threads:14,base_p:4.2,boost_p:5.2,base_e:3.6,boost_e:4.6,
+ tdp:125,pbt:250,cache_l1:'1.4 MB',cache_l2:'26 MB',cache_l3:'24 MB',
+ socket:'LGA1851',imc:'DDR5-6400 / DDR4-3200',pcie:'PCIe 5.0 (20 lanes)',igpu:'Intel Arc 130V (4 Xe cores)',
+ max_temp:'105°C',unlock:true,perf:60},
+
+// ── Intel Raptor Lake Refresh ────────────────────────
+{cat:'cpu',brand:'Intel',name:'Core i9-14900K',arch:'Raptor Lake Refresh',gen:'Raptor Lake-S Refresh',year:2023,launch:'Oct 17, 2023',price:'$589',process:'Intel 7 (10nm)',transistors:'N/A',die_size:'257 mm²',
+ cores:24,pcores:8,ecores:16,threads:32,base_p:3.2,boost_p:6.0,base_e:2.4,boost_e:4.4,
+ tdp:125,pbt:253,cache_l1:'2.1 MB',cache_l2:'32 MB',cache_l3:'36 MB',
+ socket:'LGA1700',imc:'DDR5-5600 / DDR4-3200',pcie:'PCIe 5.0 (16 lanes) + PCIe 4.0 (4 lanes)',igpu:'Intel UHD 770 (32 EU)',
+ max_temp:'100°C',unlock:true,perf:80},
+
+{cat:'cpu',brand:'Intel',name:'Core i7-14700K',arch:'Raptor Lake Refresh',gen:'Raptor Lake-S Refresh',year:2023,launch:'Oct 17, 2023',price:'$409',process:'Intel 7 (10nm)',transistors:'N/A',die_size:'257 mm²',
+ cores:20,pcores:8,ecores:12,threads:28,base_p:3.4,boost_p:5.6,base_e:2.5,boost_e:4.3,
+ tdp:125,pbt:253,cache_l1:'1.7 MB',cache_l2:'28 MB',cache_l3:'33 MB',
+ socket:'LGA1700',imc:'DDR5-5600 / DDR4-3200',pcie:'PCIe 5.0 (16 lanes) + PCIe 4.0 (4 lanes)',igpu:'Intel UHD 770 (32 EU)',
+ max_temp:'100°C',unlock:true,perf:70},
+
+{cat:'cpu',brand:'Intel',name:'Core i5-14600K',arch:'Raptor Lake Refresh',gen:'Raptor Lake-S Refresh',year:2023,launch:'Oct 17, 2023',price:'$319',process:'Intel 7 (10nm)',transistors:'N/A',die_size:'215 mm²',
+ cores:14,pcores:6,ecores:8,threads:20,base_p:3.5,boost_p:5.3,base_e:2.6,boost_e:4.0,
+ tdp:125,pbt:181,cache_l1:'1.2 MB',cache_l2:'20 MB',cache_l3:'24 MB',
+ socket:'LGA1700',imc:'DDR5-5600 / DDR4-3200',pcie:'PCIe 5.0 (16 lanes) + PCIe 4.0 (4 lanes)',igpu:'Intel UHD 770 (32 EU)',
+ max_temp:'100°C',unlock:true,perf:58},
+
+{cat:'cpu',brand:'Intel',name:'Core i5-13600K',arch:'Raptor Lake',gen:'Raptor Lake-S',year:2022,launch:'Oct 20, 2022',price:'$319',process:'Intel 7 (10nm)',transistors:'N/A',die_size:'215 mm²',
+ cores:14,pcores:6,ecores:8,threads:20,base_p:3.5,boost_p:5.1,base_e:2.6,boost_e:3.9,
+ tdp:125,pbt:181,cache_l1:'1.2 MB',cache_l2:'20 MB',cache_l3:'24 MB',
+ socket:'LGA1700',imc:'DDR5-5200 / DDR4-3200',pcie:'PCIe 5.0 (16 lanes) + PCIe 4.0 (4 lanes)',igpu:'Intel UHD 770 (32 EU)',
+ max_temp:'100°C',unlock:true,perf:55},
+
+// ── AMD Zen 5 ────────────────────────────────────────
+{cat:'cpu',brand:'AMD',name:'Ryzen 9 9950X',arch:'Zen 5',gen:'Granite Ridge',year:2024,launch:'Jul 31, 2024',price:'$649',process:'TSMC 4nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:16,pcores:16,ecores:0,threads:32,base_p:4.3,boost_p:5.7,base_e:null,boost_e:null,
+ tdp:170,pbt:200,cache_l1:'1 MB',cache_l2:'16 MB',cache_l3:'64 MB',
+ socket:'AM5',imc:'DDR5-5600',pcie:'PCIe 5.0 (24 lanes)',igpu:'None (Radeon 610M on X variant)',
+ max_temp:'95°C',unlock:true,perf:92},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 9 9900X',arch:'Zen 5',gen:'Granite Ridge',year:2024,launch:'Jul 31, 2024',price:'$449',process:'TSMC 4nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:12,pcores:12,ecores:0,threads:24,base_p:4.4,boost_p:5.6,base_e:null,boost_e:null,
+ tdp:120,pbt:162,cache_l1:'768 KB',cache_l2:'12 MB',cache_l3:'64 MB',
+ socket:'AM5',imc:'DDR5-5600',pcie:'PCIe 5.0 (24 lanes)',igpu:'None',
+ max_temp:'95°C',unlock:true,perf:80},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 7 9700X',arch:'Zen 5',gen:'Granite Ridge',year:2024,launch:'Jul 31, 2024',price:'$359',process:'TSMC 4nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:8,pcores:8,ecores:0,threads:16,base_p:3.8,boost_p:5.5,base_e:null,boost_e:null,
+ tdp:65,pbt:88,cache_l1:'512 KB',cache_l2:'8 MB',cache_l3:'32 MB',
+ socket:'AM5',imc:'DDR5-5600',pcie:'PCIe 5.0 (24 lanes)',igpu:'None',
+ max_temp:'95°C',unlock:true,perf:68},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 5 9600X',arch:'Zen 5',gen:'Granite Ridge',year:2024,launch:'Jul 31, 2024',price:'$279',process:'TSMC 4nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:6,pcores:6,ecores:0,threads:12,base_p:3.9,boost_p:5.4,base_e:null,boost_e:null,
+ tdp:65,pbt:88,cache_l1:'384 KB',cache_l2:'6 MB',cache_l3:'32 MB',
+ socket:'AM5',imc:'DDR5-5600',pcie:'PCIe 5.0 (24 lanes)',igpu:'None',
+ max_temp:'95°C',unlock:true,perf:54},
+
+// ── AMD Zen 4 / 3D V-Cache ───────────────────────────
+{cat:'cpu',brand:'AMD',name:'Ryzen 9 7950X3D',arch:'Zen 4 + 3D V-Cache',gen:'Raphael + 3D V-Cache',year:2023,launch:'Feb 28, 2023',price:'$699',process:'TSMC 5nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:16,pcores:16,ecores:0,threads:32,base_p:4.2,boost_p:5.7,base_e:null,boost_e:null,
+ tdp:120,pbt:162,cache_l1:'1 MB',cache_l2:'16 MB',cache_l3:'128 MB',
+ socket:'AM5',imc:'DDR5-5200',pcie:'PCIe 5.0 (24 lanes)',igpu:'Radeon 610M (2 CU)',
+ max_temp:'89°C',unlock:false,perf:96},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 7 9800X3D',arch:'Zen 5 + 3D V-Cache',gen:'Granite Ridge + 3D V-Cache',year:2024,launch:'Nov 7, 2024',price:'$479',process:'TSMC 4nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:8,pcores:8,ecores:0,threads:16,base_p:4.7,boost_p:5.2,base_e:null,boost_e:null,
+ tdp:120,pbt:162,cache_l1:'512 KB',cache_l2:'8 MB',cache_l3:'96 MB',
+ socket:'AM5',imc:'DDR5-5600',pcie:'PCIe 5.0 (24 lanes)',igpu:'Radeon 610M (2 CU)',
+ max_temp:'89°C',unlock:false,perf:100},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 7 7800X3D',arch:'Zen 4 + 3D V-Cache',gen:'Raphael + 3D V-Cache',year:2023,launch:'Apr 6, 2023',price:'$449',process:'TSMC 5nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:8,pcores:8,ecores:0,threads:16,base_p:4.5,boost_p:5.0,base_e:null,boost_e:null,
+ tdp:120,pbt:162,cache_l1:'512 KB',cache_l2:'8 MB',cache_l3:'96 MB',
+ socket:'AM5',imc:'DDR5-5200',pcie:'PCIe 5.0 (24 lanes)',igpu:'Radeon 610M (2 CU)',
+ max_temp:'89°C',unlock:false,perf:88},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 9 7900X',arch:'Zen 4',gen:'Raphael',year:2022,launch:'Sep 27, 2022',price:'$449',process:'TSMC 5nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:12,pcores:12,ecores:0,threads:24,base_p:4.7,boost_p:5.6,base_e:null,boost_e:null,
+ tdp:170,pbt:230,cache_l1:'768 KB',cache_l2:'12 MB',cache_l3:'64 MB',
+ socket:'AM5',imc:'DDR5-5200',pcie:'PCIe 5.0 (24 lanes)',igpu:'Radeon 610M (2 CU)',
+ max_temp:'95°C',unlock:true,perf:76},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 5 7600X',arch:'Zen 4',gen:'Raphael',year:2022,launch:'Sep 27, 2022',price:'$299',process:'TSMC 5nm / TSMC 6nm',transistors:'N/A',die_size:'N/A',
+ cores:6,pcores:6,ecores:0,threads:12,base_p:4.7,boost_p:5.3,base_e:null,boost_e:null,
+ tdp:105,pbt:142,cache_l1:'384 KB',cache_l2:'6 MB',cache_l3:'32 MB',
+ socket:'AM5',imc:'DDR5-5200',pcie:'PCIe 5.0 (24 lanes)',igpu:'Radeon 610M (2 CU)',
+ max_temp:'95°C',unlock:true,perf:52},
+
+// ── AMD Zen 3 ────────────────────────────────────────
+{cat:'cpu',brand:'AMD',name:'Ryzen 9 5950X',arch:'Zen 3',gen:'Vermeer',year:2020,launch:'Nov 5, 2020',price:'$799',process:'TSMC 7nm / GlobalFoundries 12nm',transistors:'N/A',die_size:'N/A',
+ cores:16,pcores:16,ecores:0,threads:32,base_p:3.4,boost_p:4.9,base_e:null,boost_e:null,
+ tdp:105,pbt:142,cache_l1:'1 MB',cache_l2:'8 MB',cache_l3:'64 MB',
+ socket:'AM4',imc:'DDR4-3200',pcie:'PCIe 4.0 (20 lanes)',igpu:'None',
+ max_temp:'90°C',unlock:true,perf:72},
+
+{cat:'cpu',brand:'AMD',name:'Ryzen 5 5600X',arch:'Zen 3',gen:'Vermeer',year:2020,launch:'Nov 5, 2020',price:'$299',process:'TSMC 7nm / GlobalFoundries 12nm',transistors:'N/A',die_size:'N/A',
+ cores:6,pcores:6,ecores:0,threads:12,base_p:3.7,boost_p:4.6,base_e:null,boost_e:null,
+ tdp:65,pbt:88,cache_l1:'384 KB',cache_l2:'3 MB',cache_l3:'32 MB',
+ socket:'AM4',imc:'DDR4-3200',pcie:'PCIe 4.0 (20 lanes)',igpu:'None',
+ max_temp:'95°C',unlock:true,perf:46},
+];
+
+// ══════════════════════════════════════════════════════
+// SSD DATABASE
+// ══════════════════════════════════════════════════════
+const SSDS = [
+{cat:'ssd',brand:'Samsung',name:'990 Pro 2TB',arch:'PCIe 4.0 NVMe',gen:'MZ-V9P2T0',year:2022,launch:'Oct 2022',price:'$180',process:'Samsung V-NAND 176L TLC',
+ form:'M.2 2280',interface:'NVMe 2.0 / PCIe 4.0 x4',capacity:'2 TB',nand:'Samsung V-NAND TLC 176L',
+ controller:'Samsung Elpis 2',dram:'LPDDR4',
+ seq_read:7450,seq_write:6900,rnd_read:1400,rnd_write:1550,
+ latency_r:'0.02ms',latency_w:'0.01ms',tbw:1200,mtbf:'1.5M hours',
+ encrypt:'AES 256-bit',perf:90},
+
+{cat:'ssd',brand:'Samsung',name:'980 Pro 2TB',arch:'PCIe 4.0 NVMe',gen:'MZ-V8P2T0',year:2020,launch:'Sep 2020',price:'$120',process:'Samsung V-NAND 128L MLC',
+ form:'M.2 2280',interface:'NVMe 1.3c / PCIe 4.0 x4',capacity:'2 TB',nand:'Samsung V-NAND MLC 128L',
+ controller:'Samsung Elpis',dram:'LPDDR4',
+ seq_read:7000,seq_write:5100,rnd_read:1000,rnd_write:1000,
+ latency_r:'0.038ms',latency_w:'0.015ms',tbw:600,mtbf:'1.5M hours',
+ encrypt:'AES 256-bit',perf:75},
+
+{cat:'ssd',brand:'WD',name:'Black SN850X 2TB',arch:'PCIe 4.0 NVMe',gen:'WDS200T2X0E',year:2022,launch:'Jun 2022',price:'$175',process:'Kioxia 112L TLC',
+ form:'M.2 2280',interface:'NVMe 1.4 / PCIe 4.0 x4',capacity:'2 TB',nand:'Kioxia BiCS5 TLC 112L',
+ controller:'WD In-house G2',dram:'LPDDR4',
+ seq_read:7300,seq_write:6600,rnd_read:1200,rnd_write:1100,
+ latency_r:'0.021ms',latency_w:'0.013ms',tbw:1200,mtbf:'1.75M hours',
+ encrypt:'AES 256-bit',perf:88},
+
+{cat:'ssd',brand:'WD',name:'Black SN770 2TB',arch:'PCIe 4.0 NVMe',gen:'WDS200T3X0E',year:2022,launch:'May 2022',price:'$110',process:'Kioxia 112L TLC',
+ form:'M.2 2280',interface:'NVMe 1.4 / PCIe 4.0 x4',capacity:'2 TB',nand:'Kioxia BiCS5 TLC 112L',
+ controller:'WD In-house',dram:'HMB (DRAM-less)',
+ seq_read:5150,seq_write:4900,rnd_read:740,rnd_write:800,
+ latency_r:'0.043ms',latency_w:'0.01ms',tbw:900,mtbf:'1.75M hours',
+ encrypt:'AES 256-bit',perf:60},
+
+{cat:'ssd',brand:'Seagate',name:'FireCuda 530 4TB',arch:'PCIe 4.0 NVMe',gen:'ZP4000GM3A013',year:2021,launch:'Jun 2021',price:'$350',process:'Micron 176L TLC',
+ form:'M.2 2280',interface:'NVMe 1.4 / PCIe 4.0 x4',capacity:'4 TB',nand:'Micron 176L TLC',
+ controller:'Phison E18',dram:'DDR4',
+ seq_read:7300,seq_write:6900,rnd_read:1000,rnd_write:1000,
+ latency_r:'0.025ms',latency_w:'0.015ms',tbw:5100,mtbf:'1.8M hours',
+ encrypt:'AES 256-bit',perf:85},
+
+{cat:'ssd',brand:'Kingston',name:'Fury Renegade 4TB',arch:'PCIe 4.0 NVMe',gen:'SFYRD/4000G',year:2022,launch:'Sep 2022',price:'$380',process:'Micron 176L TLC',
+ form:'M.2 2280',interface:'NVMe 1.4 / PCIe 4.0 x4',capacity:'4 TB',nand:'Micron 176L TLC',
+ controller:'Phison E18',dram:'DDR4',
+ seq_read:7300,seq_write:7000,rnd_read:900,rnd_write:1000,
+ latency_r:'0.025ms',latency_w:'0.013ms',tbw:4000,mtbf:'1.8M hours',
+ encrypt:'AES 256-bit',perf:84},
+
+{cat:'ssd',brand:'Crucial',name:'T705 2TB',arch:'PCIe 5.0 NVMe',gen:'CT2000T705SSD3',year:2023,launch:'Jun 2023',price:'$280',process:'Micron 232L TLC',
+ form:'M.2 2280',interface:'NVMe 2.0 / PCIe 5.0 x4',capacity:'2 TB',nand:'Micron B58R TLC 232L',
+ controller:'Phison E26',dram:'LPDDR4',
+ seq_read:14500,seq_write:12700,rnd_read:1500,rnd_write:1800,
+ latency_r:'0.015ms',latency_w:'0.01ms',tbw:1200,mtbf:'1.8M hours',
+ encrypt:'AES 256-bit',perf:100},
+
+{cat:'ssd',brand:'Seagate',name:'FireCuda 540 2TB',arch:'PCIe 5.0 NVMe',gen:'ZP2000GM3A004',year:2023,launch:'Oct 2023',price:'$270',process:'Micron 232L TLC',
+ form:'M.2 2280',interface:'NVMe 2.0 / PCIe 5.0 x4',capacity:'2 TB',nand:'Micron 232L TLC',
+ controller:'Phison E26',dram:'LPDDR4',
+ seq_read:10000,seq_write:10000,rnd_read:1400,rnd_write:1400,
+ latency_r:'0.02ms',latency_w:'0.01ms',tbw:2000,mtbf:'1.8M hours',
+ encrypt:'AES 256-bit',perf:95},
+
+{cat:'ssd',brand:'Samsung',name:'870 EVO 4TB',arch:'SATA SSD',gen:'MZ-77E4T0',year:2021,launch:'Jan 2021',price:'$350',process:'Samsung V-NAND 128L MLC',
+ form:'2.5" SATA',interface:'SATA III 6 Gb/s',capacity:'4 TB',nand:'Samsung V-NAND MLC 128L',
+ controller:'Samsung MKX',dram:'LPDDR4',
+ seq_read:560,seq_write:530,rnd_read:98,rnd_write:88,
+ latency_r:'0.1ms',latency_w:'0.09ms',tbw:2400,mtbf:'1.5M hours',
+ encrypt:'AES 256-bit',perf:32},
+
+{cat:'ssd',brand:'Crucial',name:'MX500 2TB',arch:'SATA SSD',gen:'CT2000MX500SSD1',year:2018,launch:'Feb 2018',price:'$120',process:'Micron 64L TLC',
+ form:'2.5" SATA',interface:'SATA III 6 Gb/s',capacity:'2 TB',nand:'Micron 64L TLC',
+ controller:'Silicon Motion SM2258',dram:'LPDDR3',
+ seq_read:560,seq_write:510,rnd_read:95,rnd_write:90,
+ latency_r:'0.1ms',latency_w:'0.09ms',tbw:700,mtbf:'1.8M hours',
+ encrypt:'AES 256-bit',perf:25},
+];
+
+// ══════════════════════════════════════════════════════
+// COLUMN DEFINITIONS
+// ══════════════════════════════════════════════════════
+const GPU_COLS = [
+  {k:'name',l:'GPU Name',w:'220px',r:(d)=>`<span class="chip-name">${d.name}</span>`},
+  {k:'brand',l:'Brand',r:(d)=>`<span class="brand-${d.brand.toLowerCase()}">${d.brand}</span>`},
+  {k:'arch',l:'Architecture'},
+  {k:'gen',l:'GPU Die',r:(d)=>`<span class="mono">${d.gen}</span>`},
+  {k:'year',l:'Year',r:(d)=>`<span class="mono">${d.year}</span>`},
+  {k:'shaders',l:'Shaders',r:(d)=>`<span class="mono hi">${d.shaders.toLocaleString()}</span>`},
+  {k:'tmus',l:'TMUs',r:(d)=>`<span class="mono">${d.tmus}</span>`},
+  {k:'rops',l:'ROPs',r:(d)=>`<span class="mono">${d.rops}</span>`},
+  {k:'boost_clk',l:'Boost Clock',r:(d)=>`<span class="mono hi">${d.boost_clk} MHz</span>`},
+  {k:'mem_size',l:'VRAM',r:(d)=>`<span class="mono hi">${d.mem_size}</span>`},
+  {k:'mem_type',l:'Mem Type',r:(d)=>`<span class="mono">${d.mem_type}</span>`},
+  {k:'mem_bw',l:'Bandwidth',r:(d)=>`<span class="mono">${d.mem_bw} GB/s</span>`},
+  {k:'tflops_fp32',l:'FP32 TFLOPs',r:(d)=>`<span class="mono hi">${d.tflops_fp32}</span>`},
+  {k:'tdp',l:'TDP',r:(d)=>`<span class="mono">${d.tdp}W</span>`},
+  {k:'perf',l:'Score',r:(d)=>`<div class="perf-cell"><div class="pbar"><div class="pbar-fill gpu" style="width:${d.perf}%"></div></div><span class="mono">${d.perf}</span></div>`},
+];
+const CPU_COLS = [
+  {k:'name',l:'CPU Name',w:'240px',r:(d)=>`<span class="chip-name">${d.name}</span>`},
+  {k:'brand',l:'Brand',r:(d)=>`<span class="brand-${d.brand.toLowerCase()}">${d.brand}</span>`},
+  {k:'arch',l:'Architecture'},
+  {k:'year',l:'Year',r:(d)=>`<span class="mono">${d.year}</span>`},
+  {k:'cores',l:'Cores',r:(d)=>`<span class="mono hi">${d.cores}C / ${d.threads}T</span>`},
+  {k:'boost_p',l:'Boost (P-Core)',r:(d)=>`<span class="mono hi">${d.boost_p} GHz</span>`},
+  {k:'base_p',l:'Base Clock',r:(d)=>`<span class="mono">${d.base_p} GHz</span>`},
+  {k:'cache_l3',l:'L3 Cache',r:(d)=>`<span class="mono hi">${d.cache_l3}</span>`},
+  {k:'tdp',l:'TDP',r:(d)=>`<span class="mono">${d.tdp}W</span>`},
+  {k:'socket',l:'Socket',r:(d)=>`<span class="mono">${d.socket}</span>`},
+  {k:'imc',l:'Memory',r:(d)=>`<span class="mono">${d.imc}</span>`},
+  {k:'unlock',l:'Unlocked',r:(d)=>`<span class="mono" style="color:${d.unlock?'#4ade80':'#f87171'}">${d.unlock?'Yes':'No'}</span>`},
+  {k:'perf',l:'Score',r:(d)=>`<div class="perf-cell"><div class="pbar"><div class="pbar-fill cpu" style="width:${d.perf}%"></div></div><span class="mono">${d.perf}</span></div>`},
+];
+const SSD_COLS = [
+  {k:'name',l:'SSD Name',w:'200px',r:(d)=>`<span class="chip-name">${d.name}</span>`},
+  {k:'brand',l:'Brand',r:(d)=>`<span class="brand-${d.brand.toLowerCase()}">${d.brand}</span>`},
+  {k:'arch',l:'Interface'},
+  {k:'year',l:'Year',r:(d)=>`<span class="mono">${d.year}</span>`},
+  {k:'capacity',l:'Capacity'},
+  {k:'seq_read',l:'Seq Read',r:(d)=>`<span class="mono hi">${d.seq_read.toLocaleString()} MB/s</span>`},
+  {k:'seq_write',l:'Seq Write',r:(d)=>`<span class="mono hi">${d.seq_write.toLocaleString()} MB/s</span>`},
+  {k:'rnd_read',l:'Rand Read',r:(d)=>`<span class="mono">${d.rnd_read}K IOPS</span>`},
+  {k:'rnd_write',l:'Rand Write',r:(d)=>`<span class="mono">${d.rnd_write}K IOPS</span>`},
+  {k:'tbw',l:'TBW',r:(d)=>`<span class="mono">${d.tbw} TB</span>`},
+  {k:'controller',l:'Controller'},
+  {k:'encrypt',l:'Encrypt'},
+  {k:'perf',l:'Score',r:(d)=>`<div class="perf-cell"><div class="pbar"><div class="pbar-fill ssd" style="width:${d.perf}%"></div></div><span class="mono">${d.perf}</span></div>`},
+];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let state = {cat:'gpu', brand:'all', search:'', arch:'', sort:'', sortDir:1, sortKey:''};
+
+function allData(){return [...GPUS,...CPUS,...SSDS];}
+function catData(){
+  if(state.cat==='gpu') return GPUS;
+  if(state.cat==='cpu') return CPUS;
+  if(state.cat==='ssd') return SSDS;
+  return allData();
+}
+function colDefs(){
+  if(state.cat==='gpu') return GPU_COLS;
+  if(state.cat==='cpu') return CPU_COLS;
+  if(state.cat==='ssd') return SSD_COLS;
+  return GPU_COLS;
+}
+
+function getFiltered(){
+  let data = catData();
+  // brand
+  if(state.brand !== 'all') data = data.filter(d=>d.brand===state.brand);
+  // arch
+  if(state.arch) data = data.filter(d=>d.arch===state.arch);
+  // search
+  if(state.search){
+    const q = state.search.toLowerCase();
+    data = data.filter(d=>JSON.stringify(Object.values(d)).toLowerCase().includes(q));
+  }
+  // sort
+  if(state.sort==='name') data=[...data].sort((a,b)=>a.name.localeCompare(b.name));
+  else if(state.sort==='year_desc') data=[...data].sort((a,b)=>b.year-a.year);
+  else if(state.sort==='year_asc') data=[...data].sort((a,b)=>a.year-b.year);
+  else if(state.sort==='perf_desc') data=[...data].sort((a,b)=>b.perf-a.perf);
+  else if(state.sort==='tdp_asc') data=[...data].sort((a,b)=>a.tdp-b.tdp);
+  if(state.sortKey){
+    data=[...data].sort((a,b)=>{
+      const av=a[state.sortKey], bv=b[state.sortKey];
+      if(typeof av==='number') return (av-bv)*state.sortDir;
+      return String(av).localeCompare(String(bv))*state.sortDir;
+    });
+  }
+  return data;
+}
+
+function buildArchFilter(){
+  const data = catData();
+  const archs = [...new Set(data.map(d=>d.arch))].sort();
+  const sel = document.getElementById('arch-filter');
+  sel.innerHTML='<option value="">All Architectures</option>';
+  archs.forEach(a=>{
+    const o=document.createElement('option');
+    o.value=a; o.textContent=a;
+    if(a===state.arch) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function updateBrandButtons(){
+  const cat = state.cat;
+  const allBrands = {
+    gpu:['all','NVIDIA','AMD','Intel'],
+    cpu:['all','Intel','AMD'],
+    ssd:['all','Samsung','WD','Seagate','Kingston','Crucial'],
+    all:['all','NVIDIA','AMD','Intel','Samsung','WD','Seagate','Kingston','Crucial']
+  };
+  const brands = allBrands[cat]||allBrands.all;
+  const container = document.getElementById('brand-tabs');
+  container.innerHTML = brands.map(b=>{
+    const cls = b==='all'?'all':b.toLowerCase().replace(/\s+/,'-');
+    const active = state.brand===b?'active':'';
+    return `<button class="brand-btn ${cls} ${active}" data-brand="${b}">${b==='all'?'All Brands':b}</button>`;
+  }).join('');
+  container.querySelectorAll('.brand-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      state.brand=btn.dataset.brand;
+      state.sortKey='';
+      updateBrandButtons();
+      buildArchFilter();
+      render();
+    });
+  });
+}
+
+function render(){
+  const cols = colDefs();
+  const data = getFiltered();
+
+  // HEAD
+  const head = document.getElementById('tbl-head');
+  head.innerHTML = '<tr>'+cols.map(c=>{
+    let cls='';
+    if(state.sortKey===c.k) cls=state.sortDir===1?'sorted-asc':'sorted-desc';
+    const arr = state.sortKey===c.k?(state.sortDir===1?'▲':'▼'):'';
+    return `<th class="${cls}" data-key="${c.k}" style="${c.w?'width:'+c.w:''}">${c.l}<span class="arr">${arr}</span></th>`;
+  }).join('')+'</tr>';
+  head.querySelectorAll('th').forEach(th=>{
+    th.addEventListener('click',()=>{
+      if(state.sortKey===th.dataset.key) state.sortDir*=-1;
+      else{state.sortKey=th.dataset.key; state.sortDir=1; state.sort='';}
+      document.getElementById('sort-sel').value='';
+      render();
+    });
+  });
+
+  // BODY
+  const tbody = document.getElementById('tbl-body');
+  const noRes = document.getElementById('no-res');
+  if(!data.length){tbody.innerHTML='';noRes.style.display='block';document.getElementById('res-count').textContent='0 results';return;}
+  noRes.style.display='none';
+
+  tbody.innerHTML = data.map(d=>{
+    return `<tr onclick='openDetail(${JSON.stringify(d)})'>
+      ${cols.map(c=>`<td>${c.r?c.r(d):(d[c.k]??'—')}</td>`).join('')}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('res-count').textContent = `${data.length} result${data.length!==1?'s':''}`;
+}
+
+function openDetail(d){
+  const cat = d.cat;
+  const colors = {gpu:'#a78bfa',cpu:'#fb923c',ssd:'#34d399'};
+  const color = colors[cat]||'#fff';
+  const brandColor = d.brand==='NVIDIA'?'#76b900':d.brand==='AMD'?'#ed1c24':d.brand==='Intel'?'#0071c5':'#60a5fa';
+
+  document.getElementById('dp-badges').innerHTML=
+    `<span class="badge badge-${cat}">${cat.toUpperCase()}</span>
+     <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:${brandColor};font-weight:700;">${d.brand}</span>`;
+  document.getElementById('dp-title').textContent = d.name;
+  document.getElementById('dp-sub').textContent = `${d.arch} · ${d.year} · ${d.price||'N/A'}`;
+
+  let html = '';
+
+  if(cat==='gpu'){
+    html += section('GPU Overview',[
+      ['Brand',d.brand],['Architecture',d.arch],['GPU Die',d.gen],['Release Date',d.launch],['Launch Price',d.price],
+      ['Process',d.process],['Transistors',d.transistors],['Die Size',d.die_size],['API Support',d.api],
+    ]);
+    html += section('Shader Processors',[
+      ['CUDA / Shaders',d.shaders?.toLocaleString()],['Texture Units (TMUs)',d.tmus],['Render Outputs (ROPs)',d.rops],
+      ['Tensor Cores',d.tensor_cores],['RT Cores',d.rt_cores],
+    ]);
+    html += section('Clock Speeds',[
+      ['Base Clock',`${d.base_clk} MHz`],['Boost Clock',`${d.boost_clk} MHz`],
+    ]);
+    html += section('Memory',[
+      ['VRAM',d.mem_size],['Memory Type',d.mem_type],['Memory Bus',`${d.mem_bus}-bit`],
+      ['Memory Bandwidth',`${d.mem_bw} GB/s`],
+    ]);
+    html += section('Performance',[
+      ['FP32 Performance',`${d.tflops_fp32} TFLOPS`],['Pixel Rate',`${d.pixel_rate} GPixel/s`],
+      ['Texture Rate',`${d.tex_rate} GTexel/s`],
+    ]);
+    html += section('Board',[
+      ['TDP',`${d.tdp}W`],['PCIe Interface',d.pcie],['Display Outputs',d.outputs],
+    ]);
+  } else if(cat==='cpu'){
+    html += section('CPU Overview',[
+      ['Brand',d.brand],['Architecture',d.arch],['Codename',d.gen],['Release Date',d.launch],
+      ['Launch Price',d.price],['Process',d.process],['Socket',d.socket],
+    ]);
+    html += section('Core Configuration',[
+      ['Total Cores',d.cores],['P-Cores',d.pcores],['E-Cores',d.ecores||'None'],['Threads',d.threads],
+      ['Unlocked (OC)',d.unlock?'Yes':'No'],
+    ]);
+    html += section('Clock Speeds',[
+      ['P-Core Base',`${d.base_p} GHz`],['P-Core Boost',`${d.boost_p} GHz`],
+      ['E-Core Base',d.base_e?`${d.base_e} GHz`:'N/A'],['E-Core Boost',d.boost_e?`${d.boost_e} GHz`:'N/A'],
+    ]);
+    html += section('Cache',[
+      ['L1 Cache',d.cache_l1],['L2 Cache',d.cache_l2],['L3 Cache',d.cache_l3],
+    ]);
+    html += section('Platform',[
+      ['TDP (Base)',`${d.tdp}W`],['Power Limit (PBT)',`${d.pbt}W`],['Memory Support',d.imc],
+      ['PCIe Lanes',d.pcie],['Integrated GPU',d.igpu],['Max Temperature',d.max_temp],
+    ]);
+  } else {
+    html += section('SSD Overview',[
+      ['Brand',d.brand],['Interface',d.arch],['Model',d.gen],['Release Date',d.launch],
+      ['Launch Price',d.price],['Form Factor',d.form],['Capacity',d.capacity],
+    ]);
+    html += section('NAND & Controller',[
+      ['NAND Flash',d.nand],['Controller',d.controller],['DRAM Cache',d.dram],
+    ]);
+    html += section('Sequential Performance',[
+      ['Sequential Read',`${d.seq_read.toLocaleString()} MB/s`],['Sequential Write',`${d.seq_write.toLocaleString()} MB/s`],
+    ]);
+    html += section('Random Performance',[
+      ['Random Read (4K)',`${d.rnd_read}K IOPS`],['Random Write (4K)',`${d.rnd_write}K IOPS`],
+      ['Read Latency',d.latency_r],['Write Latency',d.latency_w],
+    ]);
+    html += section('Reliability & Security',[
+      ['TBW (Endurance)',`${d.tbw} TB`],['MTBF',d.mtbf],['Encryption',d.encrypt],
+    ]);
+  }
+
+  // Perf bar
+  html += `<div class="dp-perf-section">
+    <h4>Relative Performance Score</h4>
+    <div class="dp-perf-bar">
+      <div class="dp-perf-label">
+        <span>${d.name}</span>
+        <span style="color:${color};font-family:'JetBrains Mono',monospace;">${d.perf} / 100</span>
+      </div>
+      <div class="dp-perf-track">
+        <div class="dp-perf-fill" style="width:${d.perf}%;background:${color};"></div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('dp-body').innerHTML = html;
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function section(title, rows){
+  const pairs = rows.map(([k,v])=>`
+    <div class="dp-row">
+      <span class="dp-key">${k}</span>
+      <span class="dp-val">${v??'N/A'}</span>
+    </div>`).join('');
+  return `<div class="dp-section">
+    <div class="dp-section-title">${title}</div>
+    <div class="dp-grid">${pairs}</div>
+  </div>`;
+}
+
+function closeDetail(){
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.getElementById('cnt-gpu').textContent = GPUS.length;
+document.getElementById('cnt-cpu').textContent = CPUS.length;
+document.getElementById('cnt-ssd').textContent = SSDS.length;
+
+// Category tabs
+document.querySelectorAll('.cat-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.cat-tab').forEach(b=>{b.classList.remove('active','gpu','cpu','ssd','all');});
+    btn.classList.add('active',btn.dataset.cat);
+    state.cat = btn.dataset.cat;
+    state.brand = 'all';
+    state.arch = '';
+    state.sortKey = '';
+    state.sort = '';
+    updateBrandButtons();
+    buildArchFilter();
+    render();
+  });
+});
+
+document.getElementById('search').addEventListener('input',e=>{state.search=e.target.value;render();});
+document.getElementById('arch-filter').addEventListener('change',e=>{state.arch=e.target.value;render();});
+document.getElementById('sort-sel').addEventListener('change',e=>{state.sort=e.target.value;state.sortKey='';render();});
+
+updateBrandButtons();
+buildArchFilter();
+render();
+</script>
+</body>
+</html>

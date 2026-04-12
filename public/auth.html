@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BuildMatrix â€” Sign In</title>
+  <title>BuildMatrix &ndash; Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -111,20 +111,38 @@
 
     .field-wrap { position: relative; }
 
-    .field-wrap i {
+    .field-wrap .field-icon {
       position: absolute; left: 14px; top: 50%;
       transform: translateY(-50%);
       color: #2a4560; font-size: 13px;
       pointer-events: none;
       transition: color 0.2s;
+      z-index: 1;
     }
+
+    .field-wrap:focus-within .field-icon { color: #00D4FF; }
+
+    /* Eye toggle button */
+    .eye-toggle {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: #2a4560;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      transition: color 0.2s;
+      z-index: 2;
+    }
+    .eye-toggle:hover { color: #00D4FF; }
 
     input {
       width: 100%;
       background: rgba(8,12,20,0.8);
       border: 1px solid #1a2840;
       border-radius: 10px;
-      padding: 11px 14px 11px 38px;
+      padding: 11px 40px 11px 38px;
       color: #D8EEFF;
       font-size: 14px;
       font-family: inherit;
@@ -132,12 +150,15 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
+    /* For fields without eye toggle, restore right padding */
+    input.no-eye {
+      padding-right: 14px;
+    }
+
     input:focus {
       border-color: rgba(0,212,255,0.4);
       box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
     }
-
-    input:focus + i, .field-wrap:focus-within i { color: #00D4FF; }
 
     input.otp-input {
       text-align: center;
@@ -311,7 +332,7 @@
 
   <div class="page">
     <div class="logo-row" onclick="window.location.href='loading.html'">
-      <span class="logo-icon">âš™ï¸</span>
+      <span class="logo-icon">&#9881;&#65039;</span>
       <span class="logo-text">BUILDMATRIX</span>
     </div>
 
@@ -321,22 +342,30 @@
         <button class="tab" onclick="showTab('signup')" id="tab-signup">CREATE ACCOUNT</button>
       </div>
 
+      <!-- LOGIN PANEL -->
       <div id="panel-login">
         <div id="login-main">
           <div class="form">
             <div>
               <div class="field-label">Email Address</div>
               <div class="field-wrap">
-                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
-                <i class="fas fa-envelope"></i>
+                <i class="fas fa-envelope field-icon"></i>
+                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email" class="no-eye">
               </div>
             </div>
             <div>
               <div class="field-label">Password</div>
               <div class="field-wrap">
-                <input type="password" id="loginPassword" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
-                <i class="fas fa-lock"></i>
+                <i class="fas fa-lock field-icon"></i>
+                <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+                <button type="button" class="eye-toggle" onclick="toggleEye('loginPassword', this)" tabindex="-1">
+                  <i class="fas fa-eye"></i>
+                </button>
               </div>
+            </div>
+            <div id="twofa-section" style="display:none;">
+              <div class="field-label">2FA Code</div>
+              <input type="text" id="login2fa" placeholder="6-digit code" maxlength="6" class="otp-input no-eye" autocomplete="one-time-code">
             </div>
             <div id="login-error"></div>
             <button class="btn btn-primary" onclick="doLogin()" id="loginBtn">
@@ -351,10 +380,11 @@
             <button class="btn btn-ghost" onclick="continueAsGuest()">
               <i class="fas fa-user-secret"></i> Continue as Guest
             </button>
-            <div style="font-size:11px;color:#2a4560;margin-top:8px;">Builds saved locally â€” no account needed</div>
+            <div style="font-size:11px;color:#2a4560;margin-top:8px;">Builds saved locally &mdash; no account needed</div>
           </div>
         </div>
 
+        <!-- FORGOT PASSWORD -->
         <div id="login-forgot" style="display:none;">
           <div id="forgot-step1">
             <div class="back-link" onclick="showForgotMain()"><i class="fas fa-arrow-left"></i> Back to Sign In</div>
@@ -365,8 +395,8 @@
                 <div class="field-label">Your Email</div>
                 <div class="input-with-btn">
                   <div class="field-wrap" style="flex:1;position:relative;">
-                    <input type="email" id="forgotEmail" placeholder="your@email.com">
-                    <i class="fas fa-envelope"></i>
+                    <i class="fas fa-envelope field-icon"></i>
+                    <input type="email" id="forgotEmail" placeholder="your@email.com" class="no-eye">
                   </div>
                   <button class="btn-send" id="forgotSendBtn" onclick="sendForgotOtp()">
                     <i class="fas fa-paper-plane"></i> Send OTP
@@ -376,14 +406,17 @@
               </div>
               <div id="forgot-otp-row" style="display:none;">
                 <div class="field-label">6-Digit OTP</div>
-                <input type="text" id="forgotOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input" autocomplete="one-time-code">
+                <input type="text" id="forgotOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input no-eye" autocomplete="one-time-code">
                 <div class="otp-hint">Enter the OTP sent to <b id="forgotEmailDisplay"></b></div>
               </div>
               <div id="forgot-pass-row" style="display:none;">
                 <div class="field-label">New Password</div>
                 <div class="field-wrap">
+                  <i class="fas fa-lock field-icon"></i>
                   <input type="password" id="forgotNewPass" placeholder="Min. 6 characters">
-                  <i class="fas fa-lock"></i>
+                  <button type="button" class="eye-toggle" onclick="toggleEye('forgotNewPass', this)" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
                 </div>
               </div>
               <div id="forgot-error"></div>
@@ -395,6 +428,7 @@
         </div>
       </div>
 
+      <!-- SIGNUP PANEL -->
       <div id="panel-signup" style="display:none;">
         <div id="signup-main">
           <div class="step-indicator">
@@ -408,16 +442,16 @@
               <div>
                 <div class="field-label">Full Name</div>
                 <div class="field-wrap">
-                  <input type="text" id="regName" placeholder="Your name" autocomplete="name">
-                  <i class="fas fa-user"></i>
+                  <i class="fas fa-user field-icon"></i>
+                  <input type="text" id="regName" placeholder="Your name" autocomplete="name" class="no-eye">
                 </div>
               </div>
               <div>
                 <div class="field-label">Email Address</div>
                 <div class="input-with-btn">
                   <div class="field-wrap" style="flex:1;position:relative;">
-                    <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
-                    <i class="fas fa-envelope"></i>
+                    <i class="fas fa-envelope field-icon"></i>
+                    <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email" class="no-eye">
                   </div>
                   <button class="btn-send" id="regSendBtn" onclick="sendSignupOtp()">Send Code</button>
                 </div>
@@ -425,21 +459,27 @@
               </div>
               <div id="reg-otp-row" style="display:none;">
                 <div class="field-label">Email Verification Code</div>
-                <input type="text" id="regOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input" autocomplete="one-time-code">
+                <input type="text" id="regOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input no-eye" autocomplete="one-time-code">
                 <div class="otp-hint">Check your inbox at <b id="regEmailDisplay"></b></div>
               </div>
               <div>
                 <div class="field-label">Password</div>
                 <div class="field-wrap">
+                  <i class="fas fa-lock field-icon"></i>
                   <input type="password" id="regPassword" placeholder="Min. 6 characters" autocomplete="new-password">
-                  <i class="fas fa-lock"></i>
+                  <button type="button" class="eye-toggle" onclick="toggleEye('regPassword', this)" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
                 </div>
               </div>
               <div>
                 <div class="field-label">Confirm Password</div>
                 <div class="field-wrap">
-                  <input type="password" id="regConfirm" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()">
-                  <i class="fas fa-lock"></i>
+                  <i class="fas fa-lock field-icon"></i>
+                  <input type="password" id="regConfirm" placeholder="Repeat your password" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()">
+                  <button type="button" class="eye-toggle" onclick="toggleEye('regConfirm', this)" tabindex="-1">
+                    <i class="fas fa-eye"></i>
+                  </button>
                 </div>
               </div>
               <div id="reg-error"></div>
@@ -468,6 +508,22 @@
     var forgotOtpSent = false;
     var signupOtpSent = false;
     var signupOtpVerified = false;
+
+    // ── Show / hide password toggle ──────────────────────────────────────────
+    function toggleEye(inputId, btn) {
+      var input = document.getElementById(inputId);
+      if (!input) return;
+      var icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        btn.style.color = '#00D4FF';
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        btn.style.color = '';
+      }
+    }
 
     function checkBackend() {
       fetch(API_URL + '/auth/test', { signal: AbortSignal.timeout(2000) })
@@ -581,7 +637,7 @@
         }
       })
       .catch(function() {
-        setError('forgot-error', 'Connection error â€” backend may be offline');
+        setError('forgot-error', 'Connection error — backend may be offline');
         document.getElementById('forgotSendBtn').disabled = false;
       });
     }
@@ -626,7 +682,7 @@
       }
       if (!backendOnline) {
         signupOtpVerified = true;
-        showToast('Backend offline â€” email verification skipped', false);
+        showToast('Backend offline — email verification skipped', false);
         return;
       }
       document.getElementById('regSendBtn').disabled = true;
@@ -655,7 +711,7 @@
       .catch(function() {
         signupOtpVerified = true;
         document.getElementById('reg-otp-row').style.display = 'none';
-        showToast('Backend offline â€” email verification skipped');
+        showToast('Backend offline — email verification skipped');
         document.getElementById('regSendBtn').disabled = false;
       });
     }
@@ -693,7 +749,7 @@
           localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name, email: user.email, is_admin: false }));
           setLoading('regBtn', false);
           showToast('Account created locally!');
-          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
         }, 400);
         return;
       }
@@ -719,15 +775,12 @@
           return null;
         }
       })
-      .then(function(r) {
-        if (!r) return null;
-        return r.json();
-      })
+      .then(function(r) { if (!r) return null; return r.json(); })
       .then(function(d) {
         if (!d) return;
         if (d.success) {
           localStorage.setItem('user', JSON.stringify(d.user));
-          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 500);
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 500);
         }
       })
       .catch(function() {
@@ -739,7 +792,7 @@
     function doLogin() {
       var email = (document.getElementById('loginEmail').value || '').trim();
       var pass = document.getElementById('loginPassword').value || '';
-      var otp = document.getElementById('loginOtp').value || '';
+      var otp = document.getElementById('login2fa') ? document.getElementById('login2fa').value : '';
 
       setError('login-error', '');
       if (!email || !pass) { setError('login-error', 'Email and password are required'); return; }
@@ -758,7 +811,7 @@
           localStorage.setItem('user', JSON.stringify({ id: user.id, name: user.name, email: user.email, is_admin: false }));
           setLoading('loginBtn', false);
           showToast('Welcome back, ' + user.name + '!');
-          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 800);
         }, 400);
         return;
       }
@@ -781,31 +834,33 @@
         if (d.success) {
           localStorage.setItem('user', JSON.stringify(d.user));
           showToast('Welcome back, ' + d.user.name + '!');
-          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 700);
+          setTimeout(function() { sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html'; }, 700);
         } else {
           setError('login-error', d.error || 'Login failed');
         }
       })
       .catch(function() {
         setLoading('loginBtn', false);
-        setError('login-error', 'Connection error â€” try guest mode');
+        setError('login-error', 'Connection error — try guest mode');
       });
     }
 
     function continueAsGuest() {
       localStorage.removeItem('user');
-      sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html';
+      sessionStorage.setItem('bm-auth-passed','1');
+      window.location.href = 'index.html';
     }
 
+    // Auto-redirect if already logged in
     if (localStorage.getItem('user')) {
       try {
         var u = JSON.parse(localStorage.getItem('user'));
         if (u && u.id) {
-          sessionStorage.setItem('bm-auth-passed','1'); sessionStorage.setItem('bm-auth-passed','1'); window.location.href = 'index.html';
+          sessionStorage.setItem('bm-auth-passed','1');
+          window.location.href = 'index.html';
         }
       } catch(e) {}
     }
   </script>
 </body>
 </html>
-
