@@ -991,10 +991,6 @@
         <label>Password</label>
         <input type="password" id="adminLoginPassword" placeholder="Password" autocomplete="current-password" style="width:100%;" onkeydown="if(event.key==='Enter') doAdminLogin()">
       </div>
-      <div class="admin-form-group" id="twoFaField" style="display:none;">
-        <label>2FA Code</label>
-        <input type="text" id="adminLogin2fa" placeholder="6-digit code" maxlength="6" inputmode="numeric" style="width:100%; letter-spacing:4px; font-family:Space Mono,monospace;" onkeydown="if(event.key==='Enter') doAdminLogin()">
-      </div>
       <button class="btn-admin primary" id="adminLoginBtn" onclick="doAdminLogin()" style="width:100%; justify-content:center; padding:11px; font-size:14px; margin-top:4px;">
         <i class="fas fa-sign-in-alt"></i> Sign In
       </button>
@@ -1360,17 +1356,6 @@
             <div class="admin-card-title"><i class="fas fa-shield-alt"></i> Security</div>
           </div>
           <div class="admin-card-body">
-            <div class="setting-row">
-              <div class="setting-info">
-                <strong>Require 2FA for admins</strong>
-                <small>Admin accounts must have 2FA enabled</small>
-              </div>
-              <label class="toggle">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-                <span class="toggle-thumb"></span>
-              </label>
-            </div>
             <div class="setting-row">
               <div class="setting-info">
                 <strong>Allow new registrations</strong>
@@ -1759,7 +1744,6 @@ function showAdminPanel(name) {
 async function doAdminLogin() {
   const email    = document.getElementById('adminLoginEmail').value.trim();
   const password = document.getElementById('adminLoginPassword').value;
-  const code     = document.getElementById('adminLogin2fa').value.trim();
   const errBox   = document.getElementById('loginError');
   const errMsg   = document.getElementById('loginErrorMsg');
   const btn      = document.getElementById('adminLoginBtn');
@@ -1775,7 +1759,6 @@ async function doAdminLogin() {
 
   try {
     const body = { email, password };
-    if (code) body.twoFactorCode = code;
 
     const res = await fetch(`${window.API_URL}/auth/login`, {
       method: 'POST',
@@ -1784,19 +1767,6 @@ async function doAdminLogin() {
       body: JSON.stringify(body)
     });
     const data = await res.json();
-
-    if (data.requires2FA) {
-      document.getElementById('twoFaField').style.display = 'block';
-      document.getElementById('adminLogin2fa').focus();
-      errMsg.textContent = 'Enter your 2FA code below.';
-      errBox.style.display = 'block';
-      errBox.style.background = 'var(--warning-dim)';
-      errBox.style.borderColor = 'rgba(245,158,11,0.3)';
-      errBox.style.color = 'var(--warning)';
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-      return;
-    }
 
     if (!data.success) {
       errMsg.textContent = data.error || 'Login failed.';
