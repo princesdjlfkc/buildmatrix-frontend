@@ -453,14 +453,17 @@
                     <i class="fas fa-envelope field-icon"></i>
                     <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email" class="no-eye">
                   </div>
-                  <button class="btn-send" id="regSendBtn" onclick="sendSignupOtp()">Send Code</button>
+
                 </div>
-                <div class="countdown" id="regCountdown"></div>
+
               </div>
-              <div id="reg-otp-row" style="display:none;">
-                <div class="field-label">Email Verification Code</div>
-                <input type="text" id="regOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input no-eye" autocomplete="one-time-code">
-                <div class="otp-hint">Check your inbox at <b id="regEmailDisplay"></b></div>
+              <div id="reg-otp-row">
+                <div class="field-label">Security Check</div>
+                <div class="otp-hint" style="margin-bottom:8px;">Solve: <b id="captchaQuestion"></b></div>
+                <div class="field-wrap">
+                  <i class="fas fa-shield-alt field-icon"></i>
+                  <input type="number" id="regOtp" placeholder="Enter answer" class="no-eye">
+                </div>
               </div>
               <div>
                 <div class="field-label">Password</div>
@@ -675,45 +678,18 @@
       });
     }
 
+    // Math captcha setup
+    var captchaAnswer = 0;
+    function generateCaptcha() {
+      var a = Math.floor(Math.random() * 10) + 1;
+      var b = Math.floor(Math.random() * 10) + 1;
+      captchaAnswer = a + b;
+      document.getElementById('captchaQuestion').textContent = a + ' + ' + b + ' = ?';
+    }
+    generateCaptcha();
+
     function sendSignupOtp() {
-      var email = (document.getElementById('regEmail').value || '').trim();
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('Enter a valid email address', true); return;
-      }
-      if (!backendOnline) {
-        signupOtpVerified = true;
-        showToast('Backend offline — email verification skipped', false);
-        return;
-      }
-      document.getElementById('regSendBtn').disabled = true;
-      fetch(API_URL + '/auth/send-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d.success) {
-          signupOtpSent = true;
-          document.getElementById('regEmailDisplay').textContent = email;
-          document.getElementById('reg-otp-row').style.display = '';
-          startCountdown('regCountdown', 'regSendBtn', 60);
-          if (d.devToken) {
-            setSuccess('reg-error', 'OTP: ' + d.devToken + ' (email not configured)');
-          } else {
-            setSuccess('reg-error', 'OTP sent to ' + email);
-          }
-        } else {
-          setError('reg-error', d.error || 'Failed to send OTP');
-          document.getElementById('regSendBtn').disabled = false;
-        }
-      })
-      .catch(function() {
-        signupOtpVerified = true;
-        document.getElementById('reg-otp-row').style.display = 'none';
-        showToast('Backend offline — email verification skipped');
-        document.getElementById('regSendBtn').disabled = false;
-      });
+      // No longer used - captcha replaces OTP
     }
 
     function doRegister() {
@@ -729,8 +705,13 @@
       if (pass.length < 6) { setError('reg-error', 'Password must be at least 6 characters'); return; }
       if (pass !== confirm) { setError('reg-error', 'Passwords do not match'); return; }
 
-      if (backendOnline && signupOtpSent && !signupOtpVerified && !otp) {
-        setError('reg-error', 'Enter the OTP sent to your email'); return;
+      // Validate captcha
+      var captchaInput = parseInt(otp);
+      if (isNaN(captchaInput) || captchaInput !== captchaAnswer) {
+        setError('reg-error', 'Incorrect answer — please solve the math problem');
+        generateCaptcha();
+        document.getElementById('regOtp').value = '';
+        return;
       }
 
       setLoading('regBtn', true);
