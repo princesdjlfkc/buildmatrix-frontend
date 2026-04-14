@@ -5,3 +5,7 @@ buildmatrix.sqlite
 *.backup
 New Text Document.txt
 files_extracted/
+
+node_modules/
+buildmatrix.sqlite-shm
+buildmatrix.sqlite-wal
