@@ -389,27 +389,24 @@
           <div id="forgot-step1">
             <div class="back-link" onclick="showForgotMain()"><i class="fas fa-arrow-left"></i> Back to Sign In</div>
             <div style="font-size:15px;font-weight:800;color:#D8EEFF;margin-bottom:4px;">Reset Password</div>
-            <div style="font-size:12px;color:#5a8aaa;margin-bottom:20px;">We'll send a 6-digit code to your email.</div>
+            <div style="font-size:12px;color:#5a8aaa;margin-bottom:20px;">Verify you're human, then reset your password.</div>
             <div class="form">
               <div>
                 <div class="field-label">Your Email</div>
-                <div class="input-with-btn">
-                  <div class="field-wrap" style="flex:1;position:relative;">
-                    <i class="fas fa-envelope field-icon"></i>
-                    <input type="email" id="forgotEmail" placeholder="your@email.com" class="no-eye">
-                  </div>
-                  <button class="btn-send" id="forgotSendBtn" onclick="sendForgotOtp()">
-                    <i class="fas fa-paper-plane"></i> Send OTP
-                  </button>
+                <div class="field-wrap">
+                  <i class="fas fa-envelope field-icon"></i>
+                  <input type="email" id="forgotEmail" placeholder="your@email.com" class="no-eye">
                 </div>
-                <div class="countdown" id="forgotCountdown"></div>
               </div>
-              <div id="forgot-otp-row" style="display:none;">
-                <div class="field-label">6-Digit OTP</div>
-                <input type="text" id="forgotOtp" placeholder="0 0 0 0 0 0" maxlength="6" class="otp-input no-eye" autocomplete="one-time-code">
-                <div class="otp-hint">Enter the OTP sent to <b id="forgotEmailDisplay"></b></div>
+              <div>
+                <div class="field-label">Security Check</div>
+                <div class="otp-hint" style="margin-bottom:8px;">Solve: <b id="forgotCaptchaQuestion"></b></div>
+                <div class="field-wrap">
+                  <i class="fas fa-shield-alt field-icon"></i>
+                  <input type="number" id="forgotCaptchaInput" placeholder="Enter answer" class="no-eye">
+                </div>
               </div>
-              <div id="forgot-pass-row" style="display:none;">
+              <div>
                 <div class="field-label">New Password</div>
                 <div class="field-wrap">
                   <i class="fas fa-lock field-icon"></i>
@@ -420,7 +417,7 @@
                 </div>
               </div>
               <div id="forgot-error"></div>
-              <button class="btn btn-primary" onclick="doResetPassword()" id="forgotResetBtn" style="display:none;">
+              <button class="btn btn-primary" onclick="doResetPassword()" id="forgotResetBtn">
                 <i class="fas fa-key"></i> Reset Password
               </button>
             </div>
@@ -508,9 +505,6 @@
       : 'https://buildmatrix-clean.onrender.com/api';
 
     var backendOnline = false;
-    var forgotOtpSent = false;
-    var signupOtpSent = false;
-    var signupOtpVerified = false;
 
     // ── Show / hide password toggle ──────────────────────────────────────────
     function toggleEye(inputId, btn) {
@@ -585,7 +579,6 @@
     function showForgotMain() {
       document.getElementById('login-main').style.display = '';
       document.getElementById('login-forgot').style.display = 'none';
-      forgotOtpSent = false;
     }
 
     function startCountdown(countdownId, sendBtnId, seconds) {
@@ -607,55 +600,36 @@
       tick();
     }
 
-    function sendForgotOtp() {
-      var email = (document.getElementById('forgotEmail').value || '').trim();
-      if (!email) { showToast('Enter your email first', true); return; }
-      if (!backendOnline) {
-        showToast('Backend is offline. Use the dev token approach.', true);
-        return;
-      }
-      document.getElementById('forgotSendBtn').disabled = true;
-      fetch(API_URL + '/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d.success) {
-          forgotOtpSent = true;
-          document.getElementById('forgotEmailDisplay').textContent = email;
-          document.getElementById('forgot-otp-row').style.display = '';
-          document.getElementById('forgot-pass-row').style.display = '';
-          document.getElementById('forgotResetBtn').style.display = '';
-          startCountdown('forgotCountdown', 'forgotSendBtn', 60);
-          if (d.devToken) {
-            setSuccess('forgot-error', 'OTP: ' + d.devToken + ' (backend email not configured)');
-          } else {
-            setSuccess('forgot-error', 'OTP sent to ' + email);
-          }
-        } else {
-          setError('forgot-error', d.error || 'Failed to send OTP');
-          document.getElementById('forgotSendBtn').disabled = false;
-        }
-      })
-      .catch(function() {
-        setError('forgot-error', 'Connection error — backend may be offline');
-        document.getElementById('forgotSendBtn').disabled = false;
-      });
+    // Forgot password captcha
+    var forgotCaptchaAnswer = 0;
+    function generateForgotCaptcha() {
+      var a = Math.floor(Math.random() * 10) + 1;
+      var b = Math.floor(Math.random() * 10) + 1;
+      forgotCaptchaAnswer = a + b;
+      document.getElementById('forgotCaptchaQuestion').textContent = a + ' + ' + b + ' = ?';
     }
+    generateForgotCaptcha();
 
     function doResetPassword() {
-      if (!forgotOtpSent) { showToast('Send the OTP first', true); return; }
-      var token = (document.getElementById('forgotOtp').value || '').trim();
+      var email = (document.getElementById('forgotEmail').value || '').trim();
+      var captchaInput = parseInt(document.getElementById('forgotCaptchaInput').value || '');
       var newPass = document.getElementById('forgotNewPass').value || '';
-      if (!token || token.length < 6) { setError('forgot-error', 'Enter the 6-digit OTP'); return; }
+
+      setError('forgot-error', '');
+      if (!email) { setError('forgot-error', 'Email is required'); return; }
+      if (isNaN(captchaInput) || captchaInput !== forgotCaptchaAnswer) {
+        setError('forgot-error', 'Incorrect answer — please solve the math problem');
+        generateForgotCaptcha();
+        document.getElementById('forgotCaptchaInput').value = '';
+        return;
+      }
       if (!newPass || newPass.length < 6) { setError('forgot-error', 'Password must be at least 6 characters'); return; }
+
       setLoading('forgotResetBtn', true);
-      fetch(API_URL + '/auth/reset-password', {
+      fetch(API_URL + '/auth/reset-password-captcha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token, newPassword: newPass })
+        body: JSON.stringify({ email: email, newPassword: newPass })
       })
       .then(function(r) { return r.json(); })
       .then(function(d) {
@@ -665,11 +639,14 @@
           setTimeout(function() {
             showForgotMain();
             setError('forgot-error', '');
-            document.getElementById('forgotOtp').value = '';
+            document.getElementById('forgotCaptchaInput').value = '';
             document.getElementById('forgotNewPass').value = '';
+            generateForgotCaptcha();
           }, 1500);
         } else {
           setError('forgot-error', d.error || 'Reset failed');
+          generateForgotCaptcha();
+          document.getElementById('forgotCaptchaInput').value = '';
         }
       })
       .catch(function() {

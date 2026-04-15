@@ -197,10 +197,7 @@ async function sendOtpEmail({ to, code, subject, purpose }) {
 
   const labels = {
     signup:          'Complete your BuildMatrix registration',
-    reset:           'Reset your BuildMatrix password',
     change_password: 'Confirm your password change',
-    disable_2fa:     'Confirm disabling 2FA on your account',
-    enable_2fa:      'Confirm enabling 2FA on your account',
   };
   const label = labels[purpose] || 'Verify your BuildMatrix action';
   const from  = process.env.EMAIL_FROM || process.env.EMAIL_USER;
@@ -478,54 +475,23 @@ app.post('/api/auth/send-verification', async (req, res) => {
   }
 });
 
-// POST /api/auth/forgot-password  — send OTP reset code to email
-app.post('/api/auth/forgot-password', async (req, res) => {
+// POST /api/auth/reset-password-captcha — no email OTP, captcha verified on frontend
+app.post('/api/auth/reset-password-captcha', async (req, res) => {
   try {
-    const email = String(req.body.email || '').trim().toLowerCase();
-    if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
+    const email       = String(req.body.email       || '').trim().toLowerCase();
+    const newPassword = String(req.body.newPassword || '');
+    if (!email)           return res.status(400).json({ success: false, error: 'Email is required' });
+    if (!newPassword || newPassword.length < 6)
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
 
     const [rows] = await db.query('SELECT id FROM users WHERE email=?', [email]);
-    const user = rows[0];
-    // Don't reveal whether email exists
-    if (!user) return res.json({ success: true, message: 'If that email exists, a reset code has been sent.' });
-
-    const code    = generateOtp();
-    const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-    await db.query('DELETE FROM password_resets WHERE user_id=?', [user.id]);
-    await db.query('INSERT INTO password_resets (user_id,token,expires_at) VALUES (?,?,?)', [user.id, code, expires]);
-
-    let mailStatus = { sent: false };
-    try { mailStatus = await sendOtpEmail({ to: email, code, subject: 'BuildMatrix — Password Reset Code', purpose: 'reset' }); }
-    catch (e) { console.error('forgot-password mail error:', e.message); }
-
-    res.json({ success: true, message: mailStatus.sent ? 'Reset code sent to your email!' : 'Code generated.', ...(mailStatus.sent ? {} : { devToken: code }) });
-  } catch (err) {
-    console.error('forgot-password error:', err);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// POST /api/auth/reset-password
-app.post('/api/auth/reset-password', async (req, res) => {
-  try {
-    const token       = String(req.body.token       || '').trim();
-    const newPassword = String(req.body.newPassword || '');
-    if (!token || !newPassword) return res.status(400).json({ success: false, error: 'Code and password are required' });
-    if (newPassword.length < 6) return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
-
-    const [rows] = await db.query(
-      "SELECT * FROM password_resets WHERE token=? AND used=0 AND expires_at>?",
-      [token, new Date().toISOString()]
-    );
-    const reset = rows[0];
-    if (!reset) return res.status(400).json({ success: false, error: 'Invalid or expired code' });
+    if (!rows.length) return res.status(404).json({ success: false, error: 'No account found with that email' });
 
     const hashed = await bcrypt.hash(newPassword, 10);
-    await db.query('UPDATE users SET password=? WHERE id=?', [hashed, reset.user_id]);
-    await db.query('UPDATE password_resets SET used=1 WHERE id=?', [reset.id]);
+    await db.query('UPDATE users SET password=? WHERE email=?', [hashed, email]);
     res.json({ success: true, message: 'Password reset successfully' });
   } catch (err) {
-    console.error('reset-password error:', err);
+    console.error('reset-password-captcha error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
