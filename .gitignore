@@ -1,5 +1,4 @@
-﻿*.sqlite
-*.sqlite-shm
-*.sqlite-wal
-node_modules/
+﻿node_modules/
 .env
+*.sqlite
+*.bak

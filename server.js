@@ -1,19 +1,3 @@
-﻿/**
- * BuildMatrix Backend — server.js
- * ─────────────────────────────────────────────────────────────────────────────
- * Fixes vs original:
- *  1. sql.js (in-memory, loses data on restart) → better-sqlite3 (persistent)
- *  2. Brevo SMTP properly configured via EMAIL_HOST / EMAIL_PORT / EMAIL_FROM
- *  3. Added missing email_verifications table
- *  4. Added bio / theme columns to users
- *  5. requireAuth now loads full user row (needed for ban checks etc.)
- *  6. Banned users blocked at login
- *  7. All original endpoints kept 100% intact
- *
- * Install:  npm install
- * Run:      node server.js  /  npm start
- */
-
 'use strict';
 require('dotenv').config();
 
@@ -24,51 +8,37 @@ const crypto     = require('crypto');
 const bcrypt     = require('bcryptjs');
 const cors       = require('cors');
 const session    = require('express-session');
-const speakeasy  = require('speakeasy');
-const QRCode     = require('qrcode');
 const nodemailer = require('nodemailer');
 const Database   = require('better-sqlite3');
 const { exec }   = require('child_process');
 
-// optional price-sources module
 let priceSources = null;
 try {
   priceSources = require('./price-sources.js');
 } catch (_) {
-  console.warn('price-sources.js not found — price endpoints disabled.');
   priceSources = { STORES: {}, getPricesForProduct: async () => ({ prices: [], bestPrice: null }) };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────────────────────────────────────
 const PORT         = Number(process.env.PORT || 5000);
 const DB_FILE      = process.env.DB_FILE || path.join(__dirname, 'buildmatrix.sqlite');
 const isProduction = process.env.NODE_ENV === 'production';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DATABASE — better-sqlite3 (persistent file, no data loss on restart)
-// ─────────────────────────────────────────────────────────────────────────────
 const sqliteDb = new Database(DB_FILE);
 sqliteDb.pragma('journal_mode = WAL');
 sqliteDb.pragma('foreign_keys = ON');
 
 sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS users (
-    id                       INTEGER PRIMARY KEY AUTOINCREMENT,
-    name                     TEXT    NOT NULL,
-    email                    TEXT    NOT NULL UNIQUE,
-    password                 TEXT    NOT NULL,
-    bio                      TEXT    DEFAULT '',
-    theme                    TEXT    DEFAULT 'dark',
-    avatar_url               TEXT    DEFAULT NULL,
-    two_factor_enabled       INTEGER NOT NULL DEFAULT 0,
-    two_factor_secret        TEXT,
-    two_factor_temp_secret   TEXT,
-    two_factor_verified_at   TEXT,
-    is_admin                 INTEGER DEFAULT 0,
-    banned                   INTEGER NOT NULL DEFAULT 0,
-    created_at               TEXT    NOT NULL DEFAULT (datetime('now'))
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT    NOT NULL,
+    email       TEXT    NOT NULL UNIQUE,
+    password    TEXT    NOT NULL,
+    bio         TEXT    DEFAULT '',
+    theme       TEXT    DEFAULT 'dark',
+    avatar_url  TEXT    DEFAULT NULL,
+    is_admin    INTEGER DEFAULT 0,
+    banned      INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS password_resets (
@@ -89,26 +59,6 @@ sqliteDb.exec(`
     expires_at  TEXT    NOT NULL,
     used        INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
-
-  CREATE TABLE IF NOT EXISTS two_factor_recovery_codes (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id       INTEGER NOT NULL,
-    recovery_code TEXT    NOT NULL,
-    is_used       INTEGER NOT NULL DEFAULT 0,
-    used_at       TEXT,
-    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-
-  CREATE TABLE IF NOT EXISTS two_factor_logs (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id     INTEGER NOT NULL,
-    action      TEXT    NOT NULL,
-    ip_address  TEXT,
-    user_agent  TEXT,
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS builds (
@@ -150,16 +100,14 @@ sqliteDb.exec(`
   );
 `);
 
-// safe column migrations
 for (const m of [
-  "ALTER TABLE users ADD COLUMN is_admin    INTEGER DEFAULT 0",
-  "ALTER TABLE users ADD COLUMN banned      INTEGER NOT NULL DEFAULT 0",
-  "ALTER TABLE users ADD COLUMN avatar_url  TEXT DEFAULT NULL",
-  "ALTER TABLE users ADD COLUMN bio         TEXT DEFAULT ''",
-  "ALTER TABLE users ADD COLUMN theme       TEXT DEFAULT 'dark'",
+  "ALTER TABLE users ADD COLUMN is_admin   INTEGER DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN banned     INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN avatar_url TEXT DEFAULT NULL",
+  "ALTER TABLE users ADD COLUMN bio        TEXT DEFAULT ''",
+  "ALTER TABLE users ADD COLUMN theme      TEXT DEFAULT 'dark'",
 ]) { try { sqliteDb.exec(m); } catch (_) {} }
 
-// thin async wrapper — keeps original  const [rows] = await db.query(...)  pattern
 const db = {
   query(sql, params = []) {
     const isSelect = /^\s*select/i.test(sql.trim());
@@ -172,9 +120,6 @@ const db = {
   }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EMAIL — Brevo SMTP
-// ─────────────────────────────────────────────────────────────────────────────
 function buildTransporter() {
   const user = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASS;
@@ -194,14 +139,9 @@ function generateOtp() {
 async function sendOtpEmail({ to, code, subject, purpose }) {
   const tr = buildTransporter();
   if (!tr) { console.warn('[EMAIL] Not configured — OTP:', code); return { sent: false }; }
-
-  const labels = {
-    signup:          'Complete your BuildMatrix registration',
-    change_password: 'Confirm your password change',
-  };
+  const labels = { signup: 'Complete your BuildMatrix registration', change_password: 'Confirm your password change' };
   const label = labels[purpose] || 'Verify your BuildMatrix action';
   const from  = process.env.EMAIL_FROM || process.env.EMAIL_USER;
-
   await tr.sendMail({
     from: `"BuildMatrix" <${from}>`,
     to,
@@ -218,10 +158,7 @@ async function sendOtpEmail({ to, code, subject, purpose }) {
     <div style="background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
       <div style="font-size:40px;font-weight:900;letter-spacing:0.3em;color:#00D4FF;font-family:monospace;">${code}</div>
     </div>
-    <div style="font-size:12px;color:#2a4560;line-height:1.6;">
-      This code expires in <strong style="color:#5a8aaa;">10 minutes</strong>.<br>
-      If you did not request this, ignore this email. Never share this code.
-    </div>
+    <div style="font-size:12px;color:#2a4560;line-height:1.6;">This code expires in <strong style="color:#5a8aaa;">10 minutes</strong>.<br>If you did not request this, ignore this email.</div>
   </div>
   <div style="padding:16px 32px;border-top:1px solid rgba(0,212,255,0.08);font-size:11px;color:#2a4560;text-align:center;">&copy; ${new Date().getFullYear()} BuildMatrix &mdash; Philippines</div>
 </div></body></html>`,
@@ -229,9 +166,6 @@ async function sendOtpEmail({ to, code, subject, purpose }) {
   return { sent: true };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXPRESS APP
-// ─────────────────────────────────────────────────────────────────────────────
 const app = express();
 app.set('trust proxy', 1);
 
@@ -243,7 +177,7 @@ app.use(cors({
     if (!origin) return cb(null, true);
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) return cb(null, true);
     if (origin.includes('.onrender.com') || origin.includes('.netlify.app')) return cb(null, true);
-    if (origin.includes('ngrok')) return cb(null, true);
+    if (origin.includes('.railway.app') || origin.includes('ngrok')) return cb(null, true);
     cb(null, true);
   },
   credentials: true,
@@ -277,9 +211,6 @@ app.use(session({
   },
 }));
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
 async function requireAuth(req, res, next) {
   if (!req.session?.userId)
     return res.status(401).json({ success: false, error: 'Unauthorized' });
@@ -291,7 +222,6 @@ async function requireAuth(req, res, next) {
     req.user = user;
     next();
   } catch (err) {
-    console.error('requireAuth error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 }
@@ -305,7 +235,6 @@ async function requireAdmin(req, res, next) {
     req.user = rows[0];
     next();
   } catch (err) {
-    console.error('requireAdmin error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 }
@@ -313,135 +242,72 @@ async function requireAdmin(req, res, next) {
 function sanitizeUser(row) {
   if (!row) return null;
   return {
-    id:               row.id,
-    name:             row.name,
-    email:            row.email,
-    bio:              row.bio  || '',
-    theme:            row.theme || 'dark',
-    avatarUrl:        row.avatar_url || null,
-    twoFactorEnabled: !!row.two_factor_enabled,
-    is_admin:         !!row.is_admin,
-    createdAt:        row.created_at,
+    id:        row.id,
+    name:      row.name,
+    email:     row.email,
+    bio:       row.bio   || '',
+    theme:     row.theme || 'dark',
+    avatarUrl: row.avatar_url || null,
+    is_admin:  !!row.is_admin,
+    createdAt: row.created_at,
   };
 }
-
-function randomTokenHex(bytes = 32)  { return crypto.randomBytes(bytes).toString('hex'); }
-function hashRecoveryCode(code)       { return crypto.createHash('sha256').update(code).digest('hex'); }
-function generateRecoveryCodes(n = 8) { return Array.from({ length: n }, () => crypto.randomBytes(4).toString('hex').toUpperCase()); }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// AUTH ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.get('/api/auth/test', (req, res) =>
   res.json({ success: true, message: 'Backend is running!', time: new Date().toISOString() })
 );
 
-// POST /api/auth/register
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const name     = String(req.body.name  || '').trim();
-    const email    = String(req.body.email || '').trim().toLowerCase();
+    const name     = String(req.body.name     || '').trim();
+    const email    = String(req.body.email    || '').trim().toLowerCase();
     const password = String(req.body.password || '');
-    const verCode  = String(req.body.verificationCode || '').trim();
-
     if (!name || !email || !password)
       return res.status(400).json({ success: false, error: 'All fields are required' });
     if (password.length < 6)
       return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
-
     const [exists] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
     if (exists.length)
       return res.status(400).json({ success: false, error: 'Email already registered' });
-
-    // verify OTP only when email is configured AND user provided a code
-    const emailConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
-    if (emailConfigured && verCode) {
-      const [vcRows] = await db.query(
-        "SELECT id FROM email_verifications WHERE email=? AND code=? AND type='signup' AND used=0 AND expires_at>?",
-        [email, verCode, new Date().toISOString()]
-      );
-      if (!vcRows.length)
-        return res.status(400).json({ success: false, error: 'Invalid or expired verification code' });
-      await db.query('UPDATE email_verifications SET used=1 WHERE id=?', [vcRows[0].id]);
-    }
-
     const hashed = await bcrypt.hash(password, 10);
     await db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashed]);
     const [newRows] = await db.query('SELECT * FROM users WHERE email=?', [email]);
     res.json({ success: true, message: 'Registration successful', user: sanitizeUser(newRows[0]) });
   } catch (err) {
-    console.error('register error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/login
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const email         = String(req.body.email        || '').trim().toLowerCase();
-    const password      = String(req.body.password     || '');
-    const twoFactorCode = String(req.body.twoFactorCode || '').trim();
-
+    const email    = String(req.body.email    || '').trim().toLowerCase();
+    const password = String(req.body.password || '');
     const [rows] = await db.query('SELECT * FROM users WHERE email=?', [email]);
     const user = rows[0];
     if (!user)       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     if (user.banned) return res.status(403).json({ success: false, error: 'Your account has been banned.' });
-
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ success: false, error: 'Invalid credentials' });
-
-    if (user.two_factor_enabled) {
-      if (!twoFactorCode) return res.json({ requires2FA: true, userId: user.id });
-
-      const verified = speakeasy.totp.verify({ secret: user.two_factor_secret, encoding: 'base32', token: twoFactorCode, window: 1 });
-      if (!verified) {
-        const hashed = hashRecoveryCode(twoFactorCode);
-        const [rcRows] = await db.query(
-          'SELECT id FROM two_factor_recovery_codes WHERE user_id=? AND recovery_code=? AND is_used=0',
-          [user.id, hashed]
-        );
-        if (!rcRows.length) {
-          await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)',
-            [user.id, 'failed', req.ip, req.headers['user-agent'] || '']);
-          return res.status(401).json({ success: false, error: 'Invalid 2FA code' });
-        }
-        await db.query("UPDATE two_factor_recovery_codes SET is_used=1, used_at=datetime('now') WHERE id=?", [rcRows[0].id]);
-        await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)',
-          [user.id, 'recovered', req.ip, req.headers['user-agent'] || '']);
-      } else {
-        await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)',
-          [user.id, 'verified', req.ip, req.headers['user-agent'] || '']);
-      }
-    }
-
     req.session.userId = user.id;
     req.session.save(() => res.json({ success: true, user: sanitizeUser(user) }));
   } catch (err) {
-    console.error('login error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/logout
 app.post('/api/auth/logout', (req, res) => {
   if (!req.session) return res.json({ success: true });
   req.session.destroy(() => { res.clearCookie('buildmatrix.sid'); res.json({ success: true, message: 'Logged out' }); });
 });
 
-// GET /api/auth/me
 app.get('/api/auth/me', requireAuth, async (req, res) => {
   try {
-    const [rcRows] = await db.query(
-      'SELECT COUNT(*) AS count FROM two_factor_recovery_codes WHERE user_id=? AND is_used=0', [req.user.id]);
-    res.json({ ...sanitizeUser(req.user), recoveryCodesLeft: rcRows[0]?.count ?? 0 });
+    res.json(sanitizeUser(req.user));
   } catch (err) {
-    console.error('me error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// PUT /api/auth/theme
 app.put('/api/auth/theme', requireAuth, async (req, res) => {
   try {
     const theme = req.body.theme === 'light' ? 'light' : 'dark';
@@ -450,32 +316,25 @@ app.put('/api/auth/theme', requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
 
-// POST /api/auth/send-verification  — email OTP for registration
 app.post('/api/auth/send-verification', async (req, res) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
     if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
-
     const [exists] = await db.query('SELECT id FROM users WHERE email=?', [email]);
     if (exists.length) return res.status(400).json({ success: false, error: 'Email already registered' });
-
     const code    = generateOtp();
     const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
     await db.query("DELETE FROM email_verifications WHERE email=? AND type='signup'", [email]);
     await db.query("INSERT INTO email_verifications (email,code,type,expires_at) VALUES (?,?,'signup',?)", [email, code, expires]);
-
     let mailStatus = { sent: false };
     try { mailStatus = await sendOtpEmail({ to: email, code, subject: 'BuildMatrix — Verify Your Email', purpose: 'signup' }); }
     catch (e) { console.error('send-verification mail error:', e.message); }
-
     res.json({ success: true, message: mailStatus.sent ? 'Code sent!' : 'Code generated.', ...(mailStatus.sent ? {} : { devToken: code }) });
   } catch (err) {
-    console.error('send-verification error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/reset-password-captcha — no email OTP, captcha verified on frontend
 app.post('/api/auth/reset-password-captcha', async (req, res) => {
   try {
     const email       = String(req.body.email       || '').trim().toLowerCase();
@@ -483,20 +342,16 @@ app.post('/api/auth/reset-password-captcha', async (req, res) => {
     if (!email)           return res.status(400).json({ success: false, error: 'Email is required' });
     if (!newPassword || newPassword.length < 6)
       return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
-
     const [rows] = await db.query('SELECT id FROM users WHERE email=?', [email]);
     if (!rows.length) return res.status(404).json({ success: false, error: 'No account found with that email' });
-
     const hashed = await bcrypt.hash(newPassword, 10);
     await db.query('UPDATE users SET password=? WHERE email=?', [hashed, email]);
     res.json({ success: true, message: 'Password reset successfully' });
   } catch (err) {
-    console.error('reset-password-captcha error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/change-password
 app.post('/api/auth/change-password', requireAuth, async (req, res) => {
   try {
     const currentPassword = String(req.body.currentPassword || '');
@@ -509,38 +364,30 @@ app.post('/api/auth/change-password', requireAuth, async (req, res) => {
     await db.query('UPDATE users SET password=? WHERE id=?', [hashed, req.user.id]);
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (err) {
-    console.error('change-password error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/send-security-otp
 app.post('/api/auth/send-security-otp', requireAuth, async (req, res) => {
   try {
     const purpose = String(req.body.purpose || 'change_password');
-    if (!['change_password', 'enable_2fa', 'disable_2fa'].includes(purpose))
+    if (!['change_password'].includes(purpose))
       return res.status(400).json({ success: false, error: 'Invalid purpose' });
-
     const email   = req.user.email;
     const code    = generateOtp();
     const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
     await db.query('DELETE FROM email_verifications WHERE email=? AND type=?', [email, purpose]);
     await db.query('INSERT INTO email_verifications (email,code,type,expires_at) VALUES (?,?,?,?)', [email, code, purpose, expires]);
-
-    const subjectMap = { change_password: 'BuildMatrix — Confirm Password Change', enable_2fa: 'BuildMatrix — Confirm Enable 2FA', disable_2fa: 'BuildMatrix — Confirm Disable 2FA' };
     let mailStatus = { sent: false };
-    try { mailStatus = await sendOtpEmail({ to: email, code, subject: subjectMap[purpose], purpose }); }
+    try { mailStatus = await sendOtpEmail({ to: email, code, subject: 'BuildMatrix — Confirm Password Change', purpose }); }
     catch (e) { console.error('send-security-otp mail error:', e.message); }
-
     const masked = email.replace(/(.{2})(.*)(@.*)/, '$1***$3');
     res.json({ success: true, email: masked, message: mailStatus.sent ? 'Code sent to your email!' : 'Code generated.', ...(mailStatus.sent ? {} : { devToken: code }) });
   } catch (err) {
-    console.error('send-security-otp error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/verify-security-otp
 app.post('/api/auth/verify-security-otp', requireAuth, async (req, res) => {
   try {
     const code    = String(req.body.code    || '').trim();
@@ -550,16 +397,14 @@ app.post('/api/auth/verify-security-otp', requireAuth, async (req, res) => {
       'SELECT id FROM email_verifications WHERE email=? AND code=? AND type=? AND used=0 AND expires_at>?',
       [req.user.email, code, purpose, new Date().toISOString()]
     );
-    if (!vcRows.length) return res.status(400).json({ success: false, error: 'Invalid or expired code. Check your email.' });
+    if (!vcRows.length) return res.status(400).json({ success: false, error: 'Invalid or expired code.' });
     await db.query('UPDATE email_verifications SET used=1 WHERE id=?', [vcRows[0].id]);
     res.json({ success: true });
   } catch (err) {
-    console.error('verify-security-otp error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// POST /api/auth/avatar
 app.post('/api/auth/avatar', requireAuth, async (req, res) => {
   try {
     const avatarUrl = req.body.avatarUrl || null;
@@ -567,12 +412,10 @@ app.post('/api/auth/avatar', requireAuth, async (req, res) => {
     await db.query('UPDATE users SET avatar_url=? WHERE id=?', [avatarUrl, req.user.id]);
     res.json({ success: true, avatarUrl });
   } catch (err) {
-    console.error('avatar update error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// PUT /api/auth/profile
 app.put('/api/auth/profile', requireAuth, async (req, res) => {
   try {
     const name  = String(req.body.name  || '').trim();
@@ -589,14 +432,9 @@ app.put('/api/auth/profile', requireAuth, async (req, res) => {
     const [rows] = await db.query('SELECT * FROM users WHERE id=?', [req.user.id]);
     res.json({ success: true, user: sanitizeUser(rows[0]) });
   } catch (err) {
-    console.error('profile update error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PROFILE ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.get('/api/profile/:userId', requireAuth, async (req, res) => {
   try {
@@ -611,7 +449,6 @@ app.get('/api/profile/:userId', requireAuth, async (req, res) => {
       recentBuilds: builds.slice(0, 5).map(b => ({ id: b.id, name: b.name, total: b.total, created_at: b.created_at })),
     });
   } catch (err) {
-    console.error('profile get error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -625,63 +462,9 @@ app.put('/api/profile/update', requireAuth, async (req, res) => {
     const [rows] = await db.query('SELECT * FROM users WHERE id=?', [req.user.id]);
     res.json({ success: true, user: sanitizeUser(rows[0]) });
   } catch (err) {
-    console.error('profile update error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 2FA ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
-
-app.get('/api/2fa/status', requireAuth, async (req, res) => {
-  try {
-    const [rcRows] = await db.query('SELECT COUNT(*) AS count FROM two_factor_recovery_codes WHERE user_id=? AND is_used=0', [req.user.id]);
-    res.json({ success: true, enabled: !!req.user.two_factor_enabled, recoveryCodesLeft: rcRows[0]?.count ?? 0 });
-  } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
-});
-
-app.post('/api/2fa/setup', requireAuth, async (req, res) => {
-  try {
-    const secret = speakeasy.generateSecret({ name: `BuildMatrix:${req.user.email}`, issuer: 'BuildMatrix' });
-    await db.query('UPDATE users SET two_factor_temp_secret=? WHERE id=?', [secret.base32, req.user.id]);
-    const qrCode = await QRCode.toDataURL(secret.otpauth_url);
-    res.json({ success: true, qrCode, secret: secret.base32 });
-  } catch (err) { res.status(500).json({ success: false, error: 'Failed to setup 2FA' }); }
-});
-
-app.post('/api/2fa/verify', requireAuth, async (req, res) => {
-  try {
-    const token = String(req.body.token || '').trim();
-    if (!token) return res.status(400).json({ success: false, error: 'Token is required' });
-    const temp = req.user.two_factor_temp_secret;
-    if (!temp) return res.status(400).json({ success: false, error: '2FA setup not initiated' });
-    const ok = speakeasy.totp.verify({ secret: temp, encoding: 'base32', token, window: 1 });
-    if (!ok) {
-      await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)', [req.user.id, 'failed', req.ip, req.headers['user-agent'] || '']);
-      return res.status(400).json({ success: false, error: 'Invalid verification code' });
-    }
-    await db.query("UPDATE users SET two_factor_enabled=1, two_factor_secret=?, two_factor_temp_secret=NULL, two_factor_verified_at=? WHERE id=?", [temp, new Date().toISOString(), req.user.id]);
-    const recoveryCodes = generateRecoveryCodes(8);
-    for (const code of recoveryCodes)
-      await db.query('INSERT INTO two_factor_recovery_codes (user_id,recovery_code) VALUES (?,?)', [req.user.id, hashRecoveryCode(code)]);
-    await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)', [req.user.id, 'enabled', req.ip, req.headers['user-agent'] || '']);
-    res.json({ success: true, message: '2FA enabled successfully', recoveryCodes });
-  } catch (err) { res.status(500).json({ success: false, error: 'Failed to verify 2FA' }); }
-});
-
-app.post('/api/2fa/disable', requireAuth, async (req, res) => {
-  try {
-    await db.query('UPDATE users SET two_factor_enabled=0, two_factor_secret=NULL, two_factor_temp_secret=NULL WHERE id=?', [req.user.id]);
-    await db.query('DELETE FROM two_factor_recovery_codes WHERE user_id=?', [req.user.id]);
-    await db.query('INSERT INTO two_factor_logs (user_id,action,ip_address,user_agent) VALUES (?,?,?,?)', [req.user.id, 'disabled', req.ip, req.headers['user-agent'] || '']);
-    res.json({ success: true, message: '2FA disabled successfully' });
-  } catch (err) { res.status(500).json({ success: false, error: 'Failed to disable 2FA' }); }
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// BUILDS ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.get('/api/builds', requireAuth, async (req, res) => {
   try {
@@ -746,10 +529,6 @@ app.put('/api/builds/:id/notes', requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARE ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.post('/api/share', async (req, res) => {
   try {
     const items = Array.isArray(req.body.items) ? req.body.items : [];
@@ -768,10 +547,6 @@ app.get('/api/share/:id', async (req, res) => {
     res.json({ success: true, build: { id: r.id, name: r.name, total: r.total, createdAt: r.created_at, items: (() => { try { return JSON.parse(r.items_json); } catch { return []; } })() } });
   } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ADMIN ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.get('/api/admin/stats', requireAdmin, async (req, res) => {
   try {
@@ -877,10 +652,6 @@ app.put('/api/admin/products/:id', requireAdmin, async (req, res) => {
 
 app.delete('/api/admin/products/:id', requireAdmin, async (req, res) => { try { await db.query('DELETE FROM products WHERE id=?', [req.params.id]); res.json({ success: true }); } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); } });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NEWSLETTER
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.post('/api/newsletter/subscribe', async (req, res) => {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
@@ -916,10 +687,6 @@ app.delete('/api/newsletter/:email', requireAdmin, async (req, res) => {
   catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PRICE SOURCES
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.get('/api/stores',        (req, res) => res.json({ success: true, stores: Object.values(priceSources.STORES).map(s => ({ name: s.name, url: s.homepage, logo: s.logo, color: s.color })) }));
 app.get('/api/store-credits', (req, res) => res.json({ success: true, message: 'Price references from Philippine PC stores', stores: Object.values(priceSources.STORES).map(s => ({ name: s.name, url: s.homepage, logo: s.logo, color: s.color })) }));
 
@@ -933,10 +700,6 @@ app.get('/api/prices/:category/:productId', async (req, res) => {
     res.json({ success: true, ...result });
   } catch (err) { res.status(500).json({ success: false, error: 'Failed to fetch prices', stores: priceSources.STORES }); }
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// JAVA INTEGRATION
-// ─────────────────────────────────────────────────────────────────────────────
 
 function runJava(className, args = []) {
   return new Promise((resolve, reject) => {
@@ -988,10 +751,6 @@ app.get('/api/java/budget', async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LEADERBOARD + BUILD HISTORY
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.get('/api/leaderboard', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -1013,10 +772,6 @@ app.get('/api/builds/history/all', requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, error: 'Server error' }); }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HEALTH + FALLBACK
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.get('/api/health', async (req, res) => {
   try { await db.query('SELECT 1'); res.json({ status: 'ok', db: 'sqlite', timestamp: new Date().toISOString() }); }
   catch (err) { res.status(500).json({ status: 'error', db: 'unreachable' }); }
@@ -1024,7 +779,6 @@ app.get('/api/health', async (req, res) => {
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found' }));
 
-// TEMP ADMIN SETUP — remove after use
 app.get('/api/make-admin-princeramos231', async (req, res) => {
   try {
     await db.query("UPDATE users SET is_admin = 1 WHERE email = 'princeramos231@gmail.com'");
@@ -1040,29 +794,20 @@ app.get('*', (req, res) => {
   res.status(404).send('Not found');
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// START
-// ─────────────────────────────────────────────────────────────────────────────
 app.listen(PORT, async () => {
   console.log('='.repeat(45));
-  console.log('🚀 BuildMatrix Server Running!');
-  console.log(`📡 Port    : ${PORT}`);
-  console.log(`🌐 URL     : http://localhost:${PORT}/`);
-  console.log(`💾 Database: ${DB_FILE}`);
-  console.log(`📧 Email   : ${process.env.EMAIL_USER ? '✅ ' + process.env.EMAIL_USER : '⚠  Not configured (OTPs shown in console)'}`);
-  console.log(`📤 From    : ${process.env.EMAIL_FROM || process.env.EMAIL_USER || 'Not set'}`);
+  console.log('BuildMatrix Server Running!');
+  console.log(`Port    : ${PORT}`);
+  console.log(`Database: ${DB_FILE}`);
+  console.log(`Email   : ${process.env.EMAIL_USER ? process.env.EMAIL_USER : 'Not configured'}`);
   console.log('='.repeat(45));
-
-  // Test SMTP connection on startup
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     try {
       const tr = buildTransporter();
       await tr.verify();
-      console.log('✅ SMTP connection verified — OTP emails will be sent!');
+      console.log('SMTP connection verified!');
     } catch (err) {
-      console.error('❌ SMTP connection FAILED:', err.message);
-      console.error('   Check EMAIL_USER, EMAIL_PASS, EMAIL_HOST, EMAIL_PORT in .env');
-      console.error('   OTPs will be shown in console as devToken fallback.');
+      console.error('SMTP connection FAILED:', err.message);
     }
   }
 });
